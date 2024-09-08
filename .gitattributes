@@ -1,3 +1,4 @@
+*.so filter=lfs diff=lfs merge=lfs -text
 build/jni/release/libwpiutil.so filter=lfs diff=lfs merge=lfs -text
 build/jni/release/libhalsim_gui.so filter=lfs diff=lfs merge=lfs -text
 build/jni/release/libwpimath.so filter=lfs diff=lfs merge=lfs -text
