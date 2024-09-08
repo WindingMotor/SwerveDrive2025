@@ -1,0 +1,22 @@
+{
+  "HALProvider": {
+    "Other Devices": {
+      "Pigeon 2 (v6)[1]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/Pigeon 2 (v6) [1]": "Gyro"
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  }
+}
