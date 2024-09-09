@@ -1,0 +1,82 @@
+\hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve}{}\doxysection{frc.\+robot.\+subsystems.\+swerve.\+SUB\+\_\+\+Swerve Class Reference}
+\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve}\index{frc.robot.subsystems.swerve.SUB\_Swerve@{frc.robot.subsystems.swerve.SUB\_Swerve}}
+Inheritance diagram for frc.\+robot.\+subsystems.\+swerve.\+SUB\+\_\+\+Swerve\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve_ae41c38068cae16f36ed9354e1c5ae05f}{SUB\+\_\+\+Swerve}} (\mbox{\hyperlink{interfacefrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveBase}{IO\+\_\+\+Swerve\+Base}} io, Command\+Xbox\+Controller driver\+Controller)
+\item 
+\mbox{\Hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve_a00b4979dfba6dd4e7a3e4eaa2a317b19}\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve_a00b4979dfba6dd4e7a3e4eaa2a317b19}} 
+void {\bfseries periodic} ()
+\item 
+Command \mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve_a7ffe4cf9c681d12506e51b4496515a0b}{drive}} (Double\+Supplier translationX, Double\+Supplier translationY, Double\+Supplier thetaZ)
+\item 
+Command \mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve_a942fae3371fa51b867176139b2c831f3}{drive\+To\+Pose}} (Pose2d pose)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve_ae41c38068cae16f36ed9354e1c5ae05f}\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve_ae41c38068cae16f36ed9354e1c5ae05f}} 
+\index{frc.robot.subsystems.swerve.SUB\_Swerve@{frc.robot.subsystems.swerve.SUB\_Swerve}!SUB\_Swerve@{SUB\_Swerve}}
+\index{SUB\_Swerve@{SUB\_Swerve}!frc.robot.subsystems.swerve.SUB\_Swerve@{frc.robot.subsystems.swerve.SUB\_Swerve}}
+\doxysubsubsection{\texorpdfstring{SUB\_Swerve()}{SUB\_Swerve()}}
+{\footnotesize\ttfamily frc.\+robot.\+subsystems.\+swerve.\+SUB\+\_\+\+Swerve.\+SUB\+\_\+\+Swerve (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{interfacefrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveBase}{IO\+\_\+\+Swerve\+Base}}}]{io,  }\item[{Command\+Xbox\+Controller}]{driver\+Controller }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Constructs a new \mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve}{SUB\+\_\+\+Swerve}} instance.
+
+
+\begin{DoxyParams}{Parameters}
+{\em io} & The \mbox{\hyperlink{interfacefrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveBase}{IO\+\_\+\+Swerve\+Base}} implementation to use \\
+\hline
+{\em driver\+Controller} & The driver\textquotesingle{}s controller (currently unused in this implementation) \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve_a7ffe4cf9c681d12506e51b4496515a0b}\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve_a7ffe4cf9c681d12506e51b4496515a0b}} 
+\index{frc.robot.subsystems.swerve.SUB\_Swerve@{frc.robot.subsystems.swerve.SUB\_Swerve}!drive@{drive}}
+\index{drive@{drive}!frc.robot.subsystems.swerve.SUB\_Swerve@{frc.robot.subsystems.swerve.SUB\_Swerve}}
+\doxysubsubsection{\texorpdfstring{drive()}{drive()}}
+{\footnotesize\ttfamily Command frc.\+robot.\+subsystems.\+swerve.\+SUB\+\_\+\+Swerve.\+drive (\begin{DoxyParamCaption}\item[{Double\+Supplier}]{translationX,  }\item[{Double\+Supplier}]{translationY,  }\item[{Double\+Supplier}]{thetaZ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Creates a command to drive the robot using joystick inputs.
+
+
+\begin{DoxyParams}{Parameters}
+{\em translationX} & X-\/axis translation input \\
+\hline
+{\em translationY} & Y-\/axis translation input \\
+\hline
+{\em thetaZ} & Rotation input \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A command that drives the robot based on the given inputs 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve_a942fae3371fa51b867176139b2c831f3}\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1SUB__Swerve_a942fae3371fa51b867176139b2c831f3}} 
+\index{frc.robot.subsystems.swerve.SUB\_Swerve@{frc.robot.subsystems.swerve.SUB\_Swerve}!driveToPose@{driveToPose}}
+\index{driveToPose@{driveToPose}!frc.robot.subsystems.swerve.SUB\_Swerve@{frc.robot.subsystems.swerve.SUB\_Swerve}}
+\doxysubsubsection{\texorpdfstring{driveToPose()}{driveToPose()}}
+{\footnotesize\ttfamily Command frc.\+robot.\+subsystems.\+swerve.\+SUB\+\_\+\+Swerve.\+drive\+To\+Pose (\begin{DoxyParamCaption}\item[{Pose2d}]{pose }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Creates a command to drive the robot to a specified pose.
+
+
+\begin{DoxyParams}{Parameters}
+{\em pose} & The target pose to drive to \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A command that drives the robot to the specified pose 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/main/java/frc/robot/subsystems/swerve/SUB\+\_\+\+Swerve.\+java\end{DoxyCompactItemize}

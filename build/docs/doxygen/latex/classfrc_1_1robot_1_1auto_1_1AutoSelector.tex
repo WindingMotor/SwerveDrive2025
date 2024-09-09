@@ -1,0 +1,84 @@
+\hypertarget{classfrc_1_1robot_1_1auto_1_1AutoSelector}{}\doxysection{frc.\+robot.\+auto.\+Auto\+Selector Class Reference}
+\label{classfrc_1_1robot_1_1auto_1_1AutoSelector}\index{frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classfrc_1_1robot_1_1auto_1_1AutoSelector_a1dd5bbfbac70c627d9ea704275503874}{Auto\+Selector}} ()
+\item 
+void \mbox{\hyperlink{classfrc_1_1robot_1_1auto_1_1AutoSelector_a92215287ce34287aa7b680a136a7c63d}{select\+Auto}} (String auto\+Name)
+\item 
+Map$<$ String, Command $>$ \mbox{\hyperlink{classfrc_1_1robot_1_1auto_1_1AutoSelector_ab66b109c39ab02851e2b12c02d6e1f1c}{get\+Autos}} ()
+\item 
+Sendable\+Chooser$<$ Command $>$ \mbox{\hyperlink{classfrc_1_1robot_1_1auto_1_1AutoSelector_a7992de9a59ba84d4a77f0ad815ba1c1b}{get\+Auto\+Chooser}} ()
+\item 
+String \mbox{\hyperlink{classfrc_1_1robot_1_1auto_1_1AutoSelector_a9178cac459f547c5e713c00641e43e7a}{get\+Default\+Auto\+Name}} ()
+\item 
+Command \mbox{\hyperlink{classfrc_1_1robot_1_1auto_1_1AutoSelector_a203a90ad2760d6df9f4313a957dae669}{get\+Selected\+Auto}} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This class manages the selection of autonomous routines for the robot. It loads available autonomous routines, allows for selection, and provides access to the selected routine. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classfrc_1_1robot_1_1auto_1_1AutoSelector_a1dd5bbfbac70c627d9ea704275503874}\label{classfrc_1_1robot_1_1auto_1_1AutoSelector_a1dd5bbfbac70c627d9ea704275503874}} 
+\index{frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}!AutoSelector@{AutoSelector}}
+\index{AutoSelector@{AutoSelector}!frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}}
+\doxysubsubsection{\texorpdfstring{AutoSelector()}{AutoSelector()}}
+{\footnotesize\ttfamily frc.\+robot.\+auto.\+Auto\+Selector.\+Auto\+Selector (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Constructs an \mbox{\hyperlink{classfrc_1_1robot_1_1auto_1_1AutoSelector}{Auto\+Selector}}, initializing the autonomous routine chooser and loading available routines. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classfrc_1_1robot_1_1auto_1_1AutoSelector_a7992de9a59ba84d4a77f0ad815ba1c1b}\label{classfrc_1_1robot_1_1auto_1_1AutoSelector_a7992de9a59ba84d4a77f0ad815ba1c1b}} 
+\index{frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}!getAutoChooser@{getAutoChooser}}
+\index{getAutoChooser@{getAutoChooser}!frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}}
+\doxysubsubsection{\texorpdfstring{getAutoChooser()}{getAutoChooser()}}
+{\footnotesize\ttfamily Sendable\+Chooser$<$ Command $>$ frc.\+robot.\+auto.\+Auto\+Selector.\+get\+Auto\+Chooser (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\begin{DoxyReturn}{Returns}
+The Sendable\+Chooser for autonomous routines. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classfrc_1_1robot_1_1auto_1_1AutoSelector_ab66b109c39ab02851e2b12c02d6e1f1c}\label{classfrc_1_1robot_1_1auto_1_1AutoSelector_ab66b109c39ab02851e2b12c02d6e1f1c}} 
+\index{frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}!getAutos@{getAutos}}
+\index{getAutos@{getAutos}!frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}}
+\doxysubsubsection{\texorpdfstring{getAutos()}{getAutos()}}
+{\footnotesize\ttfamily Map$<$ String, Command $>$ frc.\+robot.\+auto.\+Auto\+Selector.\+get\+Autos (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\begin{DoxyReturn}{Returns}
+A copy of the map of all available autonomous routines. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classfrc_1_1robot_1_1auto_1_1AutoSelector_a9178cac459f547c5e713c00641e43e7a}\label{classfrc_1_1robot_1_1auto_1_1AutoSelector_a9178cac459f547c5e713c00641e43e7a}} 
+\index{frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}!getDefaultAutoName@{getDefaultAutoName}}
+\index{getDefaultAutoName@{getDefaultAutoName}!frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}}
+\doxysubsubsection{\texorpdfstring{getDefaultAutoName()}{getDefaultAutoName()}}
+{\footnotesize\ttfamily String frc.\+robot.\+auto.\+Auto\+Selector.\+get\+Default\+Auto\+Name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\begin{DoxyReturn}{Returns}
+The name of the default autonomous routine. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classfrc_1_1robot_1_1auto_1_1AutoSelector_a203a90ad2760d6df9f4313a957dae669}\label{classfrc_1_1robot_1_1auto_1_1AutoSelector_a203a90ad2760d6df9f4313a957dae669}} 
+\index{frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}!getSelectedAuto@{getSelectedAuto}}
+\index{getSelectedAuto@{getSelectedAuto}!frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}}
+\doxysubsubsection{\texorpdfstring{getSelectedAuto()}{getSelectedAuto()}}
+{\footnotesize\ttfamily Command frc.\+robot.\+auto.\+Auto\+Selector.\+get\+Selected\+Auto (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\begin{DoxyReturn}{Returns}
+The currently selected autonomous Command. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classfrc_1_1robot_1_1auto_1_1AutoSelector_a92215287ce34287aa7b680a136a7c63d}\label{classfrc_1_1robot_1_1auto_1_1AutoSelector_a92215287ce34287aa7b680a136a7c63d}} 
+\index{frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}!selectAuto@{selectAuto}}
+\index{selectAuto@{selectAuto}!frc.robot.auto.AutoSelector@{frc.robot.auto.AutoSelector}}
+\doxysubsubsection{\texorpdfstring{selectAuto()}{selectAuto()}}
+{\footnotesize\ttfamily void frc.\+robot.\+auto.\+Auto\+Selector.\+select\+Auto (\begin{DoxyParamCaption}\item[{String}]{auto\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Selects an autonomous routine as the default option. 
+\begin{DoxyParams}{Parameters}
+{\em auto\+Name} & The name of the autonomous routine to select. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/main/java/frc/robot/auto/Auto\+Selector.\+java\end{DoxyCompactItemize}

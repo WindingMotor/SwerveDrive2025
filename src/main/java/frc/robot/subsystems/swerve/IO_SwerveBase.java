@@ -24,6 +24,35 @@ public interface IO_SwerveBase {
 		public Pose2d pose = new Pose2d();
 		public Rotation2d heading = new Rotation2d();
 		public ChassisSpeeds velocity = new ChassisSpeeds();
+		public double maximumVelocity = 0.0;
+		public double maximumAngularVelocity = 0.0;
+		public double headingPID_P = 0.0;
+		public double headingPID_I = 0.0;
+		public double headingPID_D = 0.0;
+		public double translationPID_P = 0.0;
+		public double translationPID_I = 0.0;
+		public double translationPID_D = 0.0;
+		public double configurationRadius = 0.0;
+
+		public void setHeadingPID(PIDConstants pid) {
+			this.headingPID_P = pid.kP;
+			this.headingPID_I = pid.kI;
+			this.headingPID_D = pid.kD;
+		}
+
+		public PIDConstants getHeadingPID() {
+			return new PIDConstants(headingPID_P, headingPID_I, headingPID_D);
+		}
+
+		public void setTranslationPID(PIDConstants pid) {
+			this.translationPID_P = pid.kP;
+			this.translationPID_I = pid.kI;
+			this.translationPID_D = pid.kD;
+		}
+
+		public PIDConstants getTranslationPID() {
+			return new PIDConstants(translationPID_P, translationPID_I, translationPID_D);
+		}
 	}
 
 	/**
@@ -31,30 +60,17 @@ public interface IO_SwerveBase {
 	 *
 	 * @param inputs The SwerveInputs object to update.
 	 */
-	void updateInputs(SwerveInputs inputs);
+	void updateInputs(SwerveInputsAutoLogged inputs);
 
 	/**
-	 * Drives the robot using a Pose2d.
+	 * Drives the robot using a Translation2d and rotation.
 	 *
-	 * @param pose The target pose.
+	 * @param translation The target translation.
+	 * @param theta The target rotation.
 	 * @param isFieldRelative Whether the drive is field-relative.
 	 * @param isOpenLoop Whether to use open-loop control.
 	 */
 	void drive(Translation2d translation, double theta, boolean isFieldRelative, boolean isOpenLoop);
-
-	/**
-	 * Gets the maximum velocity of the swerve drive.
-	 *
-	 * @return The maximum velocity in meters per second.
-	 */
-	double getMaximumVelocity();
-
-	/**
-	 * Gets the maximum angular velocity of the swerve drive.
-	 *
-	 * @return The maximum angular velocity in radians per second.
-	 */
-	double getMaximumAngularVelocity();
 
 	/** Updates the odometry of the swerve drive. */
 	void updateOdometry();
@@ -72,20 +88,6 @@ public interface IO_SwerveBase {
 	 * @param chassisSpeeds The target chassis speeds.
 	 */
 	void setChassisSpeeds(ChassisSpeeds chassisSpeeds);
-
-	/**
-	 * Gets the PID constants for heading control.
-	 *
-	 * @return The PID constants for heading.
-	 */
-	PIDConstants getHeadingPID();
-
-	/**
-	 * Gets the configuration radius of the swerve drive.
-	 *
-	 * @return The configuration radius in meters.
-	 */
-	double getConfigurationRadius();
 
 	/**
 	 * Sets the brake mode of the swerve drive motors.

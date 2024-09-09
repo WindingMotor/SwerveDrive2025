@@ -5,6 +5,7 @@ plugins {
     id "com.diffplug.spotless" version "6.12.0"
     id "org.jetbrains.dokka" version "1.9.20"
     id "com.peterabeles.gversion" version "1.10"
+    id "org.ysb33r.doxygen" version "1.0.3"
 }
 
 java {
@@ -180,4 +181,33 @@ gversion {
   dateFormat   = "yyyy-MM-dd HH:mm:ss z"
   timeZone     = "America/New_York"
   indent       = "  "
+}
+
+
+doxygen {
+    source = fileTree(dir: "src/main/java")
+    outputDir = file("$buildDir/docs/doxygen")
+    option 'generate_html', true
+    option 'generate_treeview', true
+    option 'disable_index', false
+    option 'html_extra_stylesheet', 'build/docs/doxygen-awesome.css'
+    option 'html_colorstyle', 'dark'
+
+}
+
+task openDocs(dependsOn: doxygen) {
+    doLast {
+        def docPath = "${buildDir}/docs/doxygen/html/index.html"
+        def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
+        
+        if (isWindows) {
+            exec {
+                commandLine 'cmd', '/c', "start ${docPath}"
+            }
+        } else {
+            exec {
+                commandLine 'xdg-open', docPath
+            }
+        }
+    }
 }

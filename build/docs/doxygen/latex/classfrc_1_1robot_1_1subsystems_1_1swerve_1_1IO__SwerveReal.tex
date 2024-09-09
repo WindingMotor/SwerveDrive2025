@@ -1,0 +1,167 @@
+\hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal}{}\doxysection{frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Real Class Reference}
+\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal}\index{frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}}
+Inheritance diagram for frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Real\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_aa6ced6edf8540176da3447428cb7295a}{IO\+\_\+\+Swerve\+Real}} ()
+\item 
+void \mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_ad5953a581e55b7abea57ff28d6c0d4d8}{update\+Inputs}} (Swerve\+Inputs\+Auto\+Logged inputs)
+\item 
+void \mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_a00914c30d3c92305cff3150f228bb51f}{reset\+Odometry}} (Pose2d pose)
+\item 
+void \mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_a98a4f40bc8246f0da02a890a8de2d2b2}{set\+Chassis\+Speeds}} (Chassis\+Speeds chassis\+Speeds)
+\item 
+void \mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_a99a27fa1fe5d8ab4aab863de2b5afab5}{drive}} (Translation2d translation, double theta, boolean is\+Field\+Relative, boolean is\+Open\+Loop)
+\item 
+void \mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_ad6a407805e6d149252785e2ddd0440f6}{update\+Odometry}} ()
+\item 
+void \mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_acf0fdee87c2a7af733d0e75f3170e39c}{set\+Motor\+Current\+Limit}} (int current\+Limit, boolean is\+Turn\+Motors)
+\item 
+void \mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_acee1c08cbf4fdf27b19afe8127d3906f}{set\+Brake\+Mode}} (boolean is\+Brake\+Mode)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Implementation of \mbox{\hyperlink{interfacefrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveBase}{IO\+\_\+\+Swerve\+Base}} for real robot hardware. 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_aa6ced6edf8540176da3447428cb7295a}\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_aa6ced6edf8540176da3447428cb7295a}} 
+\index{frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}!IO\_SwerveReal@{IO\_SwerveReal}}
+\index{IO\_SwerveReal@{IO\_SwerveReal}!frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}}
+\doxysubsubsection{\texorpdfstring{IO\_SwerveReal()}{IO\_SwerveReal()}}
+{\footnotesize\ttfamily frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Real.\+IO\+\_\+\+Swerve\+Real (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Constructs a new \mbox{\hyperlink{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal}{IO\+\_\+\+Swerve\+Real}} instance. Initializes the Swerve\+Drive with configuration from JSON files. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_a99a27fa1fe5d8ab4aab863de2b5afab5}\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_a99a27fa1fe5d8ab4aab863de2b5afab5}} 
+\index{frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}!drive@{drive}}
+\index{drive@{drive}!frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}}
+\doxysubsubsection{\texorpdfstring{drive()}{drive()}}
+{\footnotesize\ttfamily void frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Real.\+drive (\begin{DoxyParamCaption}\item[{Translation2d}]{translation,  }\item[{double}]{theta,  }\item[{boolean}]{is\+Field\+Relative,  }\item[{boolean}]{is\+Open\+Loop }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Drives the robot using a Translation2d and rotation.
+
+
+\begin{DoxyParams}{Parameters}
+{\em translation} & The target translation. \\
+\hline
+{\em theta} & The target rotation. \\
+\hline
+{\em is\+Field\+Relative} & Whether the drive is field-\/relative. \\
+\hline
+{\em is\+Open\+Loop} & Whether to use open-\/loop control.\\
+\hline
+\end{DoxyParams}
+ 
+
+Implements \mbox{\hyperlink{interfacefrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveBase_a7f94ca298f2037c92199afdaee43c2a6}{frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Base}}.
+
+\mbox{\Hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_a00914c30d3c92305cff3150f228bb51f}\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_a00914c30d3c92305cff3150f228bb51f}} 
+\index{frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}!resetOdometry@{resetOdometry}}
+\index{resetOdometry@{resetOdometry}!frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}}
+\doxysubsubsection{\texorpdfstring{resetOdometry()}{resetOdometry()}}
+{\footnotesize\ttfamily void frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Real.\+reset\+Odometry (\begin{DoxyParamCaption}\item[{Pose2d}]{pose }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Resets the odometry to a specific pose.
+
+
+\begin{DoxyParams}{Parameters}
+{\em pose} & The pose to reset to.\\
+\hline
+\end{DoxyParams}
+ 
+
+Implements \mbox{\hyperlink{interfacefrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveBase_ac04ebc537beb95b42f7fe73acbc12640}{frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Base}}.
+
+\mbox{\Hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_acee1c08cbf4fdf27b19afe8127d3906f}\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_acee1c08cbf4fdf27b19afe8127d3906f}} 
+\index{frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}!setBrakeMode@{setBrakeMode}}
+\index{setBrakeMode@{setBrakeMode}!frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}}
+\doxysubsubsection{\texorpdfstring{setBrakeMode()}{setBrakeMode()}}
+{\footnotesize\ttfamily void frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Real.\+set\+Brake\+Mode (\begin{DoxyParamCaption}\item[{boolean}]{is\+Brake\+Mode }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Sets the brake mode of the swerve drive motors.
+
+
+\begin{DoxyParams}{Parameters}
+{\em is\+Brake\+Mode} & True to enable brake mode, false for coast mode.\\
+\hline
+\end{DoxyParams}
+ 
+
+Implements \mbox{\hyperlink{interfacefrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveBase_aba9929b1ffc85c66fd2dd73eed1c2bfc}{frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Base}}.
+
+\mbox{\Hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_a98a4f40bc8246f0da02a890a8de2d2b2}\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_a98a4f40bc8246f0da02a890a8de2d2b2}} 
+\index{frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}!setChassisSpeeds@{setChassisSpeeds}}
+\index{setChassisSpeeds@{setChassisSpeeds}!frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}}
+\doxysubsubsection{\texorpdfstring{setChassisSpeeds()}{setChassisSpeeds()}}
+{\footnotesize\ttfamily void frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Real.\+set\+Chassis\+Speeds (\begin{DoxyParamCaption}\item[{Chassis\+Speeds}]{chassis\+Speeds }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Sets the chassis speeds of the swerve drive.
+
+
+\begin{DoxyParams}{Parameters}
+{\em chassis\+Speeds} & The target chassis speeds.\\
+\hline
+\end{DoxyParams}
+ 
+
+Implements \mbox{\hyperlink{interfacefrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveBase_a96cb474c0d4d27540e97d77c4df2447b}{frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Base}}.
+
+\mbox{\Hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_acf0fdee87c2a7af733d0e75f3170e39c}\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_acf0fdee87c2a7af733d0e75f3170e39c}} 
+\index{frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}!setMotorCurrentLimit@{setMotorCurrentLimit}}
+\index{setMotorCurrentLimit@{setMotorCurrentLimit}!frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}}
+\doxysubsubsection{\texorpdfstring{setMotorCurrentLimit()}{setMotorCurrentLimit()}}
+{\footnotesize\ttfamily void frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Real.\+set\+Motor\+Current\+Limit (\begin{DoxyParamCaption}\item[{int}]{current\+Limit,  }\item[{boolean}]{is\+Turn\+Motors }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Sets the current limit for the swerve drive motors.
+
+
+\begin{DoxyParams}{Parameters}
+{\em current\+Limit} & The current limit in amps. \\
+\hline
+{\em is\+Turn\+Motors} & True to set limit for turn motors, false for drive motors.\\
+\hline
+\end{DoxyParams}
+ 
+
+Implements \mbox{\hyperlink{interfacefrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveBase_a50176dbfbfa7f510586a93679844dc7c}{frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Base}}.
+
+\mbox{\Hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_ad5953a581e55b7abea57ff28d6c0d4d8}\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_ad5953a581e55b7abea57ff28d6c0d4d8}} 
+\index{frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}!updateInputs@{updateInputs}}
+\index{updateInputs@{updateInputs}!frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}}
+\doxysubsubsection{\texorpdfstring{updateInputs()}{updateInputs()}}
+{\footnotesize\ttfamily void frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Real.\+update\+Inputs (\begin{DoxyParamCaption}\item[{Swerve\+Inputs\+Auto\+Logged}]{inputs }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Updates the swerve drive inputs.
+
+
+\begin{DoxyParams}{Parameters}
+{\em inputs} & The Swerve\+Inputs object to update.\\
+\hline
+\end{DoxyParams}
+ 
+
+Implements \mbox{\hyperlink{interfacefrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveBase_a15e0fc154df5e3d14a2fd178cfd60f75}{frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Base}}.
+
+\mbox{\Hypertarget{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_ad6a407805e6d149252785e2ddd0440f6}\label{classfrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveReal_ad6a407805e6d149252785e2ddd0440f6}} 
+\index{frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}!updateOdometry@{updateOdometry}}
+\index{updateOdometry@{updateOdometry}!frc.robot.subsystems.swerve.IO\_SwerveReal@{frc.robot.subsystems.swerve.IO\_SwerveReal}}
+\doxysubsubsection{\texorpdfstring{updateOdometry()}{updateOdometry()}}
+{\footnotesize\ttfamily void frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Real.\+update\+Odometry (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Updates the odometry of the swerve drive.  
+
+Implements \mbox{\hyperlink{interfacefrc_1_1robot_1_1subsystems_1_1swerve_1_1IO__SwerveBase_aa5be69995d506d7ab6c7c0441b644e46}{frc.\+robot.\+subsystems.\+swerve.\+IO\+\_\+\+Swerve\+Base}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/main/java/frc/robot/subsystems/swerve/IO\+\_\+\+Swerve\+Real.\+java\end{DoxyCompactItemize}

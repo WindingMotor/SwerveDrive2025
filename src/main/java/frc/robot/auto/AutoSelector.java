@@ -16,70 +16,104 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class manages the selection of autonomous routines for the robot.
+ * It loads available autonomous routines, allows for selection, and provides
+ * access to the selected routine.
+ */
 public class AutoSelector {
-	private final SendableChooser<Command> autoChooser;
-	private final Map<String, Command> autos;
-	private String defaultAutoName;
+    private final SendableChooser<Command> autoChooser;
+    private final Map<String, Command> autos;
+    private String defaultAutoName;
 
-	public AutoSelector() {
-		this.autoChooser = new SendableChooser<>();
-		this.autos = new HashMap<>();
-		this.defaultAutoName = "";
+    /**
+     * Constructs an AutoSelector, initializing the autonomous routine chooser
+     * and loading available routines.
+     */
+    public AutoSelector() {
+        this.autoChooser = new SendableChooser<>();
+        this.autos = new HashMap<>();
+        this.defaultAutoName = "";
 
-		loadAutos();
-		setDefaultAuto();
-		putChooserToSmartDashboard();
-	}
+        loadAutos();
+        setDefaultAuto();
+        putChooserToSmartDashboard();
+    }
 
-	private void loadAutos() {
-		List<String> autoNames = AutoBuilder.getAllAutoNames();
-		for (String autoName : autoNames) {
-			Command autoCommand = AutoBuilder.buildAuto(autoName);
-			autos.put(autoName, autoCommand);
-			autoChooser.addOption(autoName, autoCommand);
-		}
-	}
+    /**
+     * Loads all available autonomous routines from the AutoBuilder.
+     */
+    private void loadAutos() {
+        List<String> autoNames = AutoBuilder.getAllAutoNames();
+        for (String autoName : autoNames) {
+            Command autoCommand = AutoBuilder.buildAuto(autoName);
+            autos.put(autoName, autoCommand);
+            autoChooser.addOption(autoName, autoCommand);
+        }
+    }
 
-	private void setDefaultAuto() {
-		if (!autos.isEmpty()) {
-			String firstAutoName = autos.keySet().iterator().next();
-			selectAuto(firstAutoName);
-		}
-	}
+    /**
+     * Sets the first loaded autonomous routine as the default if any are available.
+     */
+    private void setDefaultAuto() {
+        if (!autos.isEmpty()) {
+            String firstAutoName = autos.keySet().iterator().next();
+            selectAuto(firstAutoName);
+        }
+    }
 
-	private void putChooserToSmartDashboard() {
-		SmartDashboard.putData("Auto Chooser", autoChooser);
-		System.out.println("Auto Chooser put to SmartDashboard");
+    /**
+     * Adds the autonomous routine chooser to the SmartDashboard and logs available options.
+     */
+    private void putChooserToSmartDashboard() {
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+        System.out.println("Auto Chooser put to SmartDashboard");
 
-		// Print out the available options
-		for (String autoName : autos.keySet()) {
-			System.out.println("Available auto: " + autoName);
-		}
-	}
+        // Print out the available options
+        for (String autoName : autos.keySet()) {
+            System.out.println("Available auto: " + autoName);
+        }
+    }
 
-	public void selectAuto(String autoName) {
-		if (autos.containsKey(autoName)) {
-			defaultAutoName = autoName;
-			autoChooser.setDefaultOption(autoName, autos.get(autoName));
-		} else {
-			System.out.println(
-					"Warning: Auto '" + autoName + "' does not exist. Default auto unchanged.");
-		}
-	}
+    /**
+     * Selects an autonomous routine as the default option.
+     * @param autoName The name of the autonomous routine to select.
+     */
+    public void selectAuto(String autoName) {
+        if (autos.containsKey(autoName)) {
+            defaultAutoName = autoName;
+            autoChooser.setDefaultOption(autoName, autos.get(autoName));
+        } else {
+            System.out.println(
+                    "Warning: Auto '" + autoName + "' does not exist. Default auto unchanged.");
+        }
+    }
 
-	public Map<String, Command> getAutos() {
-		return new HashMap<>(autos);
-	}
+    /**
+     * @return A copy of the map of all available autonomous routines.
+     */
+    public Map<String, Command> getAutos() {
+        return new HashMap<>(autos);
+    }
 
-	public SendableChooser<Command> getAutoChooser() {
-		return autoChooser;
-	}
+    /**
+     * @return The SendableChooser for autonomous routines.
+     */
+    public SendableChooser<Command> getAutoChooser() {
+        return autoChooser;
+    }
 
-	public String getDefaultAutoName() {
-		return defaultAutoName;
-	}
+    /**
+     * @return The name of the default autonomous routine.
+     */
+    public String getDefaultAutoName() {
+        return defaultAutoName;
+    }
 
-	public Command getSelectedAuto() {
-		return autoChooser.getSelected();
-	}
+    /**
+     * @return The currently selected autonomous Command.
+     */
+    public Command getSelectedAuto() {
+        return autoChooser.getSelected();
+    }
 }

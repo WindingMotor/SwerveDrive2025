@@ -11,7 +11,6 @@ package frc.robot.subsystems.swerve;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -29,6 +28,7 @@ import org.littletonrobotics.junction.Logger;
 public class SUB_Swerve extends SubsystemBase {
 
 	private final IO_SwerveBase io;
+
 	private final SwerveInputsAutoLogged inputs = new SwerveInputsAutoLogged();
 
 	// Odometry lock, prevents updates while reading data
@@ -54,10 +54,10 @@ public class SUB_Swerve extends SubsystemBase {
 				this::getRobotRelativeSpeeds,
 				io::setChassisSpeeds,
 				new HolonomicPathFollowerConfig(
-						new PIDConstants(5.0, 0.0, 0.0),
-						io.getHeadingPID(),
+						inputs.getTranslationPID(),
+						inputs.getHeadingPID(),
 						4.5,
-						io.getConfigurationRadius(),
+						inputs.configurationRadius,
 						new ReplanningConfig()),
 				() ->
 						DriverStation.getAlliance().isPresent()
@@ -67,7 +67,6 @@ public class SUB_Swerve extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-
 		odometryLock.lock();
 		try {
 			io.updateInputs(inputs);
@@ -92,9 +91,9 @@ public class SUB_Swerve extends SubsystemBase {
 		return run(
 				() -> {
 					var alliance = DriverStation.getAlliance();
-					double xSpeed = translationX.getAsDouble() * 5.1;
-					double ySpeed = translationY.getAsDouble() * 5.1;
-					double thetaSpeed = -thetaZ.getAsDouble() * 1.5;
+					double xSpeed = translationX.getAsDouble() * inputs.maximumVelocity;
+					double ySpeed = translationY.getAsDouble() * inputs.maximumVelocity;
+					double thetaSpeed = -thetaZ.getAsDouble() * inputs.maximumAngularVelocity;
 
 					if (alliance.isPresent() && alliance.get() == Alliance.Red) {
 						xSpeed = -xSpeed;

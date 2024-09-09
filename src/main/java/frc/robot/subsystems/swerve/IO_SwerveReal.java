@@ -47,10 +47,19 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 	/** {@inheritDoc} */
 	@Override
-	public void updateInputs(SwerveInputs inputs) {
+	public void updateInputs(SwerveInputsAutoLogged inputs) {
 		inputs.pose = swerveDrive.getPose();
 		inputs.heading = swerveDrive.getYaw();
 		inputs.velocity = swerveDrive.getRobotVelocity();
+		inputs.maximumVelocity = swerveDrive.getMaximumVelocity();
+		inputs.maximumAngularVelocity = swerveDrive.getMaximumAngularVelocity();
+		inputs.setHeadingPID(
+				new PIDConstants(
+						swerveDrive.swerveController.config.headingPIDF.p,
+						swerveDrive.swerveController.config.headingPIDF.i,
+						swerveDrive.swerveController.config.headingPIDF.d));
+		inputs.setTranslationPID(new PIDConstants(0.5, 0.0, 0.0));
+		inputs.configurationRadius = swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters();
 	}
 
 	/** {@inheritDoc} */
@@ -67,36 +76,9 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 	/** {@inheritDoc} */
 	@Override
-	public PIDConstants getHeadingPID() {
-		return new PIDConstants(
-				swerveDrive.swerveController.config.headingPIDF.p,
-				swerveDrive.swerveController.config.headingPIDF.i,
-				swerveDrive.swerveController.config.headingPIDF.d);
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public double getConfigurationRadius() {
-		return swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters();
-	}
-
-	/** {@inheritDoc} */
-	@Override
 	public void drive(
 			Translation2d translation, double theta, boolean isFieldRelative, boolean isOpenLoop) {
 		swerveDrive.drive(translation, theta, isFieldRelative, isOpenLoop);
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public double getMaximumVelocity() {
-		return swerveDrive.getMaximumVelocity();
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public double getMaximumAngularVelocity() {
-		return swerveDrive.getMaximumAngularVelocity();
 	}
 
 	/** {@inheritDoc} */

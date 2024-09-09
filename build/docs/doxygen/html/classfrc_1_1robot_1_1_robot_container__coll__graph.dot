@@ -1,0 +1,31 @@
+digraph "frc.robot.RobotContainer"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="frc.robot.RobotContainer",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node2 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" swerveSubsystem" ,fontname="Helvetica"];
+  Node2 [label="frc.robot.subsystems.swerve.\lSUB_Swerve",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfrc_1_1robot_1_1subsystems_1_1swerve_1_1_s_u_b___swerve.html",tooltip=" "];
+  Node3 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="SubsystemBase",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node4 -> Node2 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" io" ,fontname="Helvetica"];
+  Node4 [label="frc.robot.subsystems.swerve.\lIO_SwerveBase",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$interfacefrc_1_1robot_1_1subsystems_1_1swerve_1_1_i_o___swerve_base.html",tooltip=" "];
+  Node5 -> Node2 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" odometryLock" ,fontname="Helvetica"];
+  Node5 [label="Lock",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node6 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" swerveIO" ,fontname="Helvetica"];
+  Node6 [label="frc.robot.subsystems.swerve.\lIO_SwerveReal",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfrc_1_1robot_1_1subsystems_1_1swerve_1_1_i_o___swerve_real.html",tooltip=" "];
+  Node4 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 -> Node6 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" swerveDrive" ,fontname="Helvetica"];
+  Node7 [label="SwerveDrive",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node8 -> Node6 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" JSON_DIRECTORY" ,fontname="Helvetica"];
+  Node8 [label="File",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node9 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" autoSelector" ,fontname="Helvetica"];
+  Node9 [label="frc.robot.auto.AutoSelector",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classfrc_1_1robot_1_1auto_1_1_auto_selector.html",tooltip=" "];
+  Node10 -> Node9 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" autoChooser" ,fontname="Helvetica"];
+  Node10 [label="SendableChooser\< Command \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node11 -> Node9 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" autos" ,fontname="Helvetica"];
+  Node11 [label="Map\< String, Command \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node12 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" driverController" ,fontname="Helvetica"];
+  Node12 [label="CommandXboxController",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+}
