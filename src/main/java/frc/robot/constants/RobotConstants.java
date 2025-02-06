@@ -19,7 +19,7 @@ public final class RobotConstants {
 		REPLAY // Replay mode for log analysis
 	}
 
-	public static final RobotMode ROBOT_MODE = RobotMode.SIM;
+	public static final RobotMode ROBOT_MODE = RobotMode.REAL;
 
 	public static final double BATTERY_VOLTAGE_CRITICAL = 11.5; // Volts
 	public static final double BATTERY_VOLTAGE_WARNING = 12.0; // Volts

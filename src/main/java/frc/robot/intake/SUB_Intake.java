@@ -23,6 +23,7 @@ public class SUB_Intake extends SubsystemBase {
 	@Override
 	public void periodic() {
 		io.setArmAngle(localState.getDeg());
+		io.setIntakeSpeed(localState.getSpeed());
 		io.updateInputs(inputs);
 		Logger.processInputs("Intake", inputs);
 	}
