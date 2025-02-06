@@ -37,7 +37,6 @@ public class IO_IntakeReal implements IO_IntakeBase {
 				SparkBase.PersistMode.kPersistParameters);
 
 		SparkMaxConfig armSparkMaxConfig = new SparkMaxConfig();
-		// sparkMaxConfig.encoder.positionConversionFactor(0.45); //old 5.142
 		armSparkMaxConfig.absoluteEncoder.positionConversionFactor(165);
 		armSparkMaxConfig.absoluteEncoder.inverted(true);
 		armSparkMaxConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
@@ -46,7 +45,6 @@ public class IO_IntakeReal implements IO_IntakeBase {
 		ClosedLoopConfig closedLoopConfig = new ClosedLoopConfig();
 
 		closedLoopConfig.p(0.013);
-
 		closedLoopConfig.i(0);
 		closedLoopConfig.d(0);
 
@@ -70,7 +68,6 @@ public class IO_IntakeReal implements IO_IntakeBase {
 		inputs.wheelRPM = wheelMotor.getEncoder().getVelocity();
 		inputs.toggleSensor = toggleSensor.getState();
 		inputs.distanceSensorCM = 0;
-		// inputs.internalPIDSetpoint = armMotor.getClosedLoopController().
 	}
 
 	@Override

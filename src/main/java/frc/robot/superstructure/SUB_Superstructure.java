@@ -31,7 +31,11 @@ public class SUB_Superstructure extends SubsystemBase {
 		elevator.updateLocalState(currentSuperstructureState);
 		intake.updateLocalState(currentSuperstructureState);
 		led.updateLocalState(currentSuperstructureState);
-		Logger.recordOutput("Superstructure State", currentSuperstructureState.toString());
+		Logger.recordOutput("Superstructure/State", currentSuperstructureState.toString());
+		Logger.recordOutput("Superstructure/Name", currentSuperstructureState.getName());
+		Logger.recordOutput("Superstructure/HeightM", currentSuperstructureState.getHeightM());
+		Logger.recordOutput("Superstructure/Deg", currentSuperstructureState.getDeg());
+		Logger.recordOutput("Superstructure/Speed", currentSuperstructureState.getSpeed());
 	}
 
 	public State getCurrentStateWithNewWheelSpeed(double newSpeed) {

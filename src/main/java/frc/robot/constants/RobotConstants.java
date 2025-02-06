@@ -19,10 +19,10 @@ public final class RobotConstants {
 		REPLAY // Replay mode for log analysis
 	}
 
-	public static final RobotMode ROBOT_MODE = RobotMode.REAL;
+	public static final RobotMode ROBOT_MODE = RobotMode.SIM;
 
-	public static final double BATTERY_VOLTAGE_CRITICAL = 11.5; // Volts
-	public static final double BATTERY_VOLTAGE_WARNING = 12.0; // Volts
+	public static final double BATTERY_VOLTAGE_CRITICAL = 10.5; // Volts
+	public static final double BATTERY_VOLTAGE_WARNING = 11.5; // Volts
 
 	public static final boolean FORCE_REDUX_SERVER_ON = false;
 
@@ -32,9 +32,7 @@ public final class RobotConstants {
 	public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
 	public static final double MAX_SPEED = 5.450; // m/s
 
-	public final class Intake {}
-
-	public final class IntakeConstants {
+	public final class Intake {
 		public static final int ARM_MOTOR_ID = 0;
 		public static final int WHEEL_MOTOR_ID = 1;
 	}

@@ -19,7 +19,6 @@ import frc.robot.commands.coral.CMD_IntakeCoral;
 import frc.robot.commands.drive.CMD_Drive;
 import frc.robot.commands.generic.CMD_Elevator;
 import frc.robot.commands.generic.CMD_Superstructure;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.InputConstants;
 import frc.robot.elevator.IO_ElevatorReal;
 import frc.robot.elevator.SUB_Elevator;
@@ -87,10 +86,12 @@ public class RobotContainer {
 	}
 
 	private void configureWebserverCommands() {
+		/*
 		webServer.registerCommand("T1", swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_LEFT));
 		webServer.registerCommand("T2", swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_RIGHT));
 		webServer.registerCommand("TL1", swerve.driveToPose(FieldConstants.BLUE_TOP_LEFT_BOTTOM));
 		webServer.registerCommand("TL2", swerve.driveToPose(FieldConstants.BLUE_TOP_LEFT_TOP));
+		*/
 	}
 
 	private void configurePathPlannerCommands() {
