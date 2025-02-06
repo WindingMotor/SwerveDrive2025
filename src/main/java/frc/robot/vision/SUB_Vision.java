@@ -41,6 +41,6 @@ public class SUB_Vision extends SubsystemBase {
 	}
 
 	public boolean hasTargets() {
-		return inputs.hasLeftTarget || inputs.hasRightTarget || inputs.hasBackLeftTarget;
+		return inputs.hasLeftTarget || inputs.hasFrontLeftTopTarget || inputs.hasBackLeftTarget;
 	}
 }

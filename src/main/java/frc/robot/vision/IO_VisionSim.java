@@ -50,8 +50,6 @@ public class IO_VisionSim implements IO_VisionBase {
 		properties.setAvgLatencyMs(35);
 		properties.setLatencyStdDevMs(5);
 
-		NetworkTableInstance instance = NetworkTableInstance.getDefault();
-
 		// Initialize cameras with proper NetworkTables entries
 		for (CameraConstants.Camera cam : CameraConstants.Camera.values()) {
 			PhotonCamera camera = new PhotonCamera(NetworkTableInstance.getDefault(), cam.name);
@@ -68,7 +66,7 @@ public class IO_VisionSim implements IO_VisionBase {
 	@Override
 	public void updateInputs(VisionInputs inputs) {
 		List<Pose3d> leftTagPoses = new ArrayList<>();
-		List<Pose3d> rightTagPoses = new ArrayList<>();
+		List<Pose3d> frontLeftTopPoses = new ArrayList<>();
 		List<Pose3d> backLeftTagPoses = new ArrayList<>();
 
 		// Update all camera results first
@@ -107,11 +105,11 @@ public class IO_VisionSim implements IO_VisionBase {
 								inputs.hasLeftTarget = true;
 								inputs.leftBestTargetID = bestTarget.getFiducialId();
 								break;
-							case RIGHT_CAM:
-								rightTagPoses.add(tagPose.get());
-								rightTagPoses.add(cameraPose);
-								inputs.hasRightTarget = true;
-								inputs.rightBestTargetID = bestTarget.getFiducialId();
+							case FRONT_LEFT_TOP_CAM:
+								frontLeftTopPoses.add(tagPose.get());
+								frontLeftTopPoses.add(cameraPose);
+								inputs.hasFrontLeftTopTarget = true;
+								inputs.frontLeftTopBestTargetID = bestTarget.getFiducialId();
 								break;
 							case BACK_LEFT_CAM:
 								backLeftTagPoses.add(tagPose.get());
@@ -126,7 +124,7 @@ public class IO_VisionSim implements IO_VisionBase {
 		}
 
 		inputs.leftVisibleTagPoses = leftTagPoses.toArray(new Pose3d[0]);
-		inputs.rightVisibleTagPoses = rightTagPoses.toArray(new Pose3d[0]);
+		inputs.rightVisibleTagPoses = frontLeftTopPoses.toArray(new Pose3d[0]);
 		inputs.backLeftVisibleTagPoses = backLeftTagPoses.toArray(new Pose3d[0]);
 		inputs.lastEstimatedPose =
 				lastEstimatedPose.isPresent() ? lastEstimatedPose.get().estimatedPose : null;

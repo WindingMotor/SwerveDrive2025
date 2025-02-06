@@ -67,7 +67,7 @@ public class RobotContainer {
 	private void initializeControllers() {
 		driverController = new CommandXboxController(0);
 		operatorController = new CommandXboxController(1);
-		globalInputMap = InputConstants.TX16S_MAIN;
+		globalInputMap = InputConstants.XBOX;
 	}
 
 	private void initializeSubsystems() {

@@ -19,15 +19,15 @@ public interface IO_VisionBase {
 		public double timestamp;
 
 		public boolean hasLeftTarget = false;
-		public boolean hasRightTarget = false;
+		public boolean hasFrontLeftTopTarget = false;
 		public boolean hasBackLeftTarget = false;
 
 		public double leftLatencyMS = 0.0;
-		public double rightLatencyMS = 0.0;
+		public double frontLeftTopMS = 0.0;
 		public double backLeftLatencyMS = 0.0;
 
 		public double leftBestTargetID = -1.0;
-		public double rightBestTargetID = -1.0;
+		public double frontLeftTopBestTargetID = -1.0;
 		public double backLeftBestTargetID = -1.0;
 
 		public Pose3d[] leftVisibleTagPoses = new Pose3d[0];
