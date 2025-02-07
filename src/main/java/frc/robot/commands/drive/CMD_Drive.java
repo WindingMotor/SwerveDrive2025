@@ -7,60 +7,101 @@
 
 package frc.robot.commands.drive;
 
-import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.InputConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.swerve.SUB_Swerve;
+import java.util.List;
+import swervelib.SwerveController;
+import swervelib.math.SwerveMath;
 
 public class CMD_Drive extends Command {
+
 	private final SUB_Swerve swerve;
 	private final CommandXboxController controller;
 	private final InputConstants controllerMap;
+	private boolean resetHeading = false;
 
 	public CMD_Drive(
 			SUB_Swerve swerve, CommandXboxController controller, InputConstants controllerMap) {
+
 		this.swerve = swerve;
 		this.controller = controller;
 		this.controllerMap = controllerMap;
+
 		addRequirements(swerve);
 	}
 
 	@Override
 	public void initialize() {
-		// Set motor brake mode when command starts
-		swerve.setMotorBrake(true);
+		resetHeading = true;
 	}
 
+	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		// Get joystick inputs with deadband applied
-		double xVelocity =
-				-MathUtil.applyDeadband(
-						controller.getRawAxis(controllerMap.forwardAxis) * RobotConstants.MAX_SPEED,
-						controllerMap.driveDeadband);
+		double headingX = 0;
+		double headingY = 0;
 
-		double yVelocity =
-				-MathUtil.applyDeadband(
-						controller.getRawAxis(controllerMap.strafeAxis) * RobotConstants.MAX_SPEED,
-						controllerMap.driveDeadband);
+		double vX = controller.getRawAxis(controllerMap.forwardAxis);
+		double vY = controller.getRawAxis(controllerMap.strafeAxis);
+		double headingAdjust = controller.getRawAxis(controllerMap.rotationAxis);
 
-		double rotationVelocity =
-				-MathUtil.applyDeadband(
-						controller.getRawAxis(controllerMap.rotationAxis) * RobotConstants.MAX_SPEED,
-						controllerMap.driveDeadband);
+		// Prevent Movement After Auto
+		if (resetHeading) {
+			if (headingX == 0 && headingY == 0 && Math.abs(headingAdjust) == 0) {
+				// Get the curret Heading
+				Rotation2d currentHeading = swerve.getHeading();
 
-		xVelocity *= controllerMap.forwardInverted ? -1 : 1;
-		yVelocity *= controllerMap.strafeInverted ? -1 : 1;
-		rotationVelocity *= controllerMap.rotationInverted ? -1 : 1;
+				// Set the Current Heading to the desired Heading
+				headingX = currentHeading.getSin();
+				headingY = currentHeading.getCos();
+			}
+			// Dont reset Heading Again
+			resetHeading = false;
+		}
 
-		// Create translation vector from x and y inputs
-		Translation2d translation = new Translation2d(xVelocity, yVelocity);
+		// Scale inputs
+		Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(vX, vY));
 
-		// Drive using the swerve subsystem's field-relative drive method
-		swerve.drive(translation, rotationVelocity, true);
+		// Get desired speeds
+		ChassisSpeeds desiredSpeeds =
+				swerve
+						.getSwerveController()
+						.getTargetSpeeds(
+								scaledInputs.getX(),
+								scaledInputs.getY(),
+								headingX,
+								headingY,
+								swerve.getHeading().getRadians(),
+								RobotConstants.MAX_SPEED);
+
+		// Limit velocity to prevent tippy
+		Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
+		translation =
+				SwerveMath.limitVelocity(
+						translation,
+						swerve.getFieldVelocity(),
+						swerve.getPose(),
+						RobotConstants.LOOP_TIME,
+						RobotConstants.ROBOT_MASS,
+						List.of(RobotConstants.CHASSIS),
+						swerve.getSwerveDriveConfiguration());
+		SmartDashboard.putNumber("LimitedTranslation", translation.getX());
+		SmartDashboard.putString("Translation", translation.toString());
+
+		// Make the robot move
+		if (headingX == 0 && headingY == 0 && Math.abs(headingAdjust) > 0) {
+			resetHeading = true;
+			swerve.drive(translation, (6.00 * -headingAdjust), true);
+		} else {
+			swerve.drive(translation, desiredSpeeds.omegaRadiansPerSecond, true);
+		}
 	}
 
 	@Override

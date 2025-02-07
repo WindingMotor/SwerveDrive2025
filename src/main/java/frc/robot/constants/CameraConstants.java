@@ -24,8 +24,8 @@ public final class CameraConstants {
 				"OV9281_01",
 				new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(75)),
 				new Translation3d(
-						Units.inchesToMeters(2.056),
-						Units.inchesToMeters(9.565),
+						Units.inchesToMeters(2.0),
+						Units.inchesToMeters(9.5),
 						Units.inchesToMeters(21)), // X (red), Y (green), Z (height)
 				VecBuilder.fill(4, 4, 8),
 				VecBuilder.fill(0.5, 0.5, 1)),

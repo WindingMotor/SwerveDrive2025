@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Reef 3D Viewer</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -10,48 +11,18 @@
             <span class="indicator-text">Connected</span>
         </div>
         <div class="command-indicator">
-            <span>Sent Command: </span>
+            <span>Last Command: </span>
             <span id="last-command">None</span>
         </div>
     </div>
-    
-    <div class="container">
-        <div class="hexagon-container">
-            <img src="Hexagon.png" class="hexagon-image" alt="Hexagon">
-            <div class="button-container">
-                <!-- Top buttons -->
-                <div class="button-pair top">
-                    <button id="T1">O</button>
-                    <button id="T2">O</button>
-                </div>
-                <!-- Top Right buttons -->
-                <div class="button-pair top-right">
-                    <button id="TR1">O</button>
-                    <button id="TR2">O</button>
-                </div>
-                <!-- Bottom Right buttons -->
-                <div class="button-pair bottom-right">
-                    <button id="BR1">O</button>
-                    <button id="BR2">O</button>
-                </div>
-                <!-- Bottom buttons -->
-                <div class="button-pair bottom">
-                    <button id="B1">O</button>
-                    <button id="B2">O</button>
-                </div>
-                <!-- Bottom Left buttons -->
-                <div class="button-pair bottom-left">
-                    <button id="BL1">O</button>
-                    <button id="BL2">O</button>
-                </div>
-                <!-- Top Left buttons -->
-                <div class="button-pair top-left">
-                    <button id="TL1">O</button>
-                    <button id="TL2">O</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="scene-container"></div>
+
+    <!-- Local library files -->
+    <script src="libs/three.min.js"></script>
+    <script src="libs/OrbitControls.js"></script>
+    <script src="libs/GLTFLoader.js"></script>
     <script src="script.js"></script>
+    <div id="tooltip" style="position: absolute; display: none; background-color: rgba(0,0,0,0.7); color: white; padding: 5px; border-radius: 3px;"></div>
+
 </body>
 </html>
