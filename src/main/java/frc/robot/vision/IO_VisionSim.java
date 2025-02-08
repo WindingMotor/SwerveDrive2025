@@ -9,12 +9,16 @@ package frc.robot.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.constants.CameraConstants;
+import frc.robot.constants.CameraConstants.Camera;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -105,12 +109,12 @@ public class IO_VisionSim implements IO_VisionBase {
 								inputs.hasLeftTarget = true;
 								inputs.leftBestTargetID = bestTarget.getFiducialId();
 								break;
-							case FRONT_LEFT_TOP_CAM:
-								frontLeftTopPoses.add(tagPose.get());
-								frontLeftTopPoses.add(cameraPose);
-								inputs.hasFrontLeftTopTarget = true;
-								inputs.frontLeftTopBestTargetID = bestTarget.getFiducialId();
-								break;
+								///	case FRONT_LEFT_TOP_CAM:
+								//		frontLeftTopPoses.add(tagPose.get());
+								//		frontLeftTopPoses.add(cameraPose);
+								//		inputs.hasFrontLeftTopTarget = true;
+								//		inputs.frontLeftTopBestTargetID = bestTarget.getFiducialId();
+								//		break;
 							case BACK_LEFT_CAM:
 								backLeftTagPoses.add(tagPose.get());
 								backLeftTagPoses.add(cameraPose);
@@ -124,20 +128,25 @@ public class IO_VisionSim implements IO_VisionBase {
 		}
 
 		inputs.leftVisibleTagPoses = leftTagPoses.toArray(new Pose3d[0]);
-		inputs.rightVisibleTagPoses = frontLeftTopPoses.toArray(new Pose3d[0]);
+		//	inputs.rightVisibleTagPoses = frontLeftTopPoses.toArray(new Pose3d[0]);
 		inputs.backLeftVisibleTagPoses = backLeftTagPoses.toArray(new Pose3d[0]);
-		inputs.lastEstimatedPose =
-				lastEstimatedPose.isPresent() ? lastEstimatedPose.get().estimatedPose : null;
+		// inputs.lastEstimatedPose =
+		//		lastEstimatedPose.isPresent() ? lastEstimatedPose.get().estimatedPose : null;
 	}
 
 	@Override
-	public void updatePoseEstimation(Pose2d currentPose) {
+	public void updateLastRobotPose(Pose2d currentPose) {
 		lastCurrentPose = new Pose3d(currentPose);
 		visionSim.update(currentPose);
 	}
 
 	@Override
-	public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+	public Optional<EstimatedRobotPose> getEstimatedGlobalPose(CameraConstants.Camera camera) {
 		return lastEstimatedPose;
+	}
+
+	public Matrix<N3, N1> getStdDev(Camera camera) {
+
+		return null;
 	}
 }

@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.InputConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.swerve.SUB_Swerve;
-import java.util.List;
 import swervelib.SwerveController;
 import swervelib.math.SwerveMath;
 
@@ -40,6 +39,7 @@ public class CMD_Drive extends Command {
 	@Override
 	public void initialize() {
 		resetHeading = true;
+		swerve.setMotorBrake(true);
 	}
 
 	// Called every time the scheduler runs while the command is scheduled.
@@ -48,9 +48,9 @@ public class CMD_Drive extends Command {
 		double headingX = 0;
 		double headingY = 0;
 
-		double vX = controller.getRawAxis(controllerMap.forwardAxis);
+		double vX = -controller.getRawAxis(controllerMap.forwardAxis);
 		double vY = controller.getRawAxis(controllerMap.strafeAxis);
-		double headingAdjust = controller.getRawAxis(controllerMap.rotationAxis);
+		double headingAdjust = -controller.getRawAxis(controllerMap.rotationAxis);
 
 		// Prevent Movement After Auto
 		if (resetHeading) {
@@ -83,6 +83,7 @@ public class CMD_Drive extends Command {
 
 		// Limit velocity to prevent tippy
 		Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
+		/*
 		translation =
 				SwerveMath.limitVelocity(
 						translation,
@@ -93,6 +94,7 @@ public class CMD_Drive extends Command {
 						List.of(RobotConstants.CHASSIS),
 						swerve.getSwerveDriveConfiguration());
 		SmartDashboard.putNumber("LimitedTranslation", translation.getX());
+		*/
 		SmartDashboard.putString("Translation", translation.toString());
 
 		// Make the robot move

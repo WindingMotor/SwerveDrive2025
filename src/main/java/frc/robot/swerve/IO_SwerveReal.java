@@ -14,6 +14,7 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -21,6 +22,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -99,7 +102,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 	@Override
 	public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
-		swerveDrive.drive(translation, rotation, fieldRelative, false);
+		swerveDrive.drive(translation, rotation, fieldRelative, true);
 	}
 
 	@Override
@@ -243,8 +246,8 @@ public class IO_SwerveReal implements IO_SwerveBase {
 	 * @param timestamp The timestamp of the measurement in seconds
 	 */
 	@Override
-	public void addVisionMeasurement(Pose2d pose, double timestamp) {
-		swerveDrive.addVisionMeasurement(pose, timestamp);
+	public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) {
+		swerveDrive.addVisionMeasurement(pose, timestamp, stdDevs);
 	}
 
 	/** Update odometry for the swerve drive. */

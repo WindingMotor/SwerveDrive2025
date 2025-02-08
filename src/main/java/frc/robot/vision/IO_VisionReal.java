@@ -13,18 +13,14 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.CameraConstants;
-import java.util.ArrayList;
-import java.util.HashMap;
+import frc.robot.constants.CameraConstants.Camera;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -32,273 +28,237 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-/**
- * Real implementation of the vision system using PhotonVision and AprilTags This class handles
- * multiple cameras to estimate robot position on the field
- */
-public class IO_VisionReal implements IO_VisionBase {
+public class IO_VisionReal extends SubsystemBase implements IO_VisionBase {
 
-	private final AprilTagFieldLayout fieldLayout;
-	private final Map<CameraConstants.Camera, PhotonCamera> cameras = new HashMap<>();
-	private final Map<CameraConstants.Camera, PhotonPoseEstimator> poseEstimators = new HashMap<>();
-	private Optional<EstimatedRobotPose> lastEstimatedPose = Optional.empty();
+	private final PhotonCamera leftCamera;
+	private final PhotonCamera backLeftCamera;
 
-	// Current results for each camera, updated in updateInputs
-	private final Map<CameraConstants.Camera, PhotonPipelineResult> currentResults = new HashMap<>();
-	private final Map<CameraConstants.Camera, Matrix<N3, N1>> currentStdDevs = new HashMap<>();
+	private final PhotonPoseEstimator leftEstimator;
+	private final PhotonPoseEstimator backLeftEstimator;
 
-	private Pose3d lastCurrentPose = new Pose3d();
+	public Matrix<N3, N1> leftMatrix;
+	public Matrix<N3, N1> backLeftMatrix;
 
-	/** Constructor initializes all cameras and their pose estimators */
+	private final AprilTagFieldLayout tagLayout;
+
+	private Pose2d lastRobotPose = new Pose2d();
+
 	public IO_VisionReal() {
-		fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
-		for (CameraConstants.Camera cam : CameraConstants.Camera.values()) {
+		leftCamera = new PhotonCamera("OV2311_4");
+		backLeftCamera = new PhotonCamera("OV9281_03");
 
-			cameras.put(cam, new PhotonCamera(cam.name));
-			currentResults.put(cam, new PhotonPipelineResult()); // Empty initial result
-			currentStdDevs.put(cam, cam.singleTagStdDevs);
+		tagLayout = AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
 
-			Transform3d robotToCam = new Transform3d(cam.translation, cam.rotation);
-			PhotonPoseEstimator estimator =
-					new PhotonPoseEstimator(
-							fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam);
+		Transform3d leftRobotToCam =
+				new Transform3d(
+						CameraConstants.Camera.LEFT_CAM.translation, CameraConstants.Camera.LEFT_CAM.rotation);
 
-			estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-			poseEstimators.put(cam, estimator);
-		}
+		Transform3d backLeftRobotToCam =
+				new Transform3d(
+						CameraConstants.Camera.BACK_LEFT_CAM.translation,
+						CameraConstants.Camera.BACK_LEFT_CAM.rotation);
+
+		leftEstimator =
+				new PhotonPoseEstimator(
+						tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, leftRobotToCam);
+
+		backLeftEstimator =
+				new PhotonPoseEstimator(
+						tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, backLeftRobotToCam);
+
+		leftEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+		backLeftEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
+		leftMatrix = Camera.LEFT_CAM.singleTagStdDevs;
+		backLeftMatrix = Camera.BACK_LEFT_CAM.singleTagStdDevs;
 	}
 
-	/** Updates vision inputs with the latest target information from each camera */
 	@Override
 	public void updateInputs(VisionInputs inputs) {
-		List<Pose3d> leftTagPoses = new ArrayList<>();
-		List<Pose3d> frontLeftTopPoses = new ArrayList<>();
-		List<Pose3d> backLeftTagPoses = new ArrayList<>();
 
-		// Update all camera results first
-		for (Map.Entry<CameraConstants.Camera, PhotonCamera> entry : cameras.entrySet()) {
-			CameraConstants.Camera cam = entry.getKey();
-			PhotonCamera camera = entry.getValue();
+		// Get latest results
+		PhotonPipelineResult leftResult = leftCamera.getLatestResult();
+		PhotonPipelineResult backLeftResult = backLeftCamera.getLatestResult();
 
-			List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-			if (!results.isEmpty()) {
-				// Get the most recent result
-				results.sort((a, b) -> Double.compare(b.getTimestampSeconds(), a.getTimestampSeconds()));
-				currentResults.put(cam, results.get(0));
-			}
+		// Check if it has targets
+		inputs.hasLeftTarget = leftResult.hasTargets();
+		inputs.hasBackLeftTarget = backLeftResult.hasTargets();
+
+		// Update left camera info
+		if (inputs.hasLeftTarget) {
+			inputs.leftBestTargetID = leftResult.getBestTarget().getFiducialId();
+			inputs.leftVisibleTagPoses =
+					leftResult.getTargets().stream()
+							.map(target -> tagLayout.getTagPose(target.getFiducialId()).get())
+							.toArray(Pose3d[]::new);
 		}
 
-		// Process the results for each camera
-		for (Map.Entry<CameraConstants.Camera, PhotonCamera> entry : cameras.entrySet()) {
-			CameraConstants.Camera cam = entry.getKey();
-			PhotonPipelineResult result = currentResults.get(cam);
-			if (result.hasTargets()) {
-				PhotonTrackedTarget bestTarget = result.getBestTarget();
-
-				// Calculate camera position based on robot pose
-				Pose3d cameraPose =
-						lastCurrentPose.transformBy(new Transform3d(cam.translation, cam.rotation));
-
-				// Process targets for each camera
-				List<Pose3d> currentCameraPoses = new ArrayList<>();
-				for (PhotonTrackedTarget target : result.getTargets()) {
-					Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
-					if (tagPose.isPresent()) {
-						// Add both AprilTag pose and camera position pose
-						currentCameraPoses.add(tagPose.get());
-						currentCameraPoses.add(cameraPose);
-					}
-				}
-
-				switch (cam) {
-					case LEFT_CAM:
-						inputs.hasLeftTarget = true;
-						inputs.leftBestTargetID = bestTarget.getFiducialId();
-						break;
-					case FRONT_LEFT_TOP_CAM:
-						inputs.hasFrontLeftTopTarget = true;
-						inputs.frontLeftTopBestTargetID = bestTarget.getFiducialId();
-						break;
-					case BACK_LEFT_CAM:
-						inputs.hasBackLeftTarget = true;
-						inputs.backLeftBestTargetID = bestTarget.getFiducialId();
-						break;
-				}
-			}
+		// Update back left camera info
+		if (inputs.hasBackLeftTarget) {
+			inputs.backLeftBestTargetID = backLeftResult.getBestTarget().getFiducialId();
+			inputs.backLeftVisibleTagPoses =
+					backLeftResult.getTargets().stream()
+							.map(target -> tagLayout.getTagPose(target.getFiducialId()).get())
+							.toArray(Pose3d[]::new);
 		}
 
-		// Update inputs with visible tag poses
-		inputs.leftVisibleTagPoses = leftTagPoses.toArray(new Pose3d[0]);
-		inputs.rightVisibleTagPoses = frontLeftTopPoses.toArray(new Pose3d[0]);
-		inputs.backLeftVisibleTagPoses = backLeftTagPoses.toArray(new Pose3d[0]);
-		inputs.lastEstimatedPose =
-				lastEstimatedPose.isPresent() ? lastEstimatedPose.get().estimatedPose : null;
-	}
+		inputs.timestamp = leftResult.getTimestampSeconds();
 
-	/** Updates robot pose estimation using data from all cameras */
-	public void updatePoseEstimation(Pose2d currentPose) {
-		lastCurrentPose = new Pose3d(currentPose);
-		Map<CameraConstants.Camera, EstimatedRobotPose> cameraEstimates = new HashMap<>();
+		// Update pose estimation last pose
+		leftEstimator.setLastPose(lastRobotPose);
+		backLeftEstimator.setLastPose(lastRobotPose);
 
-		for (Map.Entry<CameraConstants.Camera, PhotonPoseEstimator> entry : poseEstimators.entrySet()) {
+		// get current estimated poses
+		Optional<EstimatedRobotPose> leftPose = getEstimatedGlobalPose(CameraConstants.Camera.LEFT_CAM);
+		Optional<EstimatedRobotPose> backLeftPose =
+				getEstimatedGlobalPose(CameraConstants.Camera.BACK_LEFT_CAM);
 
-			CameraConstants.Camera cam = entry.getKey();
-			PhotonPoseEstimator estimator = entry.getValue();
-			PhotonPipelineResult result = currentResults.get(cam);
-
-			if (!result.hasTargets()) {
-				continue;
-			}
-
-			// Filter out unreliable single-tag measurements
-			if (result.getTargets().size() == 1) {
-				PhotonTrackedTarget target = result.getBestTarget();
-				if (target.getPoseAmbiguity() > CameraConstants.MAXIMUM_AMBIGUITY) {
-					Logger.recordOutput(
-							"Vision/" + cam.name + "/RejectedAmbiguity", target.getPoseAmbiguity());
-					continue;
-				}
-			}
-
-			// Set reference pose to current robot pose
-			estimator.setReferencePose(currentPose);
-
-			// Update estimator
-			Optional<EstimatedRobotPose> poseResult = estimator.update(result);
-
-			// If estimation is successful record output, update estimates, and update stdDevs
-			if (poseResult.isPresent()) {
-				EstimatedRobotPose estimate = poseResult.get();
-				updateEstimationStdDevs(cam, poseResult, result.getTargets());
-				cameraEstimates.put(cam, estimate);
-
-				Logger.recordOutput("Vision/" + cam.name + "/EstimatedPose", estimate.estimatedPose);
-				Logger.recordOutput("Vision/" + cam.name + "/TimestampSeconds", estimate.timestampSeconds);
-				Logger.recordOutput("Vision/" + cam.name + "/TagCount", estimate.targetsUsed.size());
-			}
+		// Check if present
+		if (leftPose.isPresent()) {
+			inputs.leftEstimatedPose = leftPose.get().estimatedPose.toPose2d();
+			updateEstimationStdDevs(
+					CameraConstants.Camera.LEFT_CAM, // Pass the camera enum instead of PhotonCamera instance
+					leftPose, // Pass the Optional<EstimatedRobotPose> instead of Pose2d
+					leftResult.getTargets() // Pass the targets from leftResult, not backLeftResult
+					);
+		} else {
+			inputs.leftEstimatedPose = null;
 		}
 
-		if (!cameraEstimates.isEmpty()) {
-			EstimatedRobotPose combinedPose = combineEstimates(cameraEstimates);
-			lastEstimatedPose = Optional.of(combinedPose);
-			Logger.recordOutput("Vision/CombinedEstimatedPose", combinedPose.estimatedPose);
+		if (backLeftPose.isPresent()) {
+			inputs.backLeftEstimatedPose = backLeftPose.get().estimatedPose.toPose2d();
+			updateEstimationStdDevs(
+					CameraConstants.Camera.LEFT_CAM, // Pass the camera enum instead of PhotonCamera instance
+					backLeftPose, // Pass the Optional<EstimatedRobotPose> instead of Pose2d
+					backLeftResult.getTargets() // Pass the targets from leftResult, not backLeftResult
+					);
+		} else {
+			inputs.backLeftEstimatedPose = null;
 		}
 	}
 
-	/**
-	 * Updates the standard deviation for pose estimation based on camera results.
-	 *
-	 * <p>Calculates and adjusts standard deviation based on: - Number of tags used in estimation -
-	 * Ambiguity of tag detections
-	 *
-	 * @param camera The camera being evaluated
-	 * @param poseResult The estimated robot pose from the camera
-	 * @param targets The AprilTag targets used in pose estimation
-	 */
+	@Override
+	public void updateLastRobotPose(Pose2d currentPose) {
+		lastRobotPose = currentPose;
+	}
+
+	@Override
+	public Optional<EstimatedRobotPose> getEstimatedGlobalPose(CameraConstants.Camera camera) {
+		PhotonPipelineResult result;
+		PhotonPoseEstimator estimator;
+
+		switch (camera) {
+			case LEFT_CAM:
+				result = leftCamera.getLatestResult();
+				estimator = leftEstimator;
+				break;
+			case BACK_LEFT_CAM:
+				result = backLeftCamera.getLatestResult();
+				estimator = backLeftEstimator;
+				break;
+			default:
+				return Optional.empty();
+		}
+
+		if (!result.hasTargets()) {
+			return Optional.empty();
+		}
+
+		return estimator.update(result);
+	}
+
 	private void updateEstimationStdDevs(
 			CameraConstants.Camera camera,
 			Optional<EstimatedRobotPose> poseResult,
 			List<PhotonTrackedTarget> targets) {
 
+		// Prepare variables for the update.
+		Matrix<N3, N1> defaultStdDevs;
+		Matrix<N3, N1> updatedStdDevs;
+
+		// Choose the proper default based on the camera.
+		if (camera == CameraConstants.Camera.LEFT_CAM) {
+			defaultStdDevs = CameraConstants.Camera.LEFT_CAM.singleTagStdDevs;
+		} else if (camera == CameraConstants.Camera.BACK_LEFT_CAM) {
+			defaultStdDevs = CameraConstants.Camera.BACK_LEFT_CAM.singleTagStdDevs;
+		} else {
+			return; // Unsupported camera type.
+		}
+
+		// If there's no pose estimate, revert to the default.
 		if (poseResult.isEmpty()) {
-			currentStdDevs.put(camera, camera.singleTagStdDevs);
+			if (camera == CameraConstants.Camera.LEFT_CAM) {
+				leftMatrix = defaultStdDevs;
+			} else { // BACK_LEFT_CAM
+				backLeftMatrix = defaultStdDevs;
+			}
 			return;
 		}
 
-		Matrix<N3, N1> estStdDevs = camera.singleTagStdDevs;
+		// Start with the default std devs.
+		updatedStdDevs = defaultStdDevs;
 		int numTags = 0;
-		double avgDist = 0;
+		double totalDistance = 0.0;
 
+		// For each detected target, accumulate distance-related data.
 		for (PhotonTrackedTarget target : targets) {
-			Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
-			if (tagPose.isEmpty()) {
+			Optional<Pose3d> tagPoseOpt = tagLayout.getTagPose(target.getFiducialId());
+			if (tagPoseOpt.isEmpty()) {
 				continue;
 			}
 			numTags++;
-			avgDist +=
-					tagPose
+			double distance =
+					tagPoseOpt
 							.get()
 							.toPose2d()
 							.getTranslation()
 							.getDistance(poseResult.get().estimatedPose.toPose2d().getTranslation());
+			totalDistance += distance;
 		}
 
+		// No valid tags detected? Revert to the default.
 		if (numTags == 0) {
-			currentStdDevs.put(camera, camera.singleTagStdDevs);
+			if (camera == CameraConstants.Camera.LEFT_CAM) {
+				leftMatrix = defaultStdDevs;
+			} else {
+				backLeftMatrix = defaultStdDevs;
+			}
 			return;
 		}
 
-		avgDist /= numTags;
+		double avgDist = totalDistance / numTags;
 
+		// When more than one tag is seen, use the multi–tag standard deviations.
 		if (numTags > 1) {
-			estStdDevs = camera.multiTagStdDevs;
+			updatedStdDevs =
+					(camera == CameraConstants.Camera.LEFT_CAM)
+							? CameraConstants.Camera.LEFT_CAM.multiTagStdDevs
+							: CameraConstants.Camera.BACK_LEFT_CAM.multiTagStdDevs;
 		}
 
-		if (numTags == 1 && avgDist > 4) {
-			estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+		// If only one tag is seen and it is far away, assign very high uncertainty.
+		if (numTags == 1 && avgDist > 4.0) {
+			updatedStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
 		} else {
-			estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
+			updatedStdDevs = updatedStdDevs.times(1 + (avgDist * avgDist / 30));
 		}
 
-		currentStdDevs.put(camera, estStdDevs);
-	}
-
-	/**
-	 * Combines pose estimates from multiple cameras using weighted averaging.
-	 *
-	 * <p>Calculates a combined pose by: - Weighting each camera's estimate based on its standard
-	 * deviation - Computing weighted averages for X, Y, and rotation
-	 *
-	 * @param estimates A map of camera estimates to be combined
-	 * @return A combined EstimatedRobotPose representing the most accurate position
-	 */
-	private EstimatedRobotPose combineEstimates(
-			Map<CameraConstants.Camera, EstimatedRobotPose> estimates) {
-		double weightedX = 0;
-		double weightedY = 0;
-		double weightedRot = 0;
-		double totalWeightX = 0;
-		double totalWeightY = 0;
-		double totalWeightRot = 0;
-
-		EstimatedRobotPose firstEstimate = estimates.values().iterator().next();
-
-		for (Map.Entry<CameraConstants.Camera, EstimatedRobotPose> entry : estimates.entrySet()) {
-			CameraConstants.Camera cam = entry.getKey();
-			EstimatedRobotPose estimate = entry.getValue();
-			Matrix<N3, N1> stdDevs = currentStdDevs.get(cam);
-
-			double weightX = 1.0 / (stdDevs.get(0, 0) * stdDevs.get(0, 0));
-			double weightY = 1.0 / (stdDevs.get(1, 0) * stdDevs.get(1, 0));
-			double weightRot = 1.0 / (stdDevs.get(2, 0) * stdDevs.get(2, 0));
-
-			Pose3d pose = estimate.estimatedPose;
-			weightedX += pose.getX() * weightX;
-			weightedY += pose.getY() * weightY;
-			weightedRot += pose.getRotation().getZ() * weightRot;
-
-			totalWeightX += weightX;
-			totalWeightY += weightY;
-			totalWeightRot += weightRot;
+		// Finally, update the corresponding member variable.
+		if (camera == CameraConstants.Camera.LEFT_CAM) {
+			leftMatrix = updatedStdDevs;
+		} else {
+			backLeftMatrix = updatedStdDevs;
 		}
-
-		double finalX = weightedX / totalWeightX;
-		double finalY = weightedY / totalWeightY;
-		double finalRot = weightedRot / totalWeightRot;
-
-		Pose3d combinedPose =
-				new Pose3d(new Translation3d(finalX, finalY, 0), new Rotation3d(0, 0, finalRot));
-
-		return new EstimatedRobotPose(
-				combinedPose,
-				firstEstimate.timestampSeconds,
-				firstEstimate.targetsUsed,
-				firstEstimate.strategy);
 	}
 
-	@Override
-	public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-		return lastEstimatedPose;
+	public Matrix<N3, N1> getStdDev(Camera camera) {
+		if (camera == Camera.LEFT_CAM) {
+			return leftMatrix;
+		} else if (camera == Camera.BACK_LEFT_CAM) {
+			return backLeftMatrix;
+		} else {
+			return null;
+		}
 	}
 }

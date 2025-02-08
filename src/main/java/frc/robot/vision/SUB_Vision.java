@@ -7,15 +7,18 @@
 
 package frc.robot.vision;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.Optional;
+import frc.robot.constants.CameraConstants;
+import frc.robot.constants.CameraConstants.Camera;
 import org.littletonrobotics.junction.Logger;
-import org.photonvision.EstimatedRobotPose;
 
 public class SUB_Vision extends SubsystemBase {
 	private final IO_VisionBase io;
-	private final VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
+	public final VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
 
 	public SUB_Vision(IO_VisionBase io) {
 		this.io = io;
@@ -32,15 +35,26 @@ public class SUB_Vision extends SubsystemBase {
 	}
 
 	// This will be called by the Swerve Drive subsystem to update the estimated pose.
-	public void updatePoseEstimation(Pose2d currentPose) {
-		io.updatePoseEstimation(currentPose);
+	public void updateLastRobotPose(Pose2d currentPose) {
+		io.updateLastRobotPose(currentPose);
 	}
 
-	public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-		return io.getEstimatedGlobalPose();
+	public Pose2d getCameraPose(CameraConstants.Camera camera) {
+		if (camera == Camera.LEFT_CAM && inputs.leftEstimatedPose != null) {
+			return inputs.leftEstimatedPose;
+		} else if (camera == Camera.BACK_LEFT_CAM && inputs.backLeftEstimatedPose != null) {
+			return inputs.backLeftEstimatedPose;
+		} else {
+			return null;
+		}
+	}
+
+	public Matrix<N3, N1> getStdDev(Camera camera) {
+
+		return io.getStdDev(camera);
 	}
 
 	public boolean hasTargets() {
-		return inputs.hasLeftTarget || inputs.hasFrontLeftTopTarget || inputs.hasBackLeftTarget;
+		return inputs.hasLeftTarget || inputs.hasBackLeftTarget;
 	}
 }

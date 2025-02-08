@@ -21,7 +21,7 @@ public final class CameraConstants {
 
 	public enum Camera {
 		LEFT_CAM(
-				"OV9281_01",
+				"OV2311_4",
 				new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(75)),
 				new Translation3d(
 						Units.inchesToMeters(2.0),

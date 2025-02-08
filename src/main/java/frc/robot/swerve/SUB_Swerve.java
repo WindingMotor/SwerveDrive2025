@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.CameraConstants;
+import frc.robot.constants.CameraConstants.Camera;
 import frc.robot.constants.RobotConstants;
 import frc.robot.vision.SUB_Vision;
 import org.littletonrobotics.junction.Logger;
@@ -55,21 +56,34 @@ public class SUB_Swerve extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+		// Update inputs first
+		io.updateInputs(inputs);
+		Logger.processInputs("Swerve", inputs);
 
 		// Update vision with current swerve pose
-		vision.updatePoseEstimation(getPose());
+		vision.updateLastRobotPose(getPose());
 
-		// Add new vision measurements to the swerve drive odometry if its available
-		if (vision.getEstimatedGlobalPose().isPresent()) {
+		// Try each camera in priority order for vision updates
+		var estimatedPose = vision.getCameraPose(Camera.LEFT_CAM);
+		var timestampSeconds = vision.inputs.timestamp;
+		var stdDevs = vision.getStdDev(Camera.LEFT_CAM);
+
+		// var stdDevs = vision.getCameraPose(Camera.LEFT_CAM);
+		if (estimatedPose != null) {
 			io.addVisionMeasurement(
-					vision.getEstimatedGlobalPose().get().estimatedPose.toPose2d(),
-					vision.getEstimatedGlobalPose().get().timestampSeconds);
+					new Pose2d(estimatedPose.getTranslation(), io.getHeading()), timestampSeconds, stdDevs);
 
-			// Record estimated pose output
+			// Log the first valid pose we get
 			Logger.recordOutput(
-					"Vision/CurrentEstimatedPose", vision.getEstimatedGlobalPose().get().estimatedPose);
+					"Vision/CurrentEstimatedPose",
+					new Pose2d(estimatedPose.getTranslation(), io.getHeading()));
 		}
 
+		// Update camera positions for visualization
+		updateCameraPositions();
+	}
+
+	private void updateCameraPositions() {
 		// Convert Pose2d to Pose3d for camera position transformation
 		Pose3d robotPose3d = new Pose3d(inputs.robotPose);
 
@@ -83,16 +97,8 @@ public class SUB_Swerve extends SubsystemBase {
 									CameraConstants.CAMERA_POSITIONS[i].getRotation()));
 		}
 
-		// Record camera positions in global coordinate system
-		// In AScope set camera positions to cone object, and the pointy end is where the camera is
-		// looking at
-		// If you want to calibrate the postion set camera positions to transform object instead
+		// Record camera positions for visualization
 		Logger.recordOutput("CameraPositions", globalCameraPositions);
-
-		// Update inputs
-		io.updateInputs(inputs);
-
-		Logger.processInputs("Swerve", inputs);
 	}
 
 	/**

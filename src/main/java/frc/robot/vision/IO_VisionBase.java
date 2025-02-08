@@ -7,8 +7,13 @@
 
 package frc.robot.vision;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import frc.robot.constants.CameraConstants;
+import frc.robot.constants.CameraConstants.Camera;
 import java.util.Optional;
 import org.littletonrobotics.junction.AutoLog;
 import org.photonvision.EstimatedRobotPose;
@@ -19,27 +24,26 @@ public interface IO_VisionBase {
 		public double timestamp;
 
 		public boolean hasLeftTarget = false;
-		public boolean hasFrontLeftTopTarget = false;
 		public boolean hasBackLeftTarget = false;
 
 		public double leftLatencyMS = 0.0;
-		public double frontLeftTopMS = 0.0;
 		public double backLeftLatencyMS = 0.0;
 
 		public double leftBestTargetID = -1.0;
-		public double frontLeftTopBestTargetID = -1.0;
 		public double backLeftBestTargetID = -1.0;
 
 		public Pose3d[] leftVisibleTagPoses = new Pose3d[0];
-		public Pose3d[] rightVisibleTagPoses = new Pose3d[0];
 		public Pose3d[] backLeftVisibleTagPoses = new Pose3d[0];
 
-		public Pose3d lastEstimatedPose = new Pose3d();
+		public Pose2d leftEstimatedPose = new Pose2d();
+		public Pose2d backLeftEstimatedPose = new Pose2d();
 	}
 
 	public void updateInputs(VisionInputs inputs);
 
-	public void updatePoseEstimation(Pose2d currentPose);
+	public void updateLastRobotPose(Pose2d currentPose);
 
-	public Optional<EstimatedRobotPose> getEstimatedGlobalPose();
+	public Optional<EstimatedRobotPose> getEstimatedGlobalPose(CameraConstants.Camera camera);
+
+	public Matrix<N3, N1> getStdDev(Camera camera);
 }
