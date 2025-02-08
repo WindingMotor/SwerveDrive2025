@@ -16,15 +16,9 @@ public class CMD_IntakeCoral extends SequentialCommandGroup {
 	public CMD_IntakeCoral(SUB_Superstructure superstructure) {
 
 		addCommands(
-				// Move to Coral Station state
+				new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION),
 				new CMD_Superstructure(
 						superstructure,
-						superstructure.getCurrentStateWithNewWheelSpeed(
-								SuperstructureState.CORAL_STATION.getSpeed())),
-				new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION)
-
-				// TODO: Auto idle intake after coral is sensed by the sensor
-				// new CMD_Superstructure(superstructure, SuperstructureState.State.IDLE)
-				);
+						superstructure.setAndGetEjectState(SuperstructureState.CORAL_STATION.getSpeed())));
 	}
 }

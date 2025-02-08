@@ -27,7 +27,7 @@ public final class CameraConstants {
 						Units.inchesToMeters(2.0),
 						Units.inchesToMeters(9.5),
 						Units.inchesToMeters(21)), // X (red), Y (green), Z (height)
-				VecBuilder.fill(4, 4, 8),
+				VecBuilder.fill(1.0, 1.0, 4),
 				VecBuilder.fill(0.5, 0.5, 1)),
 
 		FRONT_LEFT_TOP_CAM(
@@ -37,7 +37,7 @@ public final class CameraConstants {
 						Units.inchesToMeters(8.00),
 						Units.inchesToMeters(11),
 						Units.inchesToMeters(36)), // X (red), Y (green), Z (height)
-				VecBuilder.fill(4, 4, 8),
+				VecBuilder.fill(1.0, 1.0, 4),
 				VecBuilder.fill(0.5, 0.5, 1)),
 
 		BACK_LEFT_CAM(
@@ -45,7 +45,7 @@ public final class CameraConstants {
 				new Rotation3d(0, Units.degreesToRadians(-155), 0),
 				new Translation3d(
 						Units.inchesToMeters(-11.25), Units.inchesToMeters(9), Units.inchesToMeters(20.5)),
-				VecBuilder.fill(4, 4, 8),
+				VecBuilder.fill(1.0, 1.0, 4),
 				VecBuilder.fill(0.5, 0.5, 1));
 
 		public final String name;

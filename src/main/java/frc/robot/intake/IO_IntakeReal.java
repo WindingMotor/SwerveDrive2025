@@ -27,7 +27,7 @@ public class IO_IntakeReal implements IO_IntakeBase {
 
 		armMotor = new SparkMax(21, MotorType.kBrushless);
 		wheelMotor = new SparkMax(22, MotorType.kBrushless);
-		toggleSensor = new IRBeamBreak(0);
+		toggleSensor = new IRBeamBreak(9);
 
 		SparkMaxConfig wheelSparkMaxConfig = new SparkMaxConfig();
 		wheelSparkMaxConfig.smartCurrentLimit(55);

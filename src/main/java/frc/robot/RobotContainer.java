@@ -11,12 +11,11 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
-import frc.robot.commands.coral.CMD_IntakeCoral;
 import frc.robot.commands.drive.CMD_Drive;
+import frc.robot.commands.generic.CMD_Eject;
 import frc.robot.commands.generic.CMD_Elevator;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.InputConstants;
@@ -101,53 +100,46 @@ public class RobotContainer {
 	private void configureButtonBindings() {
 
 		// Extake
-		operatorController
-				.x()
-				.onTrue(
-						new CMD_Superstructure(
-								superstructure, superstructure.getCurrentStateWithNewWheelSpeed(-0.6)));
-
-		// Intake alage
-		operatorController
-				.x()
-				.onTrue(
-						new CMD_Superstructure(
-								superstructure, superstructure.getCurrentStateWithNewWheelSpeed(0.95)));
+		operatorController.x().onTrue(new CMD_Eject(superstructure));
 
 		// Coral Controls
 		operatorController
-				.povUp()
+				.rightBumper()
 				.onTrue(new CMD_ElevatorCoral(superstructure, true)); // DPAD-UP - Coral up
 
+		// Algae Controls
+		operatorController.leftBumper().onTrue(new CMD_ElevatorAlgae(superstructure, true));
+
+		/*
 		operatorController
-				.povDown()
+				.leftBumper()
 				.onTrue(new CMD_ElevatorCoral(superstructure, false)); // DPAD-DOWN - Coral down
+		*/
 
 		// Algae controls
-		operatorController.povLeft().onTrue(new CMD_ElevatorAlgae(superstructure, false)); // DPAD-LEFT
+		// peratorController.povLeft().onTrue(new CMD_ElevatorAlgae(superstructure, false)); //
+		// DPAD-LEFT
+		// operatorController.povRight().onTrue(new CMD_ElevatorAlgae(superstructure, true)); //
+		// DPAD-RIGHT
 
-		operatorController.povRight().onTrue(new CMD_ElevatorAlgae(superstructure, true)); // DPAD-RIGHT
-
-		operatorController.a().onTrue(new CMD_IntakeCoral(superstructure)); // A - Intake coral
+		// Intake
+		operatorController
+				.a()
+				.onTrue(
+						new CMD_Superstructure(
+								superstructure, SuperstructureState.CORAL_STATION)); // A - Intake coral
 
 		// Superstructure Controls
-		operatorController
-				.b()
-				.onTrue(
-						new SequentialCommandGroup(
-								new CMD_Superstructure(superstructure, SuperstructureState.IDLE),
-								new CMD_Superstructure(
-										superstructure,
-										superstructure.getCurrentStateWithNewWheelSpeed(
-												SuperstructureState.CORAL_STATION.getSpeed())))); // B - Idle
+		operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
 
 		// Climbing
+
 		operatorController
-				.rightBumper()
+				.leftStick()
 				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.CLIMB));
 	}
 
 	public Command getAutonomousCommand() {
-		return swerve.getAutonomousCommand("RIGHT_4L4");
+		return swerve.getAutonomousCommand("TEST");
 	}
 }

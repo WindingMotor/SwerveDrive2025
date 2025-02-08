@@ -25,6 +25,7 @@ public class SUB_Intake extends SubsystemBase {
 		io.setArmAngle(localState.getDeg());
 		io.setIntakeSpeed(localState.getSpeed());
 		io.updateInputs(inputs);
+
 		Logger.processInputs("Intake", inputs);
 	}
 
@@ -34,5 +35,9 @@ public class SUB_Intake extends SubsystemBase {
 
 	public SuperstructureState.State getCurrentLocalState() {
 		return localState;
+	}
+
+	public boolean getSensorState() {
+		return inputs.toggleSensor;
 	}
 }

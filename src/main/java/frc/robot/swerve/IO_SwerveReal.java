@@ -216,8 +216,8 @@ public class IO_SwerveReal implements IO_SwerveBase {
 						}
 					},
 					new PPHolonomicDriveController(
-							new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-							new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+							new PIDConstants(4.5, 0.0, 0.0), // Translation PID constants
+							new PIDConstants(8, 0.0, 0.0) // Rotation PID constants
 							),
 					config,
 					() -> {
