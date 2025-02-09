@@ -10,131 +10,112 @@ package frc.robot.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.CameraConstants;
 import frc.robot.constants.CameraConstants.Camera;
-import java.util.List;
-import java.util.Optional;
-import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
+import frc.robot.vision.VisionShared.CameraData;
+import java.util.*;
+import org.photonvision.*;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.targeting.*;
 
-public class IO_VisionReal extends SubsystemBase implements IO_VisionBase {
+/**
+ * Real implementation of the Vision I/O interface for processing AprilTag data from multiple
+ * cameras. This class handles the integration with PhotonVision and provides pose estimation for
+ * robot localization.
+ */
+public class IO_VisionReal implements IO_VisionBase {
 
-	private final PhotonCamera leftCamera;
-	private final PhotonCamera backLeftCamera;
-
-	private final PhotonPoseEstimator leftEstimator;
-	private final PhotonPoseEstimator backLeftEstimator;
-
-	public Matrix<N3, N1> leftMatrix;
-	public Matrix<N3, N1> backLeftMatrix;
-
+	// Core component storage
+	private final Map<Camera, CameraData> cameraData;
 	private final AprilTagFieldLayout tagLayout;
-
 	private Pose2d lastRobotPose = new Pose2d();
 
+	// Reusable buffer to avoid ArrayList allocations in the hot path
+	private final List<PhotonTrackedTarget> targetBuffer = new ArrayList<>();
+
+	/**
+	 * Initializes the vision system with all required cameras and AprilTag layout. Sets up each
+	 * camera with appropriate pose estimators and calibration data.
+	 */
 	public IO_VisionReal() {
-
-		leftCamera = new PhotonCamera("OV2311_4");
-		backLeftCamera = new PhotonCamera("OV9281_03");
-
+		// Initialize core components
+		cameraData = new EnumMap<>(Camera.class);
 		tagLayout = AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
 
-		Transform3d leftRobotToCam =
-				new Transform3d(
-						CameraConstants.Camera.LEFT_CAM.translation, CameraConstants.Camera.LEFT_CAM.rotation);
-
-		Transform3d backLeftRobotToCam =
-				new Transform3d(
-						CameraConstants.Camera.BACK_LEFT_CAM.translation,
-						CameraConstants.Camera.BACK_LEFT_CAM.rotation);
-
-		leftEstimator =
-				new PhotonPoseEstimator(
-						tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, leftRobotToCam);
-
-		backLeftEstimator =
-				new PhotonPoseEstimator(
-						tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, backLeftRobotToCam);
-
-		leftEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-		backLeftEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-
-		leftMatrix = Camera.LEFT_CAM.singleTagStdDevs;
-		backLeftMatrix = Camera.BACK_LEFT_CAM.singleTagStdDevs;
+		// Initialize all cameras with their specific configurations
+		initializeCamera(Camera.FRONT_LEFT, "OV2311_4");
+		initializeCamera(Camera.FRONT_RIGHT, "OV2311_5");
+		initializeCamera(Camera.BACK_LEFT, "OV9281_03");
+		initializeCamera(Camera.ELEVATED, "OV9281_04");
 	}
 
+	/**
+	 * Sets up a single camera with its pose estimator and initial calibration.
+	 *
+	 * @param cameraType The camera position/type enum
+	 * @param cameraName The device name of the camera
+	 */
+	private void initializeCamera(Camera cameraType, String cameraName) {
+		PhotonCamera camera = new PhotonCamera(cameraName);
+		Transform3d robotToCamera = new Transform3d(cameraType.translation, cameraType.rotation);
+
+		// Configure pose estimator with multi-tag optimization
+		PhotonPoseEstimator estimator =
+				new PhotonPoseEstimator(
+						tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCamera);
+		estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
+		// Store all camera-related data in a single bundle
+		cameraData.put(cameraType, new CameraData(camera, estimator, cameraType.singleTagStdDevs));
+	}
+
+	/**
+	 * Updates vision inputs with the latest data from all cameras. This method is called in the 60Hz
+	 * periodic loop.
+	 *
+	 * @param inputs The vision inputs structure to update
+	 */
 	@Override
 	public void updateInputs(VisionInputs inputs) {
-
-		// Get latest results
-		PhotonPipelineResult leftResult = leftCamera.getLatestResult();
-		PhotonPipelineResult backLeftResult = backLeftCamera.getLatestResult();
-
-		// Check if it has targets
-		inputs.hasLeftTarget = leftResult.hasTargets();
-		inputs.hasBackLeftTarget = backLeftResult.hasTargets();
-
-		// Update left camera info
-		if (inputs.hasLeftTarget) {
-			inputs.leftBestTargetID = leftResult.getBestTarget().getFiducialId();
-			inputs.leftVisibleTagPoses =
-					leftResult.getTargets().stream()
-							.map(target -> tagLayout.getTagPose(target.getFiducialId()).get())
-							.toArray(Pose3d[]::new);
+		// Process each camera sequentially
+		for (Camera camera : Camera.values()) {
+			processCamera(camera, inputs);
 		}
+	}
 
-		// Update back left camera info
-		if (inputs.hasBackLeftTarget) {
-			inputs.backLeftBestTargetID = backLeftResult.getBestTarget().getFiducialId();
-			inputs.backLeftVisibleTagPoses =
-					backLeftResult.getTargets().stream()
-							.map(target -> tagLayout.getTagPose(target.getFiducialId()).get())
-							.toArray(Pose3d[]::new);
-		}
+	/**
+	 * Processes data from a single camera, updating pose estimates and target information.
+	 *
+	 * @param cameraType The camera to process
+	 * @param inputs The vision inputs to update
+	 */
+	private void processCamera(Camera cameraType, VisionInputs inputs) {
+		// Get the camera data object
+		CameraData data = cameraData.get(cameraType);
 
-		inputs.timestamp = leftResult.getTimestampSeconds();
+		// Get the latest result from the camera
+		PhotonPipelineResult result = data.camera.getLatestResult();
 
-		// Update pose estimation last pose
-		leftEstimator.setLastPose(lastRobotPose);
-		backLeftEstimator.setLastPose(lastRobotPose);
+		// Update estimator with latest robot pose for better accuracy
+		data.estimator.setLastPose(lastRobotPose);
 
-		// get current estimated poses
-		Optional<EstimatedRobotPose> leftPose = getEstimatedGlobalPose(CameraConstants.Camera.LEFT_CAM);
-		Optional<EstimatedRobotPose> backLeftPose =
-				getEstimatedGlobalPose(CameraConstants.Camera.BACK_LEFT_CAM);
+		// Check if camera result has a target
+		boolean hasTarget = result.hasTargets();
 
-		// Check if present
-		if (leftPose.isPresent()) {
-			inputs.leftEstimatedPose = leftPose.get().estimatedPose.toPose2d();
-			updateEstimationStdDevs(
-					CameraConstants.Camera.LEFT_CAM, // Pass the camera enum instead of PhotonCamera instance
-					leftPose, // Pass the Optional<EstimatedRobotPose> instead of Pose2d
-					leftResult.getTargets() // Pass the targets from leftResult, not backLeftResult
-					);
-		} else {
-			inputs.leftEstimatedPose = null;
-		}
+		// Update hasTarget input data
+		VisionShared.setHasTarget(inputs, cameraType, hasTarget);
 
-		if (backLeftPose.isPresent()) {
-			inputs.backLeftEstimatedPose = backLeftPose.get().estimatedPose.toPose2d();
-			updateEstimationStdDevs(
-					CameraConstants.Camera.LEFT_CAM, // Pass the camera enum instead of PhotonCamera instance
-					backLeftPose, // Pass the Optional<EstimatedRobotPose> instead of Pose2d
-					backLeftResult.getTargets() // Pass the targets from leftResult, not backLeftResult
-					);
-		} else {
-			inputs.backLeftEstimatedPose = null;
+		// Update more target input data
+		VisionShared.updateTargetInfo(inputs, cameraType, result, data, tagLayout, lastRobotPose);
+
+		EstimatedRobotPose estimatedPose = data.estimator.update(result).orElse(null);
+		if (estimatedPose != null) {
+			VisionShared.setPoseEstimate(inputs, cameraType, estimatedPose.estimatedPose.toPose2d());
+			VisionShared.updateEstimationStdDevs(
+					cameraType, estimatedPose, result.getTargets(), data, tagLayout);
 		}
 	}
 
@@ -144,121 +125,7 @@ public class IO_VisionReal extends SubsystemBase implements IO_VisionBase {
 	}
 
 	@Override
-	public Optional<EstimatedRobotPose> getEstimatedGlobalPose(CameraConstants.Camera camera) {
-		PhotonPipelineResult result;
-		PhotonPoseEstimator estimator;
-
-		switch (camera) {
-			case LEFT_CAM:
-				result = leftCamera.getLatestResult();
-				estimator = leftEstimator;
-				break;
-			case BACK_LEFT_CAM:
-				result = backLeftCamera.getLatestResult();
-				estimator = backLeftEstimator;
-				break;
-			default:
-				return Optional.empty();
-		}
-
-		if (!result.hasTargets()) {
-			return Optional.empty();
-		}
-
-		return estimator.update(result);
-	}
-
-	private void updateEstimationStdDevs(
-			CameraConstants.Camera camera,
-			Optional<EstimatedRobotPose> poseResult,
-			List<PhotonTrackedTarget> targets) {
-
-		// Prepare variables for the update.
-		Matrix<N3, N1> defaultStdDevs;
-		Matrix<N3, N1> updatedStdDevs;
-
-		// Choose the proper default based on the camera.
-		if (camera == CameraConstants.Camera.LEFT_CAM) {
-			defaultStdDevs = CameraConstants.Camera.LEFT_CAM.singleTagStdDevs;
-		} else if (camera == CameraConstants.Camera.BACK_LEFT_CAM) {
-			defaultStdDevs = CameraConstants.Camera.BACK_LEFT_CAM.singleTagStdDevs;
-		} else {
-			return; // Unsupported camera type.
-		}
-
-		// If there's no pose estimate, revert to the default.
-		if (poseResult.isEmpty()) {
-			if (camera == CameraConstants.Camera.LEFT_CAM) {
-				leftMatrix = defaultStdDevs;
-			} else { // BACK_LEFT_CAM
-				backLeftMatrix = defaultStdDevs;
-			}
-			return;
-		}
-
-		// Start with the default std devs.
-		updatedStdDevs = defaultStdDevs;
-		int numTags = 0;
-		double totalDistance = 0.0;
-
-		// For each detected target, accumulate distance-related data.
-		for (PhotonTrackedTarget target : targets) {
-			Optional<Pose3d> tagPoseOpt = tagLayout.getTagPose(target.getFiducialId());
-			if (tagPoseOpt.isEmpty()) {
-				continue;
-			}
-			numTags++;
-			double distance =
-					tagPoseOpt
-							.get()
-							.toPose2d()
-							.getTranslation()
-							.getDistance(poseResult.get().estimatedPose.toPose2d().getTranslation());
-			totalDistance += distance;
-		}
-
-		// No valid tags detected? Revert to the default.
-		if (numTags == 0) {
-			if (camera == CameraConstants.Camera.LEFT_CAM) {
-				leftMatrix = defaultStdDevs;
-			} else {
-				backLeftMatrix = defaultStdDevs;
-			}
-			return;
-		}
-
-		double avgDist = totalDistance / numTags;
-
-		// When more than one tag is seen, use the multi–tag standard deviations.
-		if (numTags > 1) {
-			updatedStdDevs =
-					(camera == CameraConstants.Camera.LEFT_CAM)
-							? CameraConstants.Camera.LEFT_CAM.multiTagStdDevs
-							: CameraConstants.Camera.BACK_LEFT_CAM.multiTagStdDevs;
-		}
-
-		// If only one tag is seen and it is far away, assign very high uncertainty.
-		if (numTags == 1 && avgDist > 4.0) {
-			updatedStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-		} else {
-			updatedStdDevs = updatedStdDevs.times(1 + (avgDist * avgDist / 30));
-		}
-
-		// Finally, update the corresponding member variable.
-		if (camera == CameraConstants.Camera.LEFT_CAM) {
-			leftMatrix = updatedStdDevs;
-		} else {
-			backLeftMatrix = updatedStdDevs;
-		}
-	}
-
 	public Matrix<N3, N1> getStdDev(Camera camera) {
-		if (camera == Camera.LEFT_CAM) {
-			return leftMatrix;
-		} else if (camera == Camera.BACK_LEFT_CAM) {
-			return backLeftMatrix;
-		} else {
-			return null;
-		}
+		return cameraData.get(camera).stdDevMatrix;
 	}
 }

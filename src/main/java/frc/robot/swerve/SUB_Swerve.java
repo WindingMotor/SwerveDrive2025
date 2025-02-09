@@ -30,6 +30,8 @@ import frc.robot.constants.CameraConstants;
 import frc.robot.constants.CameraConstants.Camera;
 import frc.robot.constants.RobotConstants;
 import frc.robot.vision.SUB_Vision;
+import frc.robot.vision.VisionShared.CameraEstimationData;
+import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveController;
 import swervelib.parser.SwerveDriveConfiguration;
@@ -60,23 +62,19 @@ public class SUB_Swerve extends SubsystemBase {
 		io.updateInputs(inputs);
 		Logger.processInputs("Swerve", inputs);
 
+		// NOTE: Without this code the vision system will stop functioning entirely!
+
 		// Update vision with current swerve pose
 		vision.updateLastRobotPose(getPose());
 
 		// Try each camera in priority order for vision updates
-		var estimatedPose = vision.getCameraPose(Camera.LEFT_CAM);
-		var timestampSeconds = vision.inputs.timestamp;
-		var stdDevs = vision.getStdDev(Camera.LEFT_CAM);
-
-		// var stdDevs = vision.getCameraPose(Camera.LEFT_CAM);
-		if (estimatedPose != null) {
+		Optional<CameraEstimationData> estimationData =
+				vision.getCameraEstimationData(Camera.FRONT_LEFT);
+		if (estimationData.isPresent()) {
 			io.addVisionMeasurement(
-					new Pose2d(estimatedPose.getTranslation(), io.getHeading()), timestampSeconds, stdDevs);
-
-			// Log the first valid pose we get
-			Logger.recordOutput(
-					"Vision/CurrentEstimatedPose",
-					new Pose2d(estimatedPose.getTranslation(), io.getHeading()));
+					new Pose2d(estimationData.get().pose().getTranslation(), io.getHeading()),
+					estimationData.get().timestamp(),
+					estimationData.get().stdDevMatrix());
 		}
 
 		// Update camera positions for visualization

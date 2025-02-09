@@ -7,54 +7,92 @@
 
 package frc.robot.vision;
 
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.CameraConstants;
 import frc.robot.constants.CameraConstants.Camera;
+import frc.robot.vision.VisionShared.CameraEstimationData;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_Vision extends SubsystemBase {
 	private final IO_VisionBase io;
 	public final VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
 
+	// Cache for camera estimation data
+	private final Map<Camera, CameraEstimationData> estimationCache;
+	private final Map<Camera, Boolean> cacheValid;
+
 	public SUB_Vision(IO_VisionBase io) {
 		this.io = io;
+		this.estimationCache = new EnumMap<>(Camera.class);
+		this.cacheValid = new EnumMap<>(Camera.class);
+
+		// Initialize cache validity flags
+		for (Camera camera : Camera.values()) {
+			cacheValid.put(camera, false);
+		}
 	}
 
 	@Override
 	public void periodic() {
-
 		// Update inputs
 		io.updateInputs(inputs);
+
+		// Invalidate all caches since we have new input data
+		for (Camera camera : Camera.values()) {
+			cacheValid.put(camera, false);
+		}
 
 		// Process inputs
 		Logger.processInputs("Vision", inputs);
 	}
 
-	// This will be called by the Swerve Drive subsystem to update the estimated pose.
 	public void updateLastRobotPose(Pose2d currentPose) {
 		io.updateLastRobotPose(currentPose);
 	}
 
-	public Pose2d getCameraPose(CameraConstants.Camera camera) {
-		if (camera == Camera.LEFT_CAM && inputs.leftEstimatedPose != null) {
-			return inputs.leftEstimatedPose;
-		} else if (camera == Camera.BACK_LEFT_CAM && inputs.backLeftEstimatedPose != null) {
-			return inputs.backLeftEstimatedPose;
-		} else {
-			return null;
+	public Optional<CameraEstimationData> getCameraEstimationData(Camera camera) {
+		// If the cache is valid, (aka no new input data) return the last cached data
+		if (cacheValid.get(camera) && estimationCache.containsKey(camera)) {
+			return Optional.of(estimationCache.get(camera));
 		}
-	}
 
-	public Matrix<N3, N1> getStdDev(Camera camera) {
+		// Otherwise, compute new estimation data
+		Pose2d pose;
+		double timestamp;
 
-		return io.getStdDev(camera);
-	}
+		switch (camera) {
+			case FRONT_LEFT:
+				if (inputs.flEstimatedPose == null) return Optional.empty();
+				pose = inputs.flEstimatedPose;
+				timestamp = inputs.flTimestamp;
+				break;
+			case BACK_LEFT:
+				if (inputs.blEstimatedPose == null) return Optional.empty();
+				pose = inputs.blEstimatedPose;
+				timestamp = inputs.blTimestamp;
+				break;
+			case ELEVATED:
+				if (inputs.elEstimatedPose == null) return Optional.empty();
+				pose = inputs.elEstimatedPose;
+				timestamp = inputs.elTimestamp;
+				break;
+			case FRONT_RIGHT:
+				if (inputs.frEstimatedPose == null) return Optional.empty();
+				pose = inputs.frEstimatedPose;
+				timestamp = inputs.frTimestamp;
+				break;
+			default:
+				return Optional.empty();
+		}
 
-	public boolean hasTargets() {
-		return inputs.hasLeftTarget || inputs.hasBackLeftTarget;
+		// Create new estimation data and cache it
+		CameraEstimationData newData = new CameraEstimationData(pose, timestamp, io.getStdDev(camera));
+		estimationCache.put(camera, newData);
+		cacheValid.put(camera, true);
+
+		return Optional.of(newData);
 	}
 }

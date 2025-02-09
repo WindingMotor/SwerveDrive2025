@@ -17,125 +17,163 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.constants.CameraConstants;
 import frc.robot.constants.CameraConstants.Camera;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import frc.robot.vision.VisionShared.CameraData;
+import java.util.*;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
+/**
+ * Simulated implementation of the Vision I/O interface for processing AprilTag data from multiple
+ * cameras. This class simulates camera behavior and pose estimation for robot localization in a
+ * virtual environment.
+ */
 public class IO_VisionSim implements IO_VisionBase {
+
+	// Core component storage
+	private final Map<Camera, CameraData> cameraData;
 	private final VisionSystemSim visionSim;
-	private final Map<CameraConstants.Camera, PhotonCameraSim> cameraSims = new HashMap<>();
-	private final Map<CameraConstants.Camera, PhotonPipelineResult> currentResults = new HashMap<>();
-	private Optional<EstimatedRobotPose> lastEstimatedPose = Optional.empty();
-	private final AprilTagFieldLayout fieldLayout;
+	private final AprilTagFieldLayout tagLayout;
+	private Pose2d lastRobotPose = new Pose2d();
 
-	private Pose3d lastCurrentPose = new Pose3d();
-
+	/**
+	 * Initializes the simulated vision system with all required cameras and AprilTag layout. Sets up
+	 * each camera with appropriate pose estimators and simulation properties.
+	 */
 	public IO_VisionSim() {
-		fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+		// Initialize core components
+		cameraData = new EnumMap<>(Camera.class);
+		tagLayout = AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
 		visionSim = new VisionSystemSim("Vision");
-		visionSim.addAprilTags(fieldLayout);
 
-		// Set camera properties
+		// Add all AprilTags from the layout to the vision simulation
+		visionSim.addAprilTags(tagLayout);
+
+		// Set camera properties with more realistic simulation settings
 		SimCameraProperties properties = new SimCameraProperties();
-		properties.setCalibration(960, 720, new Rotation2d(Math.toRadians(100)));
-		properties.setCalibError(0.25, 0.08);
-		properties.setFPS(30);
+		properties.setCalibration(960, 720, new Rotation2d(Math.toRadians(70)));
+		properties.setCalibError(0.25, 0.08); // Pixel detection error
+		properties.setFPS(45);
 		properties.setAvgLatencyMs(35);
 		properties.setLatencyStdDevMs(5);
 
-		// Initialize cameras with proper NetworkTables entries
-		for (CameraConstants.Camera cam : CameraConstants.Camera.values()) {
-			PhotonCamera camera = new PhotonCamera(NetworkTableInstance.getDefault(), cam.name);
+		// Initialize cameras with proper NetworkTables entries and simulation setup
+		for (Camera cameraType : Camera.values()) {
+			// Create PhotonCamera with unique NetworkTables path
+			PhotonCamera camera = new PhotonCamera(NetworkTableInstance.getDefault(), cameraType.name);
+
+			// Create camera simulator with properties
 			PhotonCameraSim cameraSim = new PhotonCameraSim(camera, properties);
+
+			// Enable camera streams and wireframe for debugging
+			cameraSim.enableRawStream(true);
+			cameraSim.enableProcessedStream(true);
 			cameraSim.enableDrawWireframe(true);
-			cameraSims.put(cam, cameraSim);
-			currentResults.put(cam, new PhotonPipelineResult());
 
-			Transform3d robotToCam = new Transform3d(cam.translation, cam.rotation);
-			visionSim.addCamera(cameraSim, robotToCam);
+			// Define camera's transform relative to robot
+			Transform3d robotToCamera = new Transform3d(cameraType.translation, cameraType.rotation);
+
+			// Add camera to vision simulation
+			visionSim.addCamera(cameraSim, robotToCamera);
+
+			// Configure pose estimator with multi-tag optimization
+			PhotonPoseEstimator estimator =
+					new PhotonPoseEstimator(
+							tagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCamera);
+			estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
+			// Store all camera-related data in a single bundle
+			cameraData.put(
+					cameraType, new CameraData(camera, cameraSim, estimator, cameraType.singleTagStdDevs));
 		}
 	}
 
-	@Override
-	public void updateInputs(VisionInputs inputs) {
-		List<Pose3d> leftTagPoses = new ArrayList<>();
-		List<Pose3d> backLeftTagPoses = new ArrayList<>();
-
-		// Update all camera results first
-		for (Map.Entry<CameraConstants.Camera, PhotonCameraSim> entry : cameraSims.entrySet()) {
-			CameraConstants.Camera cam = entry.getKey();
-			PhotonCamera camera = entry.getValue().getCamera();
-
-			List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-			if (!results.isEmpty()) {
-				// Get the most recent result
-				results.sort((a, b) -> Double.compare(b.getTimestampSeconds(), a.getTimestampSeconds()));
-				currentResults.put(cam, results.get(0));
-			}
-		}
-
-		// Process the results for each camera
-		for (Map.Entry<CameraConstants.Camera, PhotonCameraSim> entry : cameraSims.entrySet()) {
-			CameraConstants.Camera cam = entry.getKey();
-			PhotonPipelineResult result = currentResults.get(cam);
-
-			if (result.hasTargets()) {
-				PhotonTrackedTarget bestTarget = result.getBestTarget();
-
-				// Calculate camera position based on robot pose
-				Pose3d cameraPose =
-						lastCurrentPose.transformBy(new Transform3d(cam.translation, cam.rotation));
-
-				// Get poses for the current camera
-				for (PhotonTrackedTarget target : result.getTargets()) {
-					Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
-					if (tagPose.isPresent()) {
-						switch (cam) {
-							case LEFT_CAM:
-								leftTagPoses.add(tagPose.get());
-								leftTagPoses.add(cameraPose);
-								inputs.hasLeftTarget = true;
-								inputs.leftBestTargetID = bestTarget.getFiducialId();
-								break;
-							case BACK_LEFT_CAM:
-								backLeftTagPoses.add(tagPose.get());
-								backLeftTagPoses.add(cameraPose);
-								inputs.hasBackLeftTarget = true;
-								inputs.backLeftBestTargetID = bestTarget.getFiducialId();
-								break;
-						}
-					}
-				}
-			}
-		}
-
-		inputs.leftVisibleTagPoses = leftTagPoses.toArray(new Pose3d[0]);
-		inputs.backLeftVisibleTagPoses = backLeftTagPoses.toArray(new Pose3d[0]);
-	}
-
+	/**
+	 * Updates the last known robot pose for simulation purposes. This is crucial for generating
+	 * accurate simulated vision data.
+	 */
 	@Override
 	public void updateLastRobotPose(Pose2d currentPose) {
-		lastCurrentPose = new Pose3d(currentPose);
-		visionSim.update(currentPose);
+		lastRobotPose = currentPose;
 	}
 
+	/**
+	 * Updates vision inputs with the latest data from all cameras. This method is called in the 60Hz
+	 * periodic loop.
+	 *
+	 * @param inputs The vision inputs structure to update
+	 */
 	@Override
-	public Optional<EstimatedRobotPose> getEstimatedGlobalPose(CameraConstants.Camera camera) {
-		return lastEstimatedPose;
+	public void updateInputs(VisionInputs inputs) {
+		// Ensure vision simulation is updated with the latest robot pose.
+		// This is crucial for generating accurate simulated vision data.
+		visionSim.update(new Pose3d(lastRobotPose));
+
+		// Process each camera sequentially
+		for (Camera camera : Camera.values()) {
+			processCamera(camera, inputs);
+		}
 	}
 
+	/**
+	 * Processes data from a single camera, updating pose estimates and target information.
+	 *
+	 * @param cameraType The camera to process
+	 * @param inputs The vision inputs to update
+	 */
+	private void processCamera(Camera cameraType, VisionInputs inputs) {
+		// Get the camera data object
+		CameraData data = cameraData.get(cameraType);
+
+		// Update camera results
+		List<PhotonPipelineResult> results = data.camera.getAllUnreadResults();
+		if (!results.isEmpty()) {
+			// Sort and get the most recent result
+			results.sort((a, b) -> Double.compare(b.getTimestampSeconds(), a.getTimestampSeconds()));
+			data.latestResult = results.get(0);
+		}
+
+		// Check if camera result has a target
+		boolean hasTarget = data.latestResult.hasTargets();
+
+		// Update hasTarget input data
+		VisionShared.setHasTarget(inputs, cameraType, hasTarget);
+
+		// Update more target input data
+		VisionShared.updateTargetInfo(
+				inputs, cameraType, data.latestResult, data, tagLayout, lastRobotPose);
+
+		// Attempt to get estimated pose
+		EstimatedRobotPose estimatedPose = getEstimatedGlobalPose(cameraType).orElse(null);
+		if (estimatedPose != null) {
+			VisionShared.setPoseEstimate(inputs, cameraType, estimatedPose.estimatedPose.toPose2d());
+			VisionShared.updateEstimationStdDevs(
+					cameraType, estimatedPose, data.latestResult.getTargets(), data, tagLayout);
+		}
+	}
+
+	/** Retrieves the estimated global pose for a specific camera. */
+	private Optional<EstimatedRobotPose> getEstimatedGlobalPose(Camera camera) {
+		CameraData data = cameraData.get(camera);
+		PhotonPipelineResult result = data.latestResult;
+
+		if (!result.hasTargets()) {
+			return Optional.empty();
+		}
+
+		// Use the pose estimator to get the estimated pose
+		return data.estimator.update(result);
+	}
+
+	/** Retrieves the standard deviation matrix for a specific camera. */
+	@Override
 	public Matrix<N3, N1> getStdDev(Camera camera) {
-		return null;
+		return cameraData.get(camera).stdDevMatrix;
 	}
 }
