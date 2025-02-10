@@ -57,9 +57,9 @@ public class IO_VisionSim implements IO_VisionBase {
 
 		// Set camera properties with more realistic simulation settings
 		SimCameraProperties properties = new SimCameraProperties();
-		properties.setCalibration(960, 720, new Rotation2d(Math.toRadians(70)));
-		properties.setCalibError(0.25, 0.08); // Pixel detection error
-		properties.setFPS(45);
+		properties.setCalibration(1280, 900, new Rotation2d(Math.toRadians(70)));
+		properties.setCalibError(0.35, 0.08); // Pixel detection error
+		properties.setFPS(25);
 		properties.setAvgLatencyMs(35);
 		properties.setLatencyStdDevMs(5);
 
@@ -71,7 +71,7 @@ public class IO_VisionSim implements IO_VisionBase {
 			// Create camera simulator with properties
 			PhotonCameraSim cameraSim = new PhotonCameraSim(camera, properties);
 
-			// Enable camera streams and wireframe for debugging
+			// Camera streams and wireframe for debugging
 			cameraSim.enableRawStream(true);
 			cameraSim.enableProcessedStream(true);
 			cameraSim.enableDrawWireframe(true);

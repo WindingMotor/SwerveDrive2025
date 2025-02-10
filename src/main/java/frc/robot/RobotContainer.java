@@ -100,6 +100,7 @@ public class RobotContainer {
 	private void configureButtonBindings() {
 
 		// Extake
+		
 		operatorController.x().onTrue(new CMD_Eject(superstructure));
 
 		// Coral Controls
@@ -140,6 +141,6 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		return swerve.getAutonomousCommand("TEST");
+		return swerve.getAutonomousCommand("RIGHT_4L4");
 	}
 }

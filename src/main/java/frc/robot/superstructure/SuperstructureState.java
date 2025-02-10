@@ -59,7 +59,6 @@ public class SuperstructureState {
 	public static final State L2_SCORING = createState("L2_SCORING", 0.8, 120, 0.0);
 	public static final State L3_SCORING = createState("L3_SCORING", 1.4, 120, 0.0);
 	public static final State L4_SCORING = createState("L4_SCORING", 2.415, 128, 0.0);
-	// public static final State L4_SCORING = createState("L4_SCORING", 2.415, 121, 0.0);
 
 	// Algae states
 	public static final State ALGAE_GROUND = createState("ALGAE_GROUND", 0.1, 135, 0.95);

@@ -26,7 +26,7 @@ public final class CameraConstants {
 				new Translation3d(
 						Units.inchesToMeters(2.0),
 						Units.inchesToMeters(9.5),
-						Units.inchesToMeters(21)), // X (red), Y (green), Z (height)
+						Units.inchesToMeters(19)), // X (red), Y (green), Z (height)
 				VecBuilder.fill(1.0, 1.0, 4),
 				VecBuilder.fill(0.5, 0.5, 1)),
 
@@ -42,17 +42,19 @@ public final class CameraConstants {
 
 		BACK_LEFT(
 				"OV9281_03",
-				new Rotation3d(0, Units.degreesToRadians(-155), 0),
+				new Rotation3d(0, Units.degreesToRadians(-155 - 15), 0),
 				new Translation3d(
 						Units.inchesToMeters(-11.25), Units.inchesToMeters(9), Units.inchesToMeters(20.5)),
 				VecBuilder.fill(1.0, 1.0, 4),
 				VecBuilder.fill(0.5, 0.5, 1)),
 
 		FRONT_RIGHT(
-				"OV9281_03",
-				new Rotation3d(0, Units.degreesToRadians(-155), 0),
+				"OV9281_10",
+				new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-75)),
 				new Translation3d(
-						Units.inchesToMeters(-11.25), Units.inchesToMeters(9), Units.inchesToMeters(20.5)),
+						Units.inchesToMeters(2.0),
+						Units.inchesToMeters(-9.5),
+						Units.inchesToMeters(19)), // X (red), Y (green), Z (height)
 				VecBuilder.fill(1.0, 1.0, 4),
 				VecBuilder.fill(0.5, 0.5, 1));
 
@@ -79,6 +81,7 @@ public final class CameraConstants {
 	public static final Pose3d[] CAMERA_POSITIONS = {
 		new Pose3d(Camera.FRONT_LEFT.translation, Camera.FRONT_LEFT.rotation),
 		new Pose3d(Camera.ELEVATED.translation, Camera.ELEVATED.rotation),
-		new Pose3d(Camera.BACK_LEFT.translation, Camera.BACK_LEFT.rotation)
+		new Pose3d(Camera.BACK_LEFT.translation, Camera.BACK_LEFT.rotation),
+		new Pose3d(Camera.FRONT_RIGHT.translation, Camera.FRONT_RIGHT.rotation)
 	};
 }

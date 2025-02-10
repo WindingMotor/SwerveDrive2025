@@ -14,39 +14,40 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import frc.robot.constants.RobotConstants;
 import frc.robot.util.IRBeamBreak;
 
 public class IO_IntakeReal implements IO_IntakeBase {
 
 	private SparkMax armMotor;
 	private SparkMax wheelMotor;
-
-	private IRBeamBreak toggleSensor;
+	private IRBeamBreak sensor;
 
 	public IO_IntakeReal() {
 
-		armMotor = new SparkMax(21, MotorType.kBrushless);
-		wheelMotor = new SparkMax(22, MotorType.kBrushless);
-		toggleSensor = new IRBeamBreak(9);
+		armMotor = new SparkMax(RobotConstants.Intake.ARM_MOTOR_ID, MotorType.kBrushless);
+		wheelMotor = new SparkMax(RobotConstants.Intake.WHEEL_MOTOR_ID, MotorType.kBrushless);
+		sensor = new IRBeamBreak(RobotConstants.Intake.SENSOR_RIO_ID);
 
 		SparkMaxConfig wheelSparkMaxConfig = new SparkMaxConfig();
-		wheelSparkMaxConfig.smartCurrentLimit(55);
+		wheelSparkMaxConfig.smartCurrentLimit(RobotConstants.Intake.WHEEL_MOTOR_CURRENT_LIMIT);
 		wheelMotor.configure(
 				wheelSparkMaxConfig,
 				SparkBase.ResetMode.kNoResetSafeParameters,
 				SparkBase.PersistMode.kPersistParameters);
 
 		SparkMaxConfig armSparkMaxConfig = new SparkMaxConfig();
-		armSparkMaxConfig.absoluteEncoder.positionConversionFactor(165);
+		armSparkMaxConfig.absoluteEncoder.positionConversionFactor(
+				RobotConstants.Intake.ARM_ENCODER_FACTOR);
 		armSparkMaxConfig.absoluteEncoder.inverted(true);
 		armSparkMaxConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
 		armSparkMaxConfig.inverted(true);
 
 		ClosedLoopConfig closedLoopConfig = new ClosedLoopConfig();
 
-		closedLoopConfig.p(0.013);
-		closedLoopConfig.i(0);
-		closedLoopConfig.d(0);
+		closedLoopConfig.p(RobotConstants.Intake.ARM_P);
+		closedLoopConfig.i(RobotConstants.Intake.ARM_I);
+		closedLoopConfig.d(RobotConstants.Intake.ARM_D);
 
 		armSparkMaxConfig.apply(closedLoopConfig);
 
@@ -61,18 +62,20 @@ public class IO_IntakeReal implements IO_IntakeBase {
 	@Override
 	public void updateInputs(IntakeInputs inputs) {
 
-		inputs.armAngleDegrees = armMotor.getAbsoluteEncoder().getPosition() + 12;
+		inputs.armAngleDegrees =
+				armMotor.getAbsoluteEncoder().getPosition() + RobotConstants.Intake.ARM_ENCODER_LOOP_OFFSET;
 		inputs.armMotorVoltage = armMotor.getAppliedOutput();
 		inputs.armMotorCurrent = armMotor.getOutputCurrent();
 		inputs.wheelMotorCurrent = wheelMotor.getOutputCurrent();
 		inputs.wheelRPM = wheelMotor.getEncoder().getVelocity();
-		inputs.toggleSensor = toggleSensor.getState();
-		inputs.distanceSensorCM = 0;
+		inputs.sensor = sensor.getState();
 	}
 
 	@Override
 	public void setArmAngle(double angle) {
-		armMotor.getClosedLoopController().setReference(angle - 14, ControlType.kPosition);
+		armMotor
+				.getClosedLoopController()
+				.setReference(angle + RobotConstants.Intake.ARM_ENCODER_PID_OFFSET, ControlType.kPosition);
 	}
 
 	@Override

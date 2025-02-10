@@ -15,6 +15,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.constants.RobotConstants;
 
 public class IO_ElevatorReal implements IO_ElevatorBase {
 
@@ -43,8 +44,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		- For getting the exact middle position of the carriage, we add an offset.
 		*/
 
-		double METERS_PER_MOTOR_ROTATION = 0.0257951242902;
-		motorConfigs.Feedback.SensorToMechanismRatio = METERS_PER_MOTOR_ROTATION;
+		motorConfigs.Feedback.SensorToMechanismRatio =
+				RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 
 		/*
 		Motion Magic Elevator Tuning Guide:
@@ -118,30 +119,31 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 		// Set slot 0 configs
 		var slot0Configs = motorConfigs.Slot0;
-		slot0Configs.kS = 0.35; // Static friction compensation (V)
+		slot0Configs.kS = RobotConstants.Elevator.KS; // Static friction compensation (V)
 
-		// TODO: Set these values, most likely needed for motion magic to work!
-		slot0Configs.kV = 0.01; // Velocity feed forward (V per m/s)
-		slot0Configs.kA = 0; // Acceleration feed forward (V per m/s²)
+		slot0Configs.kV = RobotConstants.Elevator.KV; // Velocity feed forward (V per m/s)
+		slot0Configs.kA = RobotConstants.Elevator.KA; // Acceleration feed forward (V per m/s²)
 
-		slot0Configs.kP = 0.052; // Position error gain (V per meter)
-		slot0Configs.kI = 0; // Integral gain for steady-state error
-		slot0Configs.kD = 0; // Derivative gain for damping
+		slot0Configs.kP = RobotConstants.Elevator.KP; // Position error gain (V per meter)
+		slot0Configs.kI = RobotConstants.Elevator.KI; // Integral gain for steady-state error
+		slot0Configs.kD = RobotConstants.Elevator.KD; // Derivative gain for damping
 
-		slot0Configs.kG = 0.22; // Gravity compensation
+		slot0Configs.kG = RobotConstants.Elevator.KG; // Gravity compensation
 		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
 
 		// Set motion magic
 		var motionMagicConfigs = motorConfigs.MotionMagic;
-		motionMagicConfigs.MotionMagicCruiseVelocity = 2500; // mm/s
-		motionMagicConfigs.MotionMagicAcceleration = 4000; // mm/s^2
-		motionMagicConfigs.MotionMagicJerk = 6000; // mm/s^2
+		motionMagicConfigs.MotionMagicCruiseVelocity = RobotConstants.Elevator.CRUISE_VELOCITY; // mm/s
+		motionMagicConfigs.MotionMagicAcceleration = RobotConstants.Elevator.ACCELERATION; // mm/s^2
+		motionMagicConfigs.MotionMagicJerk = RobotConstants.Elevator.JERK; // mm/s^2
 
 		// Apply soft limits
 		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 2420; // Set to max height in mm
+		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+				RobotConstants.Elevator.MAX_HEIGHT; // Set to max height in mm
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+				RobotConstants.Elevator.MIN_HEIGHT; // Set to min height in mm
 
 		// Setup both motors
 		setupMotors(motorConfigs);

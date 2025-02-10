@@ -28,7 +28,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.CameraConstants;
 import frc.robot.constants.CameraConstants.Camera;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.RobotConstants;
+import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.Circle2d;
 import frc.robot.vision.SUB_Vision;
 import frc.robot.vision.VisionShared.CameraEstimationData;
 import java.util.Optional;
@@ -94,6 +97,20 @@ public class SUB_Swerve extends SubsystemBase {
 									CameraConstants.CAMERA_POSITIONS[i].getTranslation(),
 									CameraConstants.CAMERA_POSITIONS[i].getRotation()));
 		}
+
+		// Blue sided reef circle
+		Translation2d blueReefCenter = FieldConstants.Reef.center;
+
+		Circle2d circle = new Circle2d(blueReefCenter.getX(), blueReefCenter.getY(), 1.5);
+		Pose2d[] estimatedEdgePoses = circle.getEstimatedEdgePoses(25);
+		Logger.recordOutput("BlueReefTest", estimatedEdgePoses);
+
+		// Red sided reef circle
+		Translation2d redReefCenter = AllianceFlipUtil.apply(blueReefCenter);
+
+		Circle2d redCircle = new Circle2d(redReefCenter.getX(), redReefCenter.getY(), 1.5);
+		Pose2d[] redEstimatedEdgePoses = redCircle.getEstimatedEdgePoses(25);
+		Logger.recordOutput("RedReefTest", redEstimatedEdgePoses);
 
 		// Record camera positions for visualization
 		Logger.recordOutput("CameraPositions", globalCameraPositions);

@@ -38,6 +38,6 @@ public class SUB_Intake extends SubsystemBase {
 	}
 
 	public boolean getSensorState() {
-		return inputs.toggleSensor;
+		return inputs.sensor;
 	}
 }
