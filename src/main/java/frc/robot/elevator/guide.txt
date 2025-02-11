@@ -1,21 +1,5 @@
 	
-		/*
-		Conversion factor explained:
-		METERS_PER_MOTOR_ROTATION represents the linear travel of the elevator per motor rotation.
-		It is derived using the formula:
-			(1 / gearbox ratio) * (PI * pitch circle diameter of the sprocket) * stage multiplier
-		- The gearbox ratio determines how much the motor turns relative to the output.
-		- PI * pitch circle diameter gives the circumference of the sprocket, corresponding to
-			the linear movement for one rotation.
-		- The stage multiplier accounts for additional travel as the stage extends (e.g., stage 2
-			doubles the first stage, stage 3 triples, etc.).
-			For this calculation:
-			(1 / 16.25) * (PI * 0.0444754) * 3
-			= 0.0257951242902 meters per motor rotation.
-		- For getting the exact middle position of the carriage, we add an offset.
-		*/
-    
-    
+
     
     	/*
 		Motion Magic Elevator Tuning Guide:

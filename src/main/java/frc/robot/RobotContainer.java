@@ -7,19 +7,15 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.CMD_Drive;
 import frc.robot.commands.generic.CMD_Eject;
-import frc.robot.commands.generic.CMD_Elevator;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.InputConstants;
 import frc.robot.elevator.IO_ElevatorReal;
@@ -102,27 +98,92 @@ public class RobotContainer {
 
 	private void configureButtonBindings() {
 
-		// Y button - Execute Quasistatic SysId in forward direction
-		operatorController.y().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-		
-		// A button - Execute Quasistatic SysId in reverse direction
-		operatorController.a().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-		
-		// B button - Execute Dynamic SysId in forward direction
-		operatorController.b().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
-		
-		// X button - Execute Dynamic SysId in reverse direction
-		operatorController.x().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+		/*
+		// State enum for tracking test sequence
+		enum SysIdState {
+			WAITING,
+			DYN_FORWARD,
+			DYN_REVERSE,
+			QUASI_FORWARD,
+			QUASI_REVERSE,
+			COMPLETE
+		}
 
-		// Signal Logger Controls
-		// Left Bumper - Start logging signals
-		operatorController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-		
-		// Right Bumper - Stop logging signals
-		operatorController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+		// Create atomic reference to track state
+		AtomicReference<SysIdState> currentState = new AtomicReference<>(SysIdState.WAITING);
+
+		// A button - Start logging and begin sequence
+		operatorController
+				.a()
+				.onTrue(
+						Commands.runOnce(
+								() -> {
+									StatusCode startStatus = SignalLogger.start();
+									currentState.set(SysIdState.DYN_FORWARD);
+									DriverStation.reportError(
+											"SysId Started - Ready for Dynamic Forward Test", false);
+								}));
+
+		// X button - Run current test and advance to next
+		operatorController
+				.x()
+				.onTrue(
+						Commands.runOnce(
+								() -> {
+									elevator.setVoltage(0); // Stop any current movement
+
+									switch (currentState.get()) {
+										case DYN_FORWARD:
+											elevator.sysIdDynamic(SysIdRoutine.Direction.kForward).schedule();
+											currentState.set(SysIdState.DYN_REVERSE);
+											DriverStation.reportError(
+													"Dynamic Forward Complete - Ready for Dynamic Reverse", false);
+											break;
+
+										case DYN_REVERSE:
+											elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse).schedule();
+											currentState.set(SysIdState.QUASI_FORWARD);
+											DriverStation.reportError(
+													"Dynamic Reverse Complete - Ready for Quasistatic Forward", false);
+											break;
+
+										case QUASI_FORWARD:
+											elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward).schedule();
+											currentState.set(SysIdState.QUASI_REVERSE);
+											DriverStation.reportError(
+													"Quasistatic Forward Complete - Ready for Quasistatic Reverse", false);
+											break;
+
+										case QUASI_REVERSE:
+											elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).schedule();
+											currentState.set(SysIdState.COMPLETE);
+											DriverStation.reportError(
+													"Quasistatic Reverse Complete - All Tests Done!", false);
+											break;
+
+										default:
+											DriverStation.reportError("No test to run or sequence complete", false);
+											break;
+									}
+								}));
+
+		// B button - Stop logging and reset
+		operatorController
+				.b()
+				.onTrue(
+						Commands.runOnce(
+								() -> {
+									elevator.setVoltage(0);
+									StatusCode stopStatus = SignalLogger.stop();
+									currentState.set(SysIdState.WAITING);
+									DriverStation.reportError(
+											"SysId Stopped - Logger Status: " + stopStatus.toString(), false);
+								}));
+
+								*/
 
 		// Extake
-		/*
+
 		operatorController.x().onTrue(new CMD_Eject(superstructure));
 
 		// Coral Controls
@@ -132,18 +193,6 @@ public class RobotContainer {
 
 		// Algae Controls
 		operatorController.leftBumper().onTrue(new CMD_ElevatorAlgae(superstructure, true));
-
-		
-		operatorController
-				.leftBumper()
-				.onTrue(new CMD_ElevatorCoral(superstructure, false)); // DPAD-DOWN - Coral down
-		
-
-		// Algae controls
-		// peratorController.povLeft().onTrue(new CMD_ElevatorAlgae(superstructure, false)); //
-		// DPAD-LEFT
-		// operatorController.povRight().onTrue(new CMD_ElevatorAlgae(superstructure, true)); //
-		// DPAD-RIGHT
 
 		// Intake
 		operatorController
@@ -157,10 +206,9 @@ public class RobotContainer {
 
 		// Climbing
 
-		operatorController
-				.leftStick()
-				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.CLIMB));
-		*/
+		//	operatorController
+		//		.leftStick()
+		//		.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.CLIMB));
 	}
 
 	public Command getAutonomousCommand() {

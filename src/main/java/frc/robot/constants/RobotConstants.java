@@ -57,27 +57,28 @@ public final class RobotConstants {
 		public static final int RIGHT_MOTOR_ID = 9;
 		public static final String CANIVORE_NAME = "canivore";
 
-		public static final double MILIMETERS_PER_MOTOR_ROTATION = 0.0257951242902;
+		public static final double METERS_PER_MOTOR_ROTATION = 0.025795;
 
 		// Motion Magic Configuration
-		public static final double CRUISE_VELOCITY = 800; // mm/s
-		public static final double ACCELERATION = 400; // mm/s²
-		public static final double JERK = 300; // mm/s³
+		public static final double CRUISE_VELOCITY = 2 / METERS_PER_MOTOR_ROTATION; // m/s
+		public static final double ACCELERATION = 1.5 / METERS_PER_MOTOR_ROTATION; // m/s²
+		public static final double JERK = .5 / METERS_PER_MOTOR_ROTATION; // m/s³
 
 		// Feed Forward and PID Constants
-		public static final double KS = 0.0; // Add V output to overcome static friction
+		public static final double KS = 0.56134; // Add V output to overcome static friction
 
-		public static final double KV = 0.0; // Velocity of 1 m/s results in 0.01 V output //  0.085;
-		public static final double KA = 0.0; // Accel of 1 m/s² results in 0.00 V output
+		public static final double KV =
+				0.089361; // Velocity of 1 m/s results in 0.01 V output //  0.085;
+		public static final double KA = 0.042142; // Accel of 1 m/s² results in 0.00 V output
 
-		public static final double KG = 0.0; // Gravity Compensation
+		public static final double KG = 0.54418; // Gravity Compensation
 
-		public static final double KP = 0.0; //  A position error of 1m results in 12 V output
-		public static final double KI = 0.0; // No output for integrated error
+		public static final double KP = 34.742; //  A position error of 1m results in 12 V output
+		public static final double KI = 1.6658; // No output for integrated error
 		public static final double KD = 0.0; //  A velocity error of 1 m/s results in 0.1 V output
 
 		/*
-		 * 
+		 *
 		 * 		public static final double KS = 0.2; // Add V output to overcome static friction
 
 		public static final double KV = 0.75; // Velocity of 1 m/s results in 0.01 V output //  0.085;
@@ -90,7 +91,7 @@ public final class RobotConstants {
 		public static final double KD = 0.0; //  A velocity error of 1 m/s results in 0.1 V output
 		 */
 		// Position Limits
-		public static final double MIN_HEIGHT = 0.0; // mm
-		public static final double MAX_HEIGHT = 2420.0; // mm
+		public static final double MIN_HEIGHT = 0.0; // m
+		public static final double MAX_HEIGHT = 2.4; // m
 	}
 }

@@ -7,44 +7,38 @@
 
 package frc.robot.elevator;
 
-import static edu.wpi.first.units.Units.Volts;
-
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Units.*;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.constants.RobotConstants;
 
 public class IO_ElevatorReal implements IO_ElevatorBase {
 
 	private final TalonFX leftMotor_10;
 	private final TalonFX rightMotor_9;
-	private final MotionMagicVoltage magicMotion;
+	private final MotionMagicExpoVoltage magicMotion;
 
 	public IO_ElevatorReal() {
 		leftMotor_10 = new TalonFX(10, "canivore");
 		rightMotor_9 = new TalonFX(9, "canivore");
 		var motorConfigs = new TalonFXConfiguration();
 
-		motorConfigs.Feedback.SensorToMechanismRatio =
-				RobotConstants.Elevator.MILIMETERS_PER_MOTOR_ROTATION;
+		motorConfigs.Feedback.SensorToMechanismRatio = 1.0;
+
+		// RobotConstants.Elevator.MILIMETERS_PER_MOTOR_ROTATION;
 
 		// Set slot 0 configs
 		var slot0Configs = motorConfigs.Slot0;
 		slot0Configs.kS = RobotConstants.Elevator.KS; // Static friction compensation (V)
 
-		slot0Configs.kV = RobotConstants.Elevator.KV; // Velocity feed forward (V per m/s)
-		slot0Configs.kA = RobotConstants.Elevator.KA; // Acceleration feed forward (V per m/s²)
+		slot0Configs.kV = RobotConstants.Elevator.KV; // Velocity feed forward (V per rot)
+		slot0Configs.kA = RobotConstants.Elevator.KA; // Acceleration feed forward (V per rot)
 
 		slot0Configs.kP = RobotConstants.Elevator.KP; // Position error gain (V per meter)
 		slot0Configs.kI = RobotConstants.Elevator.KI; // Integral gain for steady-state error
@@ -55,33 +49,41 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 		// Set motion magic
 		var motionMagicConfigs = motorConfigs.MotionMagic;
-		motionMagicConfigs.MotionMagicCruiseVelocity = RobotConstants.Elevator.CRUISE_VELOCITY; // mm/s
-		motionMagicConfigs.MotionMagicAcceleration = RobotConstants.Elevator.ACCELERATION; // mm/s^2
-		motionMagicConfigs.MotionMagicJerk = RobotConstants.Elevator.JERK; // mm/s^2
+		motionMagicConfigs.MotionMagicCruiseVelocity = RobotConstants.Elevator.CRUISE_VELOCITY;
+		motionMagicConfigs.MotionMagicAcceleration = RobotConstants.Elevator.ACCELERATION;
+		motionMagicConfigs.MotionMagicJerk = RobotConstants.Elevator.JERK;
+
+		motionMagicConfigs.MotionMagicExpo_kA = RobotConstants.Elevator.KA;
+		motionMagicConfigs.MotionMagicExpo_kV = RobotConstants.Elevator.KV;
 
 		// Apply soft limits
 		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
 		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-				RobotConstants.Elevator.MAX_HEIGHT; // Set to max height in mm
+				RobotConstants.Elevator.MAX_HEIGHT / RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-				RobotConstants.Elevator.MIN_HEIGHT; // Set to min height in mm
+		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = RobotConstants.Elevator.MIN_HEIGHT;
 
 		// Setup both motors
 		setupMotors(motorConfigs);
 
 		// Create motor request at default position
-		magicMotion = new MotionMagicVoltage(0).withSlot(0);
+		magicMotion = new MotionMagicExpoVoltage(0).withSlot(0);
 	}
 
 	@Override
 	public void updateInputs(ElevatorInputs inputs) {
 
-		inputs.heightMM = leftMotor_10.getPosition().getValueAsDouble();
-		inputs.velocityMMPS = leftMotor_10.getVelocity().getValueAsDouble();
-		inputs.accelerationMMPS2 = leftMotor_10.getAcceleration().getValueAsDouble();
+		inputs.heightMM =
+				leftMotor_10.getPosition().getValueAsDouble()
+						* RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
+		inputs.velocityMMPS =
+				leftMotor_10.getVelocity().getValueAsDouble()
+						* RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
+		inputs.accelerationMMPS2 =
+				leftMotor_10.getAcceleration().getValueAsDouble()
+						* RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 
-		inputs.setpointMM = magicMotion.Position;
+		inputs.setpointMM = magicMotion.Position * RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 		inputs.leftMotorVoltage = leftMotor_10.getMotorVoltage().getValueAsDouble();
 		inputs.rightMotorVoltage = rightMotor_9.getMotorVoltage().getValueAsDouble();
 		inputs.leftMotorCurrent = leftMotor_10.getSupplyCurrent().getValueAsDouble();
@@ -92,11 +94,11 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 	@Override
 	public void setPositionM(double newPositionM) {
-		// Convert to millimeters and update last setpoint
-		double targetMM = newPositionM * 1000;
+
+		double targetRot = newPositionM / RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 
 		// Update motor request
-		magicMotion.withPosition(targetMM);
+		magicMotion.withPosition(targetRot);
 
 		leftMotor_10.setControl(magicMotion);
 		rightMotor_9.setControl(magicMotion);

@@ -12,12 +12,12 @@ public final class BuildConstants {
 	public static final String MAVEN_GROUP = "";
 	public static final String MAVEN_NAME = "SwerveDrive2025";
 	public static final String VERSION = "unspecified";
-	public static final int GIT_REVISION = 76;
-	public static final String GIT_SHA = "6b607fdc4a60a84c24fefe926fcca8f99a7321ee";
-	public static final String GIT_DATE = "2025-02-11 12:07:46 EST";
+	public static final int GIT_REVISION = 77;
+	public static final String GIT_SHA = "1357b35879366d2a14e214c05fd788dca862822a";
+	public static final String GIT_DATE = "2025-02-11 12:41:19 EST";
 	public static final String GIT_BRANCH = "main";
-	public static final String BUILD_DATE = "2025-02-11 12:24:15 EST";
-	public static final long BUILD_UNIX_TIME = 1739294655082L;
+	public static final String BUILD_DATE = "2025-02-11 15:47:03 EST";
+	public static final long BUILD_UNIX_TIME = 1739306823460L;
 	public static final int DIRTY = 1;
 
 	private BuildConstants() {}

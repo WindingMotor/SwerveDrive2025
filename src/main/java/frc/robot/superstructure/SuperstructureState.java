@@ -50,7 +50,7 @@ public class SuperstructureState {
 
 	// Pre-defined states
 	// Height (M), Angle (Deg), Speed (RPM)
-	public static final State IDLE = createState("IDLE", 0.05, 18, 0.0);
+	public static final State IDLE = createState("IDLE", 0.05, 90, 0.0); // 18
 	public static final State CLIMB = createState("CLIMB", 0.8, 0, 0.0);
 
 	// Coral states
