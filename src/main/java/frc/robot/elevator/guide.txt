@@ -1,6 +1,4 @@
 	
-
-    
     	/*
 		Motion Magic Elevator Tuning Guide:
 

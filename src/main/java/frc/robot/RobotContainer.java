@@ -16,6 +16,7 @@ import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.CMD_Drive;
 import frc.robot.commands.generic.CMD_Eject;
+import frc.robot.commands.generic.CMD_Elevator;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.InputConstants;
 import frc.robot.elevator.IO_ElevatorReal;
@@ -29,7 +30,6 @@ import frc.robot.swerve.SUB_Swerve;
 import frc.robot.util.SUB_Led;
 import frc.robot.vision.IO_VisionReal;
 import frc.robot.vision.SUB_Vision;
-import frc.robot.webserver.WebServer;
 import java.io.File;
 
 public class RobotContainer {
@@ -45,7 +45,6 @@ public class RobotContainer {
 	private SUB_Elevator elevator;
 	private SUB_Superstructure superstructure;
 	private SUB_Led led;
-	private WebServer webServer;
 
 	public RobotContainer() {
 		// Initialize Controllers
@@ -68,7 +67,6 @@ public class RobotContainer {
 	}
 
 	private void initializeSubsystems() {
-		webServer = new WebServer();
 		vision = new SUB_Vision(new IO_VisionReal());
 		swerve =
 				new SUB_Swerve(
@@ -83,14 +81,7 @@ public class RobotContainer {
 		swerve.setDefaultCommand(new CMD_Drive(swerve, driverController, globalInputMap));
 	}
 
-	private void configureWebserverCommands() {
-		/*
-		webServer.registerCommand("T1", swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_LEFT));
-		webServer.registerCommand("T2", swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_RIGHT));
-		webServer.registerCommand("TL1", swerve.driveToPose(FieldConstants.BLUE_TOP_LEFT_BOTTOM));
-		webServer.registerCommand("TL2", swerve.driveToPose(FieldConstants.BLUE_TOP_LEFT_TOP));
-		*/
-	}
+	private void configureWebserverCommands() {}
 
 	private void configurePathPlannerCommands() {
 		NamedCommands.registerCommand("Intake_Algae", new PrintCommand("Intake Algae"));
@@ -98,92 +89,7 @@ public class RobotContainer {
 
 	private void configureButtonBindings() {
 
-		/*
-		// State enum for tracking test sequence
-		enum SysIdState {
-			WAITING,
-			DYN_FORWARD,
-			DYN_REVERSE,
-			QUASI_FORWARD,
-			QUASI_REVERSE,
-			COMPLETE
-		}
-
-		// Create atomic reference to track state
-		AtomicReference<SysIdState> currentState = new AtomicReference<>(SysIdState.WAITING);
-
-		// A button - Start logging and begin sequence
-		operatorController
-				.a()
-				.onTrue(
-						Commands.runOnce(
-								() -> {
-									StatusCode startStatus = SignalLogger.start();
-									currentState.set(SysIdState.DYN_FORWARD);
-									DriverStation.reportError(
-											"SysId Started - Ready for Dynamic Forward Test", false);
-								}));
-
-		// X button - Run current test and advance to next
-		operatorController
-				.x()
-				.onTrue(
-						Commands.runOnce(
-								() -> {
-									elevator.setVoltage(0); // Stop any current movement
-
-									switch (currentState.get()) {
-										case DYN_FORWARD:
-											elevator.sysIdDynamic(SysIdRoutine.Direction.kForward).schedule();
-											currentState.set(SysIdState.DYN_REVERSE);
-											DriverStation.reportError(
-													"Dynamic Forward Complete - Ready for Dynamic Reverse", false);
-											break;
-
-										case DYN_REVERSE:
-											elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse).schedule();
-											currentState.set(SysIdState.QUASI_FORWARD);
-											DriverStation.reportError(
-													"Dynamic Reverse Complete - Ready for Quasistatic Forward", false);
-											break;
-
-										case QUASI_FORWARD:
-											elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward).schedule();
-											currentState.set(SysIdState.QUASI_REVERSE);
-											DriverStation.reportError(
-													"Quasistatic Forward Complete - Ready for Quasistatic Reverse", false);
-											break;
-
-										case QUASI_REVERSE:
-											elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse).schedule();
-											currentState.set(SysIdState.COMPLETE);
-											DriverStation.reportError(
-													"Quasistatic Reverse Complete - All Tests Done!", false);
-											break;
-
-										default:
-											DriverStation.reportError("No test to run or sequence complete", false);
-											break;
-									}
-								}));
-
-		// B button - Stop logging and reset
-		operatorController
-				.b()
-				.onTrue(
-						Commands.runOnce(
-								() -> {
-									elevator.setVoltage(0);
-									StatusCode stopStatus = SignalLogger.stop();
-									currentState.set(SysIdState.WAITING);
-									DriverStation.reportError(
-											"SysId Stopped - Logger Status: " + stopStatus.toString(), false);
-								}));
-
-								*/
-
 		// Extake
-
 		operatorController.x().onTrue(new CMD_Eject(superstructure));
 
 		// Coral Controls
@@ -206,9 +112,9 @@ public class RobotContainer {
 
 		// Climbing
 
-		//	operatorController
-		//		.leftStick()
-		//		.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.CLIMB));
+		operatorController
+				.leftStick()
+				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.CLIMB));
 	}
 
 	public Command getAutonomousCommand() {

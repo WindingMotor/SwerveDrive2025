@@ -33,9 +33,6 @@ public class IO_VisionReal implements IO_VisionBase {
 	private final AprilTagFieldLayout tagLayout;
 	private Pose2d lastRobotPose = new Pose2d();
 
-	// Reusable buffer to avoid ArrayList allocations in the hot path
-	private final List<PhotonTrackedTarget> targetBuffer = new ArrayList<>();
-
 	/**
 	 * Initializes the vision system with all required cameras and AprilTag layout. Sets up each
 	 * camera with appropriate pose estimators and calibration data.

@@ -14,7 +14,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.units.Units.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.RobotConstants;
 
@@ -29,22 +28,21 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		rightMotor_9 = new TalonFX(9, "canivore");
 		var motorConfigs = new TalonFXConfiguration();
 
+		// 1 Rotation = 1 Rotation
 		motorConfigs.Feedback.SensorToMechanismRatio = 1.0;
-
-		// RobotConstants.Elevator.MILIMETERS_PER_MOTOR_ROTATION;
 
 		// Set slot 0 configs
 		var slot0Configs = motorConfigs.Slot0;
-		slot0Configs.kS = RobotConstants.Elevator.KS; // Static friction compensation (V)
+		slot0Configs.kS = RobotConstants.Elevator.KS; // Static friction compensation (v/rot)
 
-		slot0Configs.kV = RobotConstants.Elevator.KV; // Velocity feed forward (V per rot)
-		slot0Configs.kA = RobotConstants.Elevator.KA; // Acceleration feed forward (V per rot)
+		slot0Configs.kV = RobotConstants.Elevator.KV; // Velocity feed forward (v/rot)
+		slot0Configs.kA = RobotConstants.Elevator.KA; // Acceleration feed forward (v/rot)
 
-		slot0Configs.kP = RobotConstants.Elevator.KP; // Position error gain (V per meter)
+		slot0Configs.kP = RobotConstants.Elevator.KP; // Position error gain (p amount/%v error)
 		slot0Configs.kI = RobotConstants.Elevator.KI; // Integral gain for steady-state error
 		slot0Configs.kD = RobotConstants.Elevator.KD; // Derivative gain for damping
 
-		slot0Configs.kG = RobotConstants.Elevator.KG; // Gravity compensation
+		slot0Configs.kG = RobotConstants.Elevator.KG; // Gravity compensation (v/rot)
 		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
 
 		// Set motion magic
@@ -52,7 +50,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		motionMagicConfigs.MotionMagicCruiseVelocity = RobotConstants.Elevator.CRUISE_VELOCITY;
 		motionMagicConfigs.MotionMagicAcceleration = RobotConstants.Elevator.ACCELERATION;
 		motionMagicConfigs.MotionMagicJerk = RobotConstants.Elevator.JERK;
-
 		motionMagicConfigs.MotionMagicExpo_kA = RobotConstants.Elevator.KA;
 		motionMagicConfigs.MotionMagicExpo_kV = RobotConstants.Elevator.KV;
 
@@ -73,17 +70,20 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 	@Override
 	public void updateInputs(ElevatorInputs inputs) {
 
-		inputs.heightMM =
+		inputs.heightM =
 				leftMotor_10.getPosition().getValueAsDouble()
 						* RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
-		inputs.velocityMMPS =
+
+		inputs.rotations = leftMotor_10.getPosition().getValueAsDouble();
+
+		inputs.velocityMPS =
 				leftMotor_10.getVelocity().getValueAsDouble()
 						* RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
-		inputs.accelerationMMPS2 =
+		inputs.accelerationMPS2 =
 				leftMotor_10.getAcceleration().getValueAsDouble()
 						* RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 
-		inputs.setpointMM = magicMotion.Position * RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
+		inputs.setpointM = magicMotion.Position * RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 		inputs.leftMotorVoltage = leftMotor_10.getMotorVoltage().getValueAsDouble();
 		inputs.rightMotorVoltage = rightMotor_9.getMotorVoltage().getValueAsDouble();
 		inputs.leftMotorCurrent = leftMotor_10.getSupplyCurrent().getValueAsDouble();

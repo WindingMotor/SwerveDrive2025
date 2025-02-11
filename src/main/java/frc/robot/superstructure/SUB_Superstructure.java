@@ -19,7 +19,6 @@ import org.littletonrobotics.junction.Logger;
 
 public class SUB_Superstructure extends SubsystemBase {
 	private SuperstructureState.State currentSuperstructureState = SuperstructureState.IDLE;
-	private SuperstructureState.State previousSuperstructureState = SuperstructureState.IDLE;
 
 	public State currentDynamicEjectState =
 			SuperstructureState.createState("EJECT_DYNAMIC", 0.5, 135, 18);
@@ -37,7 +36,6 @@ public class SUB_Superstructure extends SubsystemBase {
 	}
 
 	public void updateSuperstructureState(SuperstructureState.State newSuperstructureState) {
-		previousSuperstructureState = currentSuperstructureState;
 		currentSuperstructureState = newSuperstructureState;
 
 		elevator.updateLocalState(currentSuperstructureState);
