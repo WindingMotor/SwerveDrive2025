@@ -47,9 +47,10 @@ public class IO_VisionReal implements IO_VisionBase {
 
 		// Initialize all cameras with their specific configurations
 		initializeCamera(Camera.FRONT_LEFT, "OV2311_4");
-		initializeCamera(Camera.FRONT_RIGHT, "OV2311_5");
+		initializeCamera(Camera.FRONT_RIGHT, "OV9281_02");
 		initializeCamera(Camera.BACK_LEFT, "OV9281_03");
-		initializeCamera(Camera.ELEVATED, "OV9281_04");
+
+		initializeCamera(Camera.ELEVATED, "OV9281_044");
 	}
 
 	/**

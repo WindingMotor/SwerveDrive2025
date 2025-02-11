@@ -22,16 +22,16 @@ public final class CameraConstants {
 	public enum Camera {
 		FRONT_LEFT(
 				"OV2311_4",
-				new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(75)),
+				new Rotation3d(0, Math.toRadians(-24.094 + 15), Math.toRadians(75 + 45)),
 				new Translation3d(
-						Units.inchesToMeters(2.0),
+						Units.inchesToMeters(-2.0),
 						Units.inchesToMeters(9.5),
 						Units.inchesToMeters(19)), // X (red), Y (green), Z (height)
 				VecBuilder.fill(1.0, 1.0, 4),
 				VecBuilder.fill(0.5, 0.5, 1)),
 
 		ELEVATED(
-				"OV9281_02",
+				"OV9281_0222",
 				new Rotation3d(0, Units.degreesToRadians(30), 0),
 				new Translation3d(
 						Units.inchesToMeters(8.00),
@@ -42,17 +42,17 @@ public final class CameraConstants {
 
 		BACK_LEFT(
 				"OV9281_03",
-				new Rotation3d(0, Units.degreesToRadians(-155 - 15), 0),
+				new Rotation3d(0, Units.degreesToRadians((-155 - 15) + 180 - 15), 0),
 				new Translation3d(
-						Units.inchesToMeters(-11.25), Units.inchesToMeters(9), Units.inchesToMeters(20.5)),
+						Units.inchesToMeters(11.25), Units.inchesToMeters(-9), Units.inchesToMeters(20.5)),
 				VecBuilder.fill(1.0, 1.0, 4),
 				VecBuilder.fill(0.5, 0.5, 1)),
 
 		FRONT_RIGHT(
-				"OV9281_10",
-				new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-75)),
+				"OV9281_02",
+				new Rotation3d(0, Math.toRadians(-24.094 + 15), Math.toRadians(-75 - 45)),
 				new Translation3d(
-						Units.inchesToMeters(2.0),
+						Units.inchesToMeters(-2.0),
 						Units.inchesToMeters(-9.5),
 						Units.inchesToMeters(19)), // X (red), Y (green), Z (height)
 				VecBuilder.fill(1.0, 1.0, 4),
