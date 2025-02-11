@@ -7,6 +7,8 @@
 
 package frc.robot.elevator;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -16,9 +18,11 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.units.measure.*;
+import edu.wpi.first.units.Units.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.constants.RobotConstants;
 
 public class IO_ElevatorReal implements IO_ElevatorBase {
@@ -26,8 +30,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 	private final TalonFX leftMotor_10;
 	private final TalonFX rightMotor_9;
 	private final MotionMagicVoltage magicMotion;
-	private final VoltageOut voltageOut;
-	private final SysIdRoutine sysIdRoutine;
 
 	public IO_ElevatorReal() {
 		leftMotor_10 = new TalonFX(10, "canivore");
@@ -70,9 +72,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 		// Create motor request at default position
 		magicMotion = new MotionMagicVoltage(0).withSlot(0);
-		voltageOut = new VoltageOut(0);
-
-	
 	}
 
 	@Override
@@ -105,8 +104,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 	@Override
 	public void setVoltage(double voltage) {
-
-	
 		leftMotor_10.setVoltage(voltage);
 		rightMotor_9.setVoltage(voltage);
 	}

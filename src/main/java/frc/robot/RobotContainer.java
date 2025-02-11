@@ -7,11 +7,14 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.CMD_Drive;
@@ -99,8 +102,27 @@ public class RobotContainer {
 
 	private void configureButtonBindings() {
 
-		// Extake
+		// Y button - Execute Quasistatic SysId in forward direction
+		operatorController.y().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+		
+		// A button - Execute Quasistatic SysId in reverse direction
+		operatorController.a().whileTrue(elevator.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+		
+		// B button - Execute Dynamic SysId in forward direction
+		operatorController.b().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kForward));
+		
+		// X button - Execute Dynamic SysId in reverse direction
+		operatorController.x().whileTrue(elevator.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
+		// Signal Logger Controls
+		// Left Bumper - Start logging signals
+		operatorController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+		
+		// Right Bumper - Stop logging signals
+		operatorController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+
+		// Extake
+		/*
 		operatorController.x().onTrue(new CMD_Eject(superstructure));
 
 		// Coral Controls
@@ -111,11 +133,11 @@ public class RobotContainer {
 		// Algae Controls
 		operatorController.leftBumper().onTrue(new CMD_ElevatorAlgae(superstructure, true));
 
-		/*
+		
 		operatorController
 				.leftBumper()
 				.onTrue(new CMD_ElevatorCoral(superstructure, false)); // DPAD-DOWN - Coral down
-		*/
+		
 
 		// Algae controls
 		// peratorController.povLeft().onTrue(new CMD_ElevatorAlgae(superstructure, false)); //
@@ -138,6 +160,7 @@ public class RobotContainer {
 		operatorController
 				.leftStick()
 				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.CLIMB));
+		*/
 	}
 
 	public Command getAutonomousCommand() {

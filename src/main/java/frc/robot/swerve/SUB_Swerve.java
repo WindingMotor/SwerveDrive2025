@@ -46,6 +46,10 @@ public class SUB_Swerve extends SubsystemBase {
 	private final IO_SwerveBase.SwerveInputs inputs = new IO_SwerveBase.SwerveInputs();
 	private final AprilTagFieldLayout aprilTagFieldLayout;
 
+	enum RotationState {
+		NORMAL,
+	}
+
 	public SUB_Swerve(IO_SwerveBase io, SUB_Vision vision) {
 		this.io = io;
 		this.vision = vision;
