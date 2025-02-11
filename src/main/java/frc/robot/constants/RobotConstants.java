@@ -57,22 +57,37 @@ public final class RobotConstants {
 		public static final int RIGHT_MOTOR_ID = 9;
 		public static final String CANIVORE_NAME = "canivore";
 
-		public static final double METERS_PER_MOTOR_ROTATION = 0.0257951242902;
+		public static final double MILIMETERS_PER_MOTOR_ROTATION = 0.0257951242902;
 
 		// Motion Magic Configuration
-		public static final double CRUISE_VELOCITY = 2500; // mm/s
-		public static final double ACCELERATION = 4000; // mm/s²
-		public static final double JERK = 6000; // mm/s³
+		public static final double CRUISE_VELOCITY = 800; // mm/s
+		public static final double ACCELERATION = 400; // mm/s²
+		public static final double JERK = 300; // mm/s³
 
 		// Feed Forward and PID Constants
-		public static final double KS = 0.35; // Static Friction Voltage
-		public static final double KV = 0.01; // Velocity Feed Forward
-		public static final double KA = 0.00; // Acceleration Feed Forward
+		public static final double KS = 0.2; // Add V output to overcome static friction
+
+		public static final double KV = 0.75; // Velocity of 1 m/s results in 0.01 V output //  0.085;
+		public static final double KA = 0.005; // Accel of 1 m/s² results in 0.00 V output
+
+		public static final double KG = 0.26; // Gravity Compensation
+
+		public static final double KP = 0.8; //  A position error of 1m results in 12 V output
+		public static final double KI = 0.0; // No output for integrated error
+		public static final double KD = 0.0; //  A velocity error of 1 m/s results in 0.1 V output
+
+		/*
+		 * 	// Feed Forward and PID Constants
+		public static final double KS = 0.35; // Add 0.25 V output to overcome static friction
+		public static final double KV = 0.01; // Velocity of 1 m/s results in 0.01 V output
+		public static final double KA = 0.00; // Accel of 1 m/s² results in 0.00 V output
+
 		public static final double KG = 0.22; // Gravity Compensation
 
-		public static final double KP = 0.52; // Position error gain (V per meter)
-		public static final double KI = 0.0; // Integral gain for steady-state error
-		public static final double KD = 0.0; // Derivative gain for damping
+		public static final double KP = 0.52; //  A position error of 1m results in 12 V output
+		public static final double KI = 0.0; // No output for integrated error
+		public static final double KD = 0.1; //  A velocity error of 1 m/s results in 0.1 V output
+		 */
 
 		// Position Limits
 		public static final double MIN_HEIGHT = 0.0; // mm

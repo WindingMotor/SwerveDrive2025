@@ -16,10 +16,10 @@ public interface IO_ElevatorBase {
 	@AutoLog
 	public static class ElevatorInputs implements LoggableInputs {
 
-		public double heightM = 0.0;
-		public double velocityMPS = 0.0;
-		public double accelerationMPS2 = 0.0;
-		public double setpointM = 0.0;
+		public double heightMM = 0.0;
+		public double velocityMMPS = 0.0;
+		public double accelerationMMPS2 = 0.0;
+		public double setpointMM = 0.0;
 
 		public double leftMotorVoltage = 0.0;
 		public double rightMotorVoltage = 0.0;
@@ -32,10 +32,10 @@ public interface IO_ElevatorBase {
 
 		@Override
 		public void toLog(LogTable table) {
-			table.put("heightM", heightM);
-			table.put("velocityMPS", velocityMPS);
-			table.put("accelerationMPS2", accelerationMPS2);
-			table.put("setpointM", setpointM);
+			table.put("heightMM", heightMM);
+			table.put("velocityMMPS", velocityMMPS);
+			table.put("accelerationMMPS2", accelerationMMPS2);
+			table.put("setpointMM", setpointMM);
 			table.put("leftMotorVoltage", leftMotorVoltage);
 			table.put("rightMotorVoltage", rightMotorVoltage);
 			table.put("leftMotorCurrent", leftMotorCurrent);
@@ -46,10 +46,10 @@ public interface IO_ElevatorBase {
 
 		@Override
 		public void fromLog(LogTable table) {
-			heightM = table.get("heightM", heightM);
-			velocityMPS = table.get("velocityMPS", velocityMPS);
-			accelerationMPS2 = table.get("accelerationMPS2", accelerationMPS2);
-			setpointM = table.get("setpointM", setpointM);
+			heightMM = table.get("heightMM", heightMM);
+			velocityMMPS = table.get("velocityMMPS", velocityMMPS);
+			accelerationMMPS2 = table.get("accelerationMMPS2", accelerationMMPS2);
+			setpointMM = table.get("setpointMM", setpointMM);
 			leftMotorVoltage = table.get("leftMotorVoltage", leftMotorVoltage);
 			rightMotorVoltage = table.get("rightMotorVoltage", rightMotorVoltage);
 			leftMotorCurrent = table.get("leftMotorCurrent", leftMotorCurrent);
