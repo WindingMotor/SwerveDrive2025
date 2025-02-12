@@ -7,103 +7,84 @@
 
 package frc.robot.commands.drive;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.InputConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.swerve.SUB_Swerve;
+import frc.robot.util.ExpDecayFF.RotationState;
+import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveController;
 import swervelib.math.SwerveMath;
 
 public class CMD_Drive extends Command {
-
 	private final SUB_Swerve swerve;
 	private final CommandXboxController controller;
 	private final InputConstants controllerMap;
-	private boolean resetHeading = false;
+	private final Translation2d zeroTranslation = new Translation2d();
+	private ChassisSpeeds desiredSpeeds;
+	private Translation2d translation;
+	SwerveController swerveController;
 
 	public CMD_Drive(
 			SUB_Swerve swerve, CommandXboxController controller, InputConstants controllerMap) {
-
 		this.swerve = swerve;
 		this.controller = controller;
 		this.controllerMap = controllerMap;
-
+		swerveController = swerve.getSwerveController();
 		addRequirements(swerve);
 	}
 
 	@Override
 	public void initialize() {
-		resetHeading = true;
 		swerve.setMotorBrake(true);
 	}
 
-	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		double headingX = 0;
-		double headingY = 0;
-
+		// Get controller inputs once
 		double vX = -controller.getRawAxis(controllerMap.forwardAxis);
 		double vY = controller.getRawAxis(controllerMap.strafeAxis);
 		double headingAdjust = -controller.getRawAxis(controllerMap.rotationAxis);
+		double currentHeading = swerve.getHeading().getRadians();
+		double currentYaw = -swerve.inputs.gyroYawDegrees;
 
-		// Prevent Movement After Auto
-		if (resetHeading) {
-			if (headingX == 0 && headingY == 0 && Math.abs(headingAdjust) == 0) {
-				// Get the curret Heading
-				Rotation2d currentHeading = swerve.getHeading();
-
-				// Set the Current Heading to the desired Heading
-				headingX = currentHeading.getSin();
-				headingY = currentHeading.getCos();
-			}
-			// Dont reset Heading Again
-			resetHeading = false;
+		// Update rotation state
+		boolean isButton3Pressed = controller.button(3).getAsBoolean();
+		if (isButton3Pressed) {
+			swerve.getRotationFFController().setState(RotationState.LEFT);
+		} else if (swerve.getRotationFFController().getState() != RotationState.NONE) {
+			swerve.getRotationFFController().setState(RotationState.NONE);
 		}
 
-		// Scale inputs
+		// Scale inputs once
 		Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(vX, vY));
+		double scaledX = scaledInputs.getX();
+		double scaledY = scaledInputs.getY();
 
-		// Get desired speeds
-		ChassisSpeeds desiredSpeeds =
-				swerve
-						.getSwerveController()
-						.getTargetSpeeds(
-								scaledInputs.getX(),
-								scaledInputs.getY(),
-								headingX,
-								headingY,
-								swerve.getHeading().getRadians(),
-								RobotConstants.MAX_SPEED);
+		// Calculate speeds
+		desiredSpeeds =
+				swerveController.getTargetSpeeds(
+						scaledX, scaledY, 0, 0, currentHeading, RobotConstants.MAX_SPEED);
 
-		// Limit velocity to prevent tippy
-		Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
-		/*
-		translation =
-				SwerveMath.limitVelocity(
-						translation,
-						swerve.getFieldVelocity(),
-						swerve.getPose(),
-						RobotConstants.LOOP_TIME,
-						RobotConstants.ROBOT_MASS,
-						List.of(RobotConstants.CHASSIS),
-						swerve.getSwerveDriveConfiguration());
-		SmartDashboard.putNumber("LimitedTranslation", translation.getX());
-		*/
-		SmartDashboard.putString("Translation", translation.toString());
+		// Set rotation
+		desiredSpeeds.omegaRadiansPerSecond = -headingAdjust * 6.0;
 
-		// Make the robot move
-		if (headingX == 0 && headingY == 0 && Math.abs(headingAdjust) > 0) {
-			resetHeading = true;
-			swerve.drive(translation, (6.00 * -headingAdjust), true);
-		} else {
-			swerve.drive(translation, desiredSpeeds.omegaRadiansPerSecond, true);
-		}
+		// Get translation once
+		translation = SwerveController.getTranslation2d(desiredSpeeds);
+
+		// Drive and log
+		swerve.drive(translation, desiredSpeeds.omegaRadiansPerSecond, true);
+		logData(translation, currentYaw);
+	}
+
+	private void logData(Translation2d translation, double currentYaw) {
+		Logger.recordOutput("Translation", translation.toString());
+		Logger.recordOutput("Target Angle", swerve.getRotationFFController().getTargetAngle());
+		Logger.recordOutput("Current Angle", currentYaw);
+		Logger.recordOutput("State", swerve.getRotationFFController().getState().toString());
 	}
 
 	@Override
@@ -113,9 +94,8 @@ public class CMD_Drive extends Command {
 
 	@Override
 	public void end(boolean interrupted) {
-		// Stop the robot when the command ends
-		swerve.drive(new Translation2d(), 0, true);
-		// Disable motor brake mode
+		swerve.drive(zeroTranslation, 0, true);
 		swerve.setMotorBrake(false);
+		swerve.getRotationFFController().setState(RotationState.NONE);
 	}
 }

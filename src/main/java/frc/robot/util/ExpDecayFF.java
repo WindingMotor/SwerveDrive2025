@@ -1,0 +1,175 @@
+// Copyright (c) 2024 - 2025 : FRC 2106 : The Junkyard Dogs
+// https://www.team2106.org
+
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
+package frc.robot.util;
+
+/**
+ * <h2>Exponential Decay Feedforward Rotation Controller</h2>
+ * 
+ * <h3>Mathematical Model:</h3>
+ * <pre>
+ * P = P_max * (1 - (1 - |error|/90)^exponent)
+ * </pre>
+ * 
+ * <h3>Variables:</h3>
+ * <ul>
+ *   <li><b>P</b> - output power [-1.0 to 1.0]</li>
+ *   <li><b>P_max</b> - maximum static feedforward value</li>
+ *   <li><b>error</b> - angular error in degrees [-180° to 180°]</li>
+ *   <li><b>exponent</b> - controls decay rate (higher = more aggressive deceleration)</li>
+ * </ul>
+ * 
+ * <h3>Key Features:</h3>
+ * <ul>
+ *   <li>Provides maximum power when far from target</li>
+ *   <li>Exponentially decreases power as error approaches zero</li>
+ *   <li>Automatically handles angle wrapping and shortest path</li>
+ *   <li>Zero output within specified tolerance zone</li>
+ *   <li>No integral windup issues common in PID</li>
+ *   <li>Works well for rotation targets where bouncing between target value is common</li>
+ * </ul>
+ * 
+ * <h3>Error Normalization:</h3>
+ * <ul>
+ *   <li>Maintains error between -180° and 180°</li>
+ *   <li>Uses shortest path calculation: error = (target - current) % 360</li>
+ *   <li>Power direction determined by sign of normalized error</li>
+ * </ul>
+ */
+public class ExpDecayFF {
+	private final double maxStaticFF;
+	private final double ffExponent;
+	private final double endingTolerance;
+
+	private RotationState currentState = RotationState.NONE;
+
+	/** Represents different rotation states of the robot with their corresponding angles. */
+	public enum RotationState {
+		NONE(0),
+		FORWARD(0),
+		BACKWARD(180),
+		RIGHT(90),
+		LEFT(-90);
+
+		private final double angle;
+
+		RotationState(double angle) {
+			this.angle = angle;
+		}
+
+		public double getAngle() {
+			return angle;
+		}
+	}
+
+	/**
+	 * Creates a new RotationFFController.
+	 *
+	 * @param maxStaticFF Maximum feedforward value
+	 * @param ffExponent Controls how quickly FF drops off (larger = more aggressive)
+	 * @param endingTolerance Tolerance in degrees for considering target reached
+	 */
+	public ExpDecayFF(double maxStaticFF, double ffExponent, double endingTolerance) {
+		this.maxStaticFF = maxStaticFF;
+		this.ffExponent = ffExponent;
+		this.endingTolerance = endingTolerance;
+	}
+
+	/**
+	 * Sets the current rotation state.
+	 *
+	 * @param state The new rotation state
+	 */
+	public void setState(RotationState state) {
+		this.currentState = state;
+	}
+
+	/**
+	 * Gets the current rotation state.
+	 *
+	 * @return The current RotationState
+	 */
+	public RotationState getState() {
+		return currentState;
+	}
+
+	/**
+	 * Gets the target angle for the current state.
+	 *
+	 * @return The target angle in degrees
+	 */
+	public double getTargetAngle() {
+		return currentState.getAngle();
+	}
+
+	/** Normalizes an angle to be within -180 to 180 degrees */
+	private double normalizeAngle(double angle) {
+		angle = angle % 360;
+		if (angle > 180) angle -= 360;
+		if (angle < -180) angle += 360;
+		return angle;
+	}
+
+	/** Calculates the shortest angular distance between two angles */
+	private double getShortestDistance(double from, double to) {
+		double normalizedFrom = normalizeAngle(from);
+		double normalizedTo = normalizeAngle(to);
+		double error = normalizedTo - normalizedFrom;
+
+		if (error > 180) error -= 360;
+		if (error < -180) error += 360;
+
+		return error;
+	}
+
+	/**
+	 * Calculates the rotation command based on current error
+	 *
+	 * @param currentAngle The current angle in degrees
+	 * @return The calculated feedforward command value
+	 */
+	public double calculate(double currentAngle) {
+		if (currentState == RotationState.NONE) {
+			return 0.0;
+		}
+
+		// Calculate shortest path error
+		double error = getShortestDistance(currentAngle, currentState.getAngle());
+
+		// If within tolerance, stop rotating
+		if (Math.abs(error) < endingTolerance) {
+			return 0.0;
+		}
+
+		// Scale error to 0-1 range, but only consider up to 90 degrees for max speed
+		// This means we'll hit max speed at 90 degrees error instead of 180
+		double errorRatio = Math.min(Math.abs(error) / 90.0, 1.0);
+
+		// Invert the ratio so power decreases as we get closer to target
+		double scaleFactor = Math.pow(1.0 - errorRatio, ffExponent);
+
+		// The scale factor is now 0 when far away and 1 when close,
+		// so we need to invert it when applying it to max FF
+		double ffValue = maxStaticFF * (1.0 - scaleFactor);
+
+		// Apply direction
+		return Math.copySign(ffValue, error);
+	}
+
+	/**
+	 * Checks if the current angle is within tolerance of the target angle
+	 *
+	 * @param currentAngle The current angle in degrees
+	 * @return true if within tolerance or in NONE state, false otherwise
+	 */
+	public boolean atTarget(double currentAngle) {
+		if (currentState == RotationState.NONE) {
+			return true;
+		}
+		return Math.abs(getShortestDistance(currentAngle, currentState.getAngle())) < endingTolerance;
+	}
+}

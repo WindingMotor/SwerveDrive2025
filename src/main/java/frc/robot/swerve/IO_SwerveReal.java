@@ -25,6 +25,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -69,6 +70,9 @@ public class IO_SwerveReal implements IO_SwerveBase {
 	public void updateInputs(SwerveInputs inputs) {
 		inputs.robotPose = swerveDrive.getPose();
 		inputs.gyroYaw = swerveDrive.getYaw();
+		inputs.gyroYawRateDegreesPerSec =
+				Units.radiansToDegrees(swerveDrive.getRobotVelocity().omegaRadiansPerSecond);
+		inputs.gyroYawDegrees = swerveDrive.getYaw().getDegrees();
 		inputs.gyroPitch = swerveDrive.getPitch();
 		inputs.moduleStates = swerveDrive.getStates();
 		inputs.modulePositions = swerveDrive.getModulePositions();
@@ -76,7 +80,6 @@ public class IO_SwerveReal implements IO_SwerveBase {
 		inputs.robotSpeeds = swerveDrive.getRobotVelocity();
 		inputs.isFieldRelative = this.inputs.isFieldRelative;
 		inputs.isOpenLoop = this.inputs.isOpenLoop;
-
 		/*
 		 * Before offset applied in AScope
 		Logger.recordOutput(

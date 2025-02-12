@@ -32,6 +32,8 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Circle2d;
+import frc.robot.util.ExpDecayFF;
+import frc.robot.util.ExpDecayFF.RotationState;
 import frc.robot.vision.SUB_Vision;
 import frc.robot.vision.VisionShared.CameraEstimationData;
 import java.util.Optional;
@@ -43,12 +45,10 @@ public class SUB_Swerve extends SubsystemBase {
 	private final IO_SwerveBase io;
 	private final SUB_Vision vision;
 
-	private final IO_SwerveBase.SwerveInputs inputs = new IO_SwerveBase.SwerveInputs();
+	public final IO_SwerveBase.SwerveInputs inputs = new IO_SwerveBase.SwerveInputs();
 	private final AprilTagFieldLayout aprilTagFieldLayout;
 
-	enum RotationState {
-		NORMAL,
-	}
+	private final ExpDecayFF rotationController;
 
 	public SUB_Swerve(IO_SwerveBase io, SUB_Vision vision) {
 		this.io = io;
@@ -60,6 +60,8 @@ public class SUB_Swerve extends SubsystemBase {
 			throw new RuntimeException("Failed to load AprilTag field layout", e);
 		}
 
+		this.rotationController = new ExpDecayFF(6.0, 1, 0.1);
+		setMotorBrake(true);
 		io.setupPathPlanner(this);
 	}
 
@@ -224,7 +226,12 @@ public class SUB_Swerve extends SubsystemBase {
 	}
 
 	public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
-		io.drive(translation, rotation, fieldRelative);
+		double newRotation = rotation;
+		if (rotationController.getState() != RotationState.NONE) {
+			newRotation = rotationController.calculate(-inputs.gyroYawDegrees);
+			Logger.recordOutput("Rotation Command", newRotation);
+		}
+		io.drive(translation, newRotation, fieldRelative);
 	}
 
 	public void drive(ChassisSpeeds velocity) {
@@ -307,5 +314,9 @@ public class SUB_Swerve extends SubsystemBase {
 
 	public double getMaximumAngularVelocity() {
 		return getSwerveController().config.maxAngularVelocity;
+	}
+
+	public ExpDecayFF getRotationFFController() {
+		return rotationController;
 	}
 }

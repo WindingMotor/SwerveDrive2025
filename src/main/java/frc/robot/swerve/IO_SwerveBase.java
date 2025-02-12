@@ -30,6 +30,8 @@ public interface IO_SwerveBase {
 	public static class SwerveInputs implements LoggableInputs {
 		// Robot pose and orientation
 		public Pose2d robotPose = new Pose2d();
+		public double gyroYawDegrees = 0;
+		public double gyroYawRateDegreesPerSec = 0;
 		public Rotation2d gyroYaw = new Rotation2d();
 		public Rotation2d gyroPitch = new Rotation2d();
 
@@ -48,6 +50,8 @@ public interface IO_SwerveBase {
 		@Override
 		public void toLog(LogTable table) {
 			table.put("RobotPose", robotPose);
+			table.put("gyroYawDegrees", gyroYawDegrees);
+			table.put("gyroYawRateDegreesPerSec", gyroYawRateDegreesPerSec);
 			table.put("GyroYaw", gyroYaw);
 			table.put("GyroPitch", gyroPitch);
 			table.put("ModuleStates", moduleStates);
@@ -61,6 +65,8 @@ public interface IO_SwerveBase {
 		@Override
 		public void fromLog(LogTable table) {
 			robotPose = table.get("RobotPose", robotPose);
+			gyroYawDegrees = table.get("gyroYawDegrees", gyroYawDegrees);
+			gyroYawRateDegreesPerSec = table.get("gyroYawRateDegreesPerSec", gyroYawRateDegreesPerSec);
 			gyroYaw = table.get("GyroYaw", gyroYaw);
 			gyroPitch = table.get("GyroPitch", gyroPitch);
 			moduleStates = table.get("ModuleStates", moduleStates);
