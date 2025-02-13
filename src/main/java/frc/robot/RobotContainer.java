@@ -10,6 +10,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
@@ -27,6 +28,7 @@ import frc.robot.superstructure.SUB_Superstructure;
 import frc.robot.superstructure.SuperstructureState;
 import frc.robot.swerve.IO_SwerveReal;
 import frc.robot.swerve.SUB_Swerve;
+import frc.robot.util.Music;
 import frc.robot.util.SUB_Led;
 import frc.robot.vision.IO_VisionReal;
 import frc.robot.vision.SUB_Vision;
@@ -45,6 +47,8 @@ public class RobotContainer {
 	private SUB_Elevator elevator;
 	private SUB_Superstructure superstructure;
 	private SUB_Led led;
+
+	private Music orchestra;
 
 	public RobotContainer() {
 		// Initialize Controllers
@@ -75,6 +79,8 @@ public class RobotContainer {
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
 		led = new SUB_Led();
 		superstructure = new SUB_Superstructure(intake, elevator, led);
+
+		orchestra = new Music();
 	}
 
 	private void configureDefaultCommands() {
@@ -88,6 +94,10 @@ public class RobotContainer {
 	}
 
 	private void configureButtonBindings() {
+
+		operatorController
+				.rightStick()
+				.onTrue(new InstantCommand(() -> orchestra.playSong("coconut.chrp")));
 
 		// Extake
 		operatorController.x().onTrue(new CMD_Eject(superstructure));
@@ -119,5 +129,9 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		return swerve.getAutonomousCommand("RIGHT_4L4");
+	}
+
+	public void playSong(String name) {
+		orchestra.playSong(name);
 	}
 }

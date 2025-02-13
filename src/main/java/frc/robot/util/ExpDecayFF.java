@@ -8,36 +8,42 @@
 package frc.robot.util;
 
 /**
+ *
+ *
  * <h2>Exponential Decay Feedforward Rotation Controller</h2>
- * 
+ *
  * <h3>Mathematical Model:</h3>
+ *
  * <pre>
  * P = P_max * (1 - (1 - |error|/90)^exponent)
  * </pre>
- * 
+ *
  * <h3>Variables:</h3>
+ *
  * <ul>
- *   <li><b>P</b> - output power [-1.0 to 1.0]</li>
- *   <li><b>P_max</b> - maximum static feedforward value</li>
- *   <li><b>error</b> - angular error in degrees [-180° to 180°]</li>
- *   <li><b>exponent</b> - controls decay rate (higher = more aggressive deceleration)</li>
+ *   <li><b>P</b> - output power [-1.0 to 1.0]
+ *   <li><b>P_max</b> - maximum static feedforward value
+ *   <li><b>error</b> - angular error in degrees [-180° to 180°]
+ *   <li><b>exponent</b> - controls decay rate (higher = more aggressive deceleration)
  * </ul>
- * 
+ *
  * <h3>Key Features:</h3>
+ *
  * <ul>
- *   <li>Provides maximum power when far from target</li>
- *   <li>Exponentially decreases power as error approaches zero</li>
- *   <li>Automatically handles angle wrapping and shortest path</li>
- *   <li>Zero output within specified tolerance zone</li>
- *   <li>No integral windup issues common in PID</li>
- *   <li>Works well for rotation targets where bouncing between target value is common</li>
+ *   <li>Provides maximum power when far from target
+ *   <li>Exponentially decreases power as error approaches zero
+ *   <li>Automatically handles angle wrapping and shortest path
+ *   <li>Zero output within specified tolerance zone
+ *   <li>No integral windup issues common in PID
+ *   <li>Works well for rotation targets where bouncing between target value is common
  * </ul>
- * 
+ *
  * <h3>Error Normalization:</h3>
+ *
  * <ul>
- *   <li>Maintains error between -180° and 180°</li>
- *   <li>Uses shortest path calculation: error = (target - current) % 360</li>
- *   <li>Power direction determined by sign of normalized error</li>
+ *   <li>Maintains error between -180° and 180°
+ *   <li>Uses shortest path calculation: error = (target - current) % 360
+ *   <li>Power direction determined by sign of normalized error
  * </ul>
  */
 public class ExpDecayFF {
