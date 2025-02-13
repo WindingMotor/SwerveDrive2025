@@ -34,6 +34,7 @@ import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Circle2d;
 import frc.robot.util.ExpDecayFF;
 import frc.robot.util.ExpDecayFF.RotationState;
+import frc.robot.util.Triangle2d;
 import frc.robot.vision.SUB_Vision;
 import frc.robot.vision.VisionShared.CameraEstimationData;
 import java.util.Optional;
@@ -117,6 +118,14 @@ public class SUB_Swerve extends SubsystemBase {
 		Circle2d redCircle = new Circle2d(redReefCenter.getX(), redReefCenter.getY(), 1.5);
 		Pose2d[] redEstimatedEdgePoses = redCircle.getEstimatedEdgePoses(25);
 		Logger.recordOutput("RedReefTest", redEstimatedEdgePoses);
+
+		// Test a triangle
+		Triangle2d triangle = new Triangle2d(
+				new Translation2d(blueReefCenter.getX(), blueReefCenter.getY()),
+				new Translation2d(redReefCenter.getX(), redReefCenter.getY()),
+				new Translation2d(0, 0));
+			
+		Logger.recordOutput("TriangleTest", triangle.getEstimatedEdgePoses(25));
 
 		// Record camera positions for visualization
 		Logger.recordOutput("CameraPositions", globalCameraPositions);
