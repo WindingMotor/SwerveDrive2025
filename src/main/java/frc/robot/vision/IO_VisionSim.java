@@ -149,6 +149,10 @@ public class IO_VisionSim implements IO_VisionBase {
 		VisionShared.updateTargetInfo(
 				inputs, cameraType, data.latestResult, data, tagLayout, lastRobotPose);
 
+		// Update closest target info
+		VisionShared.updateClosestTargetInfo(
+				inputs, cameraType, data.latestResult, lastRobotPose, tagLayout);
+
 		// Attempt to get estimated pose
 		EstimatedRobotPose estimatedPose = getEstimatedGlobalPose(cameraType).orElse(null);
 		if (estimatedPose != null) {
