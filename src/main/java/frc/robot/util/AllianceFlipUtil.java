@@ -53,7 +53,7 @@ public class AllianceFlipUtil {
 	}
 
 	public static boolean shouldFlip() {
+		// Assume we want to flip when we call a function
 		return true;
-		// Ignore the check....
 	}
 }
