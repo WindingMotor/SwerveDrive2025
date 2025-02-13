@@ -54,6 +54,12 @@ public interface IO_VisionBase {
 
 		public double blTimestamp = 0.0;
 		public double elTimestamp = 0.0;
+
+		public double flClosestTargetID = -1.0;
+		public double frClosestTargetID = -1.0;
+
+		public double blClosestTargetID = -1.0;
+		public double elClosestTargetID = -1.0;
 	}
 
 	public void updateInputs(VisionInputs inputs);

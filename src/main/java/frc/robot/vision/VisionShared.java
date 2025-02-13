@@ -184,6 +184,46 @@ public class VisionShared {
 		}
 	}
 
+	public static void updateClosestTargetInfo(
+			VisionInputs inputs,
+			Camera camera,
+			PhotonPipelineResult result,
+			Pose2d robotPose,
+			AprilTagFieldLayout tagLayout) {
+
+		if (!result.hasTargets()) {
+			setClosestTargetID(inputs, camera, -1.0);
+			return;
+		}
+
+		List<PhotonTrackedTarget> targets = result.getTargets();
+		double minDistance = Double.MAX_VALUE;
+		int closestTargetId = -1;
+
+		for (PhotonTrackedTarget target : targets) {
+			Optional<Pose3d> tagPose = tagLayout.getTagPose(target.getFiducialId());
+			if (tagPose.isPresent()) {
+				double distance =
+						tagPose.get().toPose2d().getTranslation().getDistance(robotPose.getTranslation());
+				if (distance < minDistance) {
+					minDistance = distance;
+					closestTargetId = target.getFiducialId();
+				}
+			}
+		}
+
+		setClosestTargetID(inputs, camera, closestTargetId);
+	}
+
+	private static void setClosestTargetID(VisionInputs inputs, Camera camera, double targetID) {
+		switch (camera) {
+			case FRONT_LEFT -> inputs.flClosestTargetID = targetID;
+			case FRONT_RIGHT -> inputs.frClosestTargetID = targetID;
+			case BACK_LEFT -> inputs.blClosestTargetID = targetID;
+			case ELEVATED -> inputs.elClosestTargetID = targetID;
+		}
+	}
+
 	/**
 	 * Calculates pose estimation uncertainty using a physics-informed statistical model that balances
 	 * tag observation quality and quantity. The model behaves differently based on single/multi-tag

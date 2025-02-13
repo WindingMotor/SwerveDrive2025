@@ -109,6 +109,9 @@ public class IO_VisionReal implements IO_VisionBase {
 		// Update more target input data
 		VisionShared.updateTargetInfo(inputs, cameraType, result, data, tagLayout, lastRobotPose);
 
+		// Update closest target info
+		VisionShared.updateClosestTargetInfo(inputs, cameraType, result, lastRobotPose, tagLayout);
+
 		EstimatedRobotPose estimatedPose = data.estimator.update(result).orElse(null);
 		if (estimatedPose != null) {
 			VisionShared.setPoseEstimate(inputs, cameraType, estimatedPose.estimatedPose.toPose2d());

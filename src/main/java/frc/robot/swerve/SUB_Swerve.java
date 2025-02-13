@@ -120,11 +120,12 @@ public class SUB_Swerve extends SubsystemBase {
 		Logger.recordOutput("RedReefTest", redEstimatedEdgePoses);
 
 		// Test a triangle
-		Triangle2d triangle = new Triangle2d(
-				new Translation2d(blueReefCenter.getX(), blueReefCenter.getY()),
-				new Translation2d(redReefCenter.getX(), redReefCenter.getY()),
-				new Translation2d(0, 0));
-			
+		Triangle2d triangle =
+				new Triangle2d(
+						new Translation2d(blueReefCenter.getX(), blueReefCenter.getY()),
+						new Translation2d(redReefCenter.getX(), redReefCenter.getY()),
+						new Translation2d(0, 0));
+
 		Logger.recordOutput("TriangleTest", triangle.getEstimatedEdgePoses(25));
 
 		// Record camera positions for visualization

@@ -11,7 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
-public class Quadrilateral2d{
+public class Quadrilateral2d {
 	private Translation2d point1; // Top-left
 	private Translation2d point2; // Top-right
 	private Translation2d point3; // Bottom-right
