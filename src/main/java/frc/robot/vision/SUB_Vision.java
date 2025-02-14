@@ -38,6 +38,7 @@ public class SUB_Vision extends SubsystemBase {
 	@Override
 	public void periodic() {
 		// Update inputs
+		long startTime = System.nanoTime();
 		io.updateInputs(inputs);
 
 		// Invalidate all caches since we have new input data
@@ -47,6 +48,10 @@ public class SUB_Vision extends SubsystemBase {
 
 		// Process inputs
 		Logger.processInputs("Vision", inputs);
+		long updateTime = System.nanoTime();
+
+		// Log timing data
+		Logger.recordOutput("Vision/UpdateInputsMS", (updateTime - startTime) / 1e6);
 	}
 
 	public void updateLastRobotPose(Pose2d currentPose) {

@@ -16,9 +16,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -31,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.RobotConstants;
 import java.io.File;
-import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveDriveConfiguration;
@@ -45,7 +42,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 	public IO_SwerveReal(File directory) {
 		// Configure the Telemetry before creating the SwerveDrive
-		SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
+		SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.NONE;
 		try {
 			swerveDrive =
 					new SwerveParser(directory)
@@ -69,15 +66,15 @@ public class IO_SwerveReal implements IO_SwerveBase {
 	@Override
 	public void updateInputs(SwerveInputs inputs) {
 		inputs.robotPose = swerveDrive.getPose();
-		inputs.gyroYaw = swerveDrive.getYaw();
+		// inputs.gyroYaw = swerveDrive.getYaw();
 		inputs.gyroYawRateDegreesPerSec =
 				Units.radiansToDegrees(swerveDrive.getRobotVelocity().omegaRadiansPerSecond);
 		inputs.gyroYawDegrees = swerveDrive.getYaw().getDegrees();
-		inputs.gyroPitch = swerveDrive.getPitch();
-		inputs.moduleStates = swerveDrive.getStates();
-		inputs.modulePositions = swerveDrive.getModulePositions();
-		inputs.fieldSpeeds = swerveDrive.getFieldVelocity();
-		inputs.robotSpeeds = swerveDrive.getRobotVelocity();
+		// inputs.gyroPitch = swerveDrive.getPitch();
+		// inputs.moduleStates = swerveDrive.getStates();
+		// inputs.modulePositions = swerveDrive.getModulePositions();
+		// inputs.fieldSpeeds = swerveDrive.getFieldVelocity();
+		// inputs.robotSpeeds = swerveDrive.getRobotVelocity();
 		inputs.isFieldRelative = this.inputs.isFieldRelative;
 		inputs.isOpenLoop = this.inputs.isOpenLoop;
 		/*
@@ -93,6 +90,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 						));
 		 */
 
+		/*
 		Logger.recordOutput(
 				"ArmSimulationPose",
 				new Pose3d(
@@ -101,6 +99,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 						0.0, // z height
 						new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)) // arm rotation
 						));
+			*/
 	}
 
 	@Override

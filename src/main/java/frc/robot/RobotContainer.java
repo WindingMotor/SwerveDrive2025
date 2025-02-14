@@ -10,7 +10,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
@@ -28,9 +27,8 @@ import frc.robot.superstructure.SUB_Superstructure;
 import frc.robot.superstructure.SuperstructureState;
 import frc.robot.swerve.IO_SwerveReal;
 import frc.robot.swerve.SUB_Swerve;
-import frc.robot.util.Music;
 import frc.robot.util.SUB_Led;
-import frc.robot.vision.IO_VisionSim;
+import frc.robot.vision.IO_VisionReal;
 import frc.robot.vision.SUB_Vision;
 import java.io.File;
 
@@ -48,7 +46,7 @@ public class RobotContainer {
 	private SUB_Superstructure superstructure;
 	private SUB_Led led;
 
-	private Music orchestra;
+	// private Music orchestra;
 
 	public RobotContainer() {
 		// Initialize Controllers
@@ -71,7 +69,7 @@ public class RobotContainer {
 	}
 
 	private void initializeSubsystems() {
-		vision = new SUB_Vision(new IO_VisionSim());
+		vision = new SUB_Vision(new IO_VisionReal());
 		swerve =
 				new SUB_Swerve(
 						new IO_SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")), vision);
@@ -80,7 +78,7 @@ public class RobotContainer {
 		led = new SUB_Led();
 		superstructure = new SUB_Superstructure(intake, elevator, led);
 
-		orchestra = new Music();
+		// orchestra = new Music();
 	}
 
 	private void configureDefaultCommands() {
@@ -95,9 +93,9 @@ public class RobotContainer {
 
 	private void configureButtonBindings() {
 
-		operatorController
-				.rightStick()
-				.onTrue(new InstantCommand(() -> orchestra.playSong("coconut.chrp")));
+		//	operatorController
+		//			.rightStick()
+		//			.onTrue(new InstantCommand(() -> orchestra.playSong("lagtrain.chrp")));
 
 		// Extake
 		operatorController.x().onTrue(new CMD_Eject(superstructure));
@@ -129,9 +127,5 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		return swerve.getAutonomousCommand("RIGHT_4L4");
-	}
-
-	public void playSong(String name) {
-		orchestra.playSong(name);
 	}
 }

@@ -88,8 +88,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		inputs.rightMotorVoltage = rightMotor_9.getMotorVoltage().getValueAsDouble();
 		inputs.leftMotorCurrent = leftMotor_10.getSupplyCurrent().getValueAsDouble();
 		inputs.rightMotorCurrent = rightMotor_9.getSupplyCurrent().getValueAsDouble();
-		inputs.leftMotorPower = leftMotor_10.getDutyCycle().getValueAsDouble();
-		inputs.rightMotorPower = rightMotor_9.getDutyCycle().getValueAsDouble();
+		// inputs.leftMotorPower = leftMotor_10.getDutyCycle().getValueAsDouble();
+		// inputs.rightMotorPower = rightMotor_9.getDutyCycle().getValueAsDouble();
 	}
 
 	@Override

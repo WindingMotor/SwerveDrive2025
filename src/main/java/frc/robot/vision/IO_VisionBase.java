@@ -25,11 +25,11 @@ public interface IO_VisionBase {
 		public boolean blHasTarget = false;
 		public boolean elHasTarget = false;
 
-		public double flLatencyMS = 0.0;
-		public double frLatencyMS = 0.0;
+		// public double flLatencyMS = 0.0;
+		// public double frLatencyMS = 0.0;
 
-		public double blLatencyMS = 0.0;
-		public double elLatencyMS = 0.0;
+		//	public double blLatencyMS = 0.0;
+		//	public double elLatencyMS = 0.0;
 
 		public double flBestTargetID = -1.0;
 		public double frBestTargetID = -1.0;

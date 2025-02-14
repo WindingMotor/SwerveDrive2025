@@ -17,6 +17,7 @@ import edu.wpi.first.math.numbers.N3;
 import frc.robot.constants.CameraConstants.Camera;
 import frc.robot.vision.VisionShared.CameraData;
 import java.util.*;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.*;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.*;
@@ -91,6 +92,9 @@ public class IO_VisionReal implements IO_VisionBase {
 	 * @param inputs The vision inputs to update
 	 */
 	private void processCamera(Camera cameraType, VisionInputs inputs) {
+
+		long startTime = System.nanoTime();
+
 		// Get the camera data object
 		CameraData data = cameraData.get(cameraType);
 
@@ -115,6 +119,11 @@ public class IO_VisionReal implements IO_VisionBase {
 			VisionShared.updateEstimationStdDevs(
 					cameraType, estimatedPose, result.getTargets(), data, tagLayout);
 		}
+
+		long getResultTime = System.nanoTime();
+
+		// Log specific operation timings
+		Logger.recordOutput("Vision/" + cameraType + "/GetResultMS", (getResultTime - startTime) / 1e6);
 	}
 
 	@Override

@@ -13,8 +13,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -32,16 +30,16 @@ public interface IO_SwerveBase {
 		public Pose2d robotPose = new Pose2d();
 		public double gyroYawDegrees = 0;
 		public double gyroYawRateDegreesPerSec = 0;
-		public Rotation2d gyroYaw = new Rotation2d();
-		public Rotation2d gyroPitch = new Rotation2d();
+		// public Rotation2d gyroYaw = new Rotation2d();
+		// public Rotation2d gyroPitch = new Rotation2d();
 
 		// Module states
-		public SwerveModuleState[] moduleStates = new SwerveModuleState[4];
-		public SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+		// public SwerveModuleState[] moduleStates = new SwerveModuleState[4];
+		// public SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
 
 		// Chassis speeds
-		public ChassisSpeeds fieldSpeeds = new ChassisSpeeds();
-		public ChassisSpeeds robotSpeeds = new ChassisSpeeds();
+		// public ChassisSpeeds fieldSpeeds = new ChassisSpeeds();
+		// public ChassisSpeeds robotSpeeds = new ChassisSpeeds();
 
 		// Driving parameters
 		public boolean isFieldRelative = true;
@@ -52,12 +50,12 @@ public interface IO_SwerveBase {
 			table.put("RobotPose", robotPose);
 			table.put("gyroYawDegrees", gyroYawDegrees);
 			table.put("gyroYawRateDegreesPerSec", gyroYawRateDegreesPerSec);
-			table.put("GyroYaw", gyroYaw);
-			table.put("GyroPitch", gyroPitch);
-			table.put("ModuleStates", moduleStates);
-			table.put("ModulePositions", modulePositions);
-			table.put("FieldSpeeds", fieldSpeeds);
-			table.put("RobotSpeeds", robotSpeeds);
+			// table.put("GyroYaw", gyroYaw);
+			// table.put("GyroPitch", gyroPitch);
+			// table.put("ModuleStates", moduleStates);
+			// table.put("ModulePositions", modulePositions);
+			// table.put("FieldSpeeds", fieldSpeeds);
+			// table.put("RobotSpeeds", robotSpeeds);
 			table.put("IsFieldRelative", isFieldRelative);
 			table.put("IsOpenLoop", isOpenLoop);
 		}
@@ -67,12 +65,12 @@ public interface IO_SwerveBase {
 			robotPose = table.get("RobotPose", robotPose);
 			gyroYawDegrees = table.get("gyroYawDegrees", gyroYawDegrees);
 			gyroYawRateDegreesPerSec = table.get("gyroYawRateDegreesPerSec", gyroYawRateDegreesPerSec);
-			gyroYaw = table.get("GyroYaw", gyroYaw);
-			gyroPitch = table.get("GyroPitch", gyroPitch);
-			moduleStates = table.get("ModuleStates", moduleStates);
-			modulePositions = table.get("ModulePositions", modulePositions);
-			fieldSpeeds = table.get("FieldSpeeds", fieldSpeeds);
-			robotSpeeds = table.get("RobotSpeeds", robotSpeeds);
+			// gyroYaw = table.get("GyroYaw", gyroYaw);
+			// gyroPitch = table.get("GyroPitch", gyroPitch);
+			// moduleStates = table.get("ModuleStates", moduleStates);
+			// modulePositions = table.get("ModulePositions", modulePositions);
+			// fieldSpeeds = table.get("FieldSpeeds", fieldSpeeds);
+			// robotSpeeds = table.get("RobotSpeeds", robotSpeeds);
 			isFieldRelative = table.get("IsFieldRelative", isFieldRelative);
 			isOpenLoop = table.get("IsOpenLoop", isOpenLoop);
 		}

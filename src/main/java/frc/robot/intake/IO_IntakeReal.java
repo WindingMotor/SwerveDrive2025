@@ -64,7 +64,7 @@ public class IO_IntakeReal implements IO_IntakeBase {
 
 		inputs.armAngleDegrees =
 				armMotor.getAbsoluteEncoder().getPosition() + RobotConstants.Intake.ARM_ENCODER_LOOP_OFFSET;
-		inputs.armMotorVoltage = armMotor.getAppliedOutput();
+		// inputs.armMotorVoltage = armMotor.getAppliedOutput();
 		inputs.armMotorCurrent = armMotor.getOutputCurrent();
 		inputs.wheelMotorCurrent = wheelMotor.getOutputCurrent();
 		inputs.wheelRPM = wheelMotor.getEncoder().getVelocity();
