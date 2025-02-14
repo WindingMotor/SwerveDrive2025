@@ -32,11 +32,11 @@ public final class CameraConstants {
 
 		ELEVATED(
 				"OV9281_0222",
-				new Rotation3d(0, Units.degreesToRadians(30), 0),
+				new Rotation3d(0, Units.degreesToRadians(180 - 30), Units.degreesToRadians(-35)),
 				new Translation3d(
-						Units.inchesToMeters(8.00),
-						Units.inchesToMeters(11),
-						Units.inchesToMeters(36)), // X (red), Y (green), Z (height)
+						Units.inchesToMeters(-5.5),
+						Units.inchesToMeters(-11.5),
+						Units.inchesToMeters(38.5)), // X (red), Y (green), Z (height)
 				VecBuilder.fill(1.0, 1.0, 4),
 				VecBuilder.fill(0.5, 0.5, 1)),
 
@@ -44,7 +44,7 @@ public final class CameraConstants {
 				"OV9281_03",
 				new Rotation3d(0, Units.degreesToRadians((-155 - 15) + 180 - 15), 0),
 				new Translation3d(
-						Units.inchesToMeters(11.25), Units.inchesToMeters(-9), Units.inchesToMeters(20.5)),
+						Units.inchesToMeters(11.25), Units.inchesToMeters(-9), Units.inchesToMeters(19.5)),
 				VecBuilder.fill(1.0, 1.0, 4),
 				VecBuilder.fill(0.5, 0.5, 1)),
 
