@@ -55,23 +55,19 @@ public class CMD_Drive extends Command {
 		// Update rotation state
 		boolean isButton3Pressed = controller.button(3).getAsBoolean();
 		if (isButton3Pressed) {
-			//swerve.getRotationFFController().setState(RotationState.LEFT);
+			// swerve.getRotationFFController().setState(RotationState.LEFT);
 
 			Pair<Integer, Double> closestTagData = swerve.getClosestAprilTagID();
 			int closestTagId = closestTagData.getFirst();
 			double closestTagDistanceM = closestTagData.getSecond();
 
-			if(closestTagId != -1 && closestTagDistanceM < 0.5) {
-				if(closestTagId == 7){
+			if (closestTagId != -1 && closestTagDistanceM < 0.5) {
+				if (closestTagId == 7) {
 					swerve.getRotationFFController().setState(RotationState.FORWARD);
-				}else if(closestTagId == 6){
+				} else if (closestTagId == 6) {
 					swerve.getRotationFFController().setState(RotationState.BACKWARD);
-					
 				}
-
-
 			}
-
 
 		} else if (swerve.getRotationFFController().getState() != RotationState.NONE) {
 			swerve.getRotationFFController().setState(RotationState.NONE);
@@ -87,10 +83,7 @@ public class CMD_Drive extends Command {
 				swerveController.getTargetSpeeds(
 						scaledX, scaledY, 0, 0, currentHeading, RobotConstants.MAX_SPEED);
 
-		// Set rotation
 		desiredSpeeds.omegaRadiansPerSecond = -headingAdjust * 6.0;
-
-		// Get translation once
 		translation = SwerveController.getTranslation2d(desiredSpeeds);
 
 		// Drive and log
@@ -99,10 +92,10 @@ public class CMD_Drive extends Command {
 	}
 
 	private void logData(Translation2d translation, double currentYaw) {
-		Logger.recordOutput("Translation", translation.toString());
-		Logger.recordOutput("Target Angle", swerve.getRotationFFController().getTargetAngle());
-		Logger.recordOutput("Current Angle", currentYaw);
-		Logger.recordOutput("State", swerve.getRotationFFController().getState().toString());
+		Logger.recordOutput("Drive/Translation", translation.toString());
+		Logger.recordOutput("Drive/Target Angle", swerve.getRotationFFController().getTargetAngle());
+		Logger.recordOutput("Drive/Current Angle", currentYaw);
+		Logger.recordOutput("Drive/Rot State", swerve.getRotationFFController().getState().toString());
 	}
 
 	@Override

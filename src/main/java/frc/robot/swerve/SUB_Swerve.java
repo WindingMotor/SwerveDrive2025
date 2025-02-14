@@ -143,7 +143,9 @@ public class SUB_Swerve extends SubsystemBase {
 	public double getDistanceToProcessor() {
 		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 16 : 3;
 		Pose3d processorAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-		return getPose().getTranslation().getDistance(processorAprilTagPose.toPose2d().getTranslation());
+		return getPose()
+				.getTranslation()
+				.getDistance(processorAprilTagPose.toPose2d().getTranslation());
 	}
 
 	/**
@@ -154,7 +156,8 @@ public class SUB_Swerve extends SubsystemBase {
 	public Rotation2d getProcessorYaw() {
 		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 16 : 3;
 		Pose3d processorAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-		Translation2d relativeTrl = processorAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
+		Translation2d relativeTrl =
+				processorAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
 		return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(getHeading());
 	}
 
@@ -191,7 +194,7 @@ public class SUB_Swerve extends SubsystemBase {
 
 	/**
 	 * Get the ID of the closest AprilTag.
-	 * 
+	 *
 	 * @return The ID of the closest AprilTag
 	 */
 	public Pair<Integer, Double> getClosestAprilTagID() {
