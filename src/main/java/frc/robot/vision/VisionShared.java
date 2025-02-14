@@ -192,7 +192,6 @@ public class VisionShared {
 			AprilTagFieldLayout tagLayout) {
 
 		if (!result.hasTargets()) {
-			setClosestTargetID(inputs, camera, -1.0);
 			return;
 		}
 
@@ -210,17 +209,6 @@ public class VisionShared {
 					closestTargetId = target.getFiducialId();
 				}
 			}
-		}
-
-		setClosestTargetID(inputs, camera, closestTargetId);
-	}
-
-	private static void setClosestTargetID(VisionInputs inputs, Camera camera, double targetID) {
-		switch (camera) {
-			case FRONT_LEFT -> inputs.flClosestTargetID = targetID;
-			case FRONT_RIGHT -> inputs.frClosestTargetID = targetID;
-			case BACK_LEFT -> inputs.blClosestTargetID = targetID;
-			case ELEVATED -> inputs.elClosestTargetID = targetID;
 		}
 	}
 

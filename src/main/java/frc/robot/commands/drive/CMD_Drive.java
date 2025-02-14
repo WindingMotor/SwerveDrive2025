@@ -7,6 +7,7 @@
 
 package frc.robot.commands.drive;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -54,7 +55,24 @@ public class CMD_Drive extends Command {
 		// Update rotation state
 		boolean isButton3Pressed = controller.button(3).getAsBoolean();
 		if (isButton3Pressed) {
-			swerve.getRotationFFController().setState(RotationState.LEFT);
+			//swerve.getRotationFFController().setState(RotationState.LEFT);
+
+			Pair<Integer, Double> closestTagData = swerve.getClosestAprilTagID();
+			int closestTagId = closestTagData.getFirst();
+			double closestTagDistanceM = closestTagData.getSecond();
+
+			if(closestTagId != -1 && closestTagDistanceM < 0.5) {
+				if(closestTagId == 7){
+					swerve.getRotationFFController().setState(RotationState.FORWARD);
+				}else if(closestTagId == 6){
+					swerve.getRotationFFController().setState(RotationState.BACKWARD);
+					
+				}
+
+
+			}
+
+
 		} else if (swerve.getRotationFFController().getState() != RotationState.NONE) {
 			swerve.getRotationFFController().setState(RotationState.NONE);
 		}

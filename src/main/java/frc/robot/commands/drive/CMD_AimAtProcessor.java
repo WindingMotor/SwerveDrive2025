@@ -11,7 +11,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.swerve.SUB_Swerve;
 
-public class CMD_AimAtSpeaker extends Command {
+public class CMD_AimAtProcessor extends Command {
 	private final SUB_Swerve swerveSubsystem;
 	private final double tolerance;
 
@@ -21,7 +21,7 @@ public class CMD_AimAtSpeaker extends Command {
 	 * @param swerveSubsystem The swerve drive subsystem
 	 * @param tolerance Tolerance in degrees for aiming
 	 */
-	public CMD_AimAtSpeaker(SUB_Swerve swerveSubsystem, double tolerance) {
+	public CMD_AimAtProcessor(SUB_Swerve swerveSubsystem, double tolerance) {
 		this.swerveSubsystem = swerveSubsystem;
 		this.tolerance = tolerance;
 
@@ -39,7 +39,7 @@ public class CMD_AimAtSpeaker extends Command {
 								.getSwerveController()
 								.headingCalculate(
 										swerveSubsystem.getHeading().getRadians(),
-										swerveSubsystem.getSpeakerYaw().getRadians()),
+										swerveSubsystem.getProcessorYaw().getRadians()),
 						swerveSubsystem.getHeading());
 
 		swerveSubsystem.drive(speeds);
@@ -48,7 +48,7 @@ public class CMD_AimAtSpeaker extends Command {
 	@Override
 	public boolean isFinished() {
 		return Math.abs(
-						swerveSubsystem.getSpeakerYaw().minus(swerveSubsystem.getHeading()).getDegrees())
+						swerveSubsystem.getProcessorYaw().minus(swerveSubsystem.getHeading()).getDegrees())
 				< tolerance;
 	}
 

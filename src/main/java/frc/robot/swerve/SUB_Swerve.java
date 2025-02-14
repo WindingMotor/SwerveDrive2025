@@ -13,6 +13,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -56,7 +57,7 @@ public class SUB_Swerve extends SubsystemBase {
 		this.vision = vision;
 
 		try {
-			this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+			this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to load AprilTag field layout", e);
 		}
@@ -130,52 +131,30 @@ public class SUB_Swerve extends SubsystemBase {
 
 		// Record camera positions for visualization
 		Logger.recordOutput("CameraPositions", globalCameraPositions);
+
+		getClosestAprilTagID();
 	}
 
 	/**
-	 * Get the distance to the speaker.
+	 * Get the distance to the Processor.
 	 *
-	 * @return Distance to speaker in meters.
+	 * @return Distance to Processor in meters.
 	 */
-	public double getDistanceToSpeaker() {
-		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-		Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-		return getPose().getTranslation().getDistance(speakerAprilTagPose.toPose2d().getTranslation());
+	public double getDistanceToProcessor() {
+		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 16 : 3;
+		Pose3d processorAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+		return getPose().getTranslation().getDistance(processorAprilTagPose.toPose2d().getTranslation());
 	}
 
 	/**
-	 * Get the yaw to aim at the speaker.
-	 *
-	 * @return {@link Rotation2d} of which you need to achieve.
-	 */
-	public Rotation2d getSpeakerYaw() {
-		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-		Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-		Translation2d relativeTrl =
-				speakerAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
-		return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(getHeading());
-	}
-
-	/**
-	 * Get the distance to the AMP.
-	 *
-	 * @return Distance to AMP in meters.
-	 */
-	public double getDistanceToAmp() {
-		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
-		Pose3d ampAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-		return getPose().getTranslation().getDistance(ampAprilTagPose.toPose2d().getTranslation());
-	}
-
-	/**
-	 * Get the yaw to aim at the AMP.
+	 * Get the yaw to aim at the Processor.
 	 *
 	 * @return {@link Rotation2d} of which you need to achieve.
 	 */
-	public Rotation2d getAmpYaw() {
-		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
-		Pose3d ampAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-		Translation2d relativeTrl = ampAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
+	public Rotation2d getProcessorYaw() {
+		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 16 : 3;
+		Pose3d processorAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+		Translation2d relativeTrl = processorAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
 		return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(getHeading());
 	}
 
@@ -208,6 +187,36 @@ public class SUB_Swerve extends SubsystemBase {
 		}
 
 		return getPose().getTranslation().getDistance(tagPose.get().toPose2d().getTranslation());
+	}
+
+	/**
+	 * Get the ID of the closest AprilTag.
+	 * 
+	 * @return The ID of the closest AprilTag
+	 */
+	public Pair<Integer, Double> getClosestAprilTagID() {
+		Pose2d currentPose = getPose();
+		double minDistance = Double.MAX_VALUE;
+		int closestTagId = -1;
+
+		// Iterate through all AprilTags (1-22)
+		for (int tagId = 1; tagId <= 22; tagId++) {
+			Optional<Pose3d> tagPose = aprilTagFieldLayout.getTagPose(tagId);
+			if (tagPose.isPresent()) {
+				double distance =
+						currentPose.getTranslation().getDistance(tagPose.get().toPose2d().getTranslation());
+
+				if (distance < minDistance) {
+					minDistance = distance;
+					closestTagId = tagId;
+				}
+			}
+		}
+
+		Logger.recordOutput("ClosestAprilTag/Id", closestTagId);
+		Logger.recordOutput("ClosestAprilTag/Distance", minDistance);
+
+		return Pair.of(closestTagId, minDistance);
 	}
 
 	/**
