@@ -27,6 +27,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.constants.CameraConstants;
 import frc.robot.constants.RobotConstants;
 import java.io.File;
 import swervelib.SwerveController;
@@ -61,22 +62,18 @@ public class IO_SwerveReal implements IO_SwerveBase {
 		//	swerveDrive.setAngularVelocityCompensation(true, false, 0.1);
 		//	swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
 		// swerveDrive.pushOffsetsToEncoders();
+
+    swerveDrive.setVisionMeasurementStdDevs(
+        CameraConstants.VISION_ESTIMATION_STD_DEVS);
 	}
 
 	@Override
 	public void updateInputs(SwerveInputs inputs) {
 		inputs.robotPose = swerveDrive.getPose();
-		// inputs.gyroYaw = swerveDrive.getYaw();
 		inputs.gyroYawRateDegreesPerSec =
 				Units.radiansToDegrees(swerveDrive.getRobotVelocity().omegaRadiansPerSecond);
 		inputs.gyroYawDegrees = swerveDrive.getYaw().getDegrees();
-		// inputs.gyroPitch = swerveDrive.getPitch();
-		// inputs.moduleStates = swerveDrive.getStates();
-		// inputs.modulePositions = swerveDrive.getModulePositions();
-		// inputs.fieldSpeeds = swerveDrive.getFieldVelocity();
-		// inputs.robotSpeeds = swerveDrive.getRobotVelocity();
-		inputs.isFieldRelative = this.inputs.isFieldRelative;
-		inputs.isOpenLoop = this.inputs.isOpenLoop;
+		
 		/*
 		 * Before offset applied in AScope
 		Logger.recordOutput(

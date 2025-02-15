@@ -11,13 +11,13 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.constants.CameraConstants.Camera;
 import frc.robot.vision.VisionShared.CameraData;
 import java.util.*;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.*;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.*;
@@ -92,38 +92,56 @@ public class IO_VisionReal implements IO_VisionBase {
 	 * @param inputs The vision inputs to update
 	 */
 	private void processCamera(Camera cameraType, VisionInputs inputs) {
-
-		long startTime = System.nanoTime();
-
-		// Get the camera data object
+		
 		CameraData data = cameraData.get(cameraType);
-
-		// Get the latest result from the camera
 		PhotonPipelineResult result = data.camera.getLatestResult();
 
-		// Update estimator with latest robot pose for better accuracy
+		// Update estimator with latest robot pose
 		data.estimator.setLastPose(lastRobotPose);
 
-		// Check if camera result has a target
+		// Check for targets and update basic info
 		boolean hasTarget = result.hasTargets();
-
-		// Update hasTarget input data
 		VisionShared.setHasTarget(inputs, cameraType, hasTarget);
-
-		// Update more target input data
 		VisionShared.updateTargetInfo(inputs, cameraType, result, data, tagLayout, lastRobotPose);
 
-		EstimatedRobotPose estimatedPose = data.estimator.update(result).orElse(null);
-		if (estimatedPose != null) {
-			VisionShared.setPoseEstimate(inputs, cameraType, estimatedPose.estimatedPose.toPose2d());
+		// Process multi-tag results first (preferred method)
+		if (result.getMultiTagResult().isPresent()) {
+			MultiTargetPNPResult multiTagResult = result.getMultiTagResult().get();
+			Transform3d fieldToCamera = multiTagResult.estimatedPose.best;
+
+			// Convert to robot pose
+			Transform3d robotToCamera = data.estimator.getRobotToCameraTransform();
+			Pose3d robotPose3d = new Pose3d().plus(fieldToCamera).plus(robotToCamera.inverse());
+
+			// Create EstimatedRobotPose with all required parameters
+			EstimatedRobotPose estimatedPose =
+					new EstimatedRobotPose(
+							robotPose3d,
+							result.getTimestampSeconds(),
+							result.getTargets(),
+							PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
+							);
+
+			// Update pose estimate
+			VisionShared.setPoseEstimate(inputs, cameraType, robotPose3d.toPose2d());
+
+			// Update standard deviations
 			VisionShared.updateEstimationStdDevs(
-					cameraType, estimatedPose, result.getTargets(), data, tagLayout);
+					cameraType,
+					estimatedPose, 
+					result.getTargets(),
+					data,
+					tagLayout);
 		}
-
-		long getResultTime = System.nanoTime();
-
-		// Log specific operation timings
-		Logger.recordOutput("Vision/" + cameraType + "/GetResultMS", (getResultTime - startTime) / 1e6);
+		// Fallback to single-tag estimation if needed
+		else {
+			EstimatedRobotPose estimatedPose = data.estimator.update(result).orElse(null);
+			if (estimatedPose != null) {
+				VisionShared.setPoseEstimate(inputs, cameraType, estimatedPose.estimatedPose.toPose2d());
+				VisionShared.updateEstimationStdDevs(
+						cameraType, estimatedPose, result.getTargets(), data, tagLayout);
+			}
+		}
 	}
 
 	@Override
