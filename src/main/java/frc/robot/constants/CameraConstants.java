@@ -18,6 +18,9 @@ import edu.wpi.first.math.util.Units;
 
 public final class CameraConstants {
 	public static final double MAXIMUM_AMBIGUITY = 0.25;
+	public static final Matrix<N3, N1> SWERVE_ODOMETRY_STD_DEVS = VecBuilder.fill(0.05, 0.05, 0.01);
+	public static final Matrix<N3, N1> VISION_ESTIMATION_STD_DEVS = VecBuilder.fill(0.35, 0.35, 0.12); //VecBuilder.fill(0.5, 0.5, 0.1);
+
 
 	public enum Camera {
 		FRONT_LEFT(
@@ -27,8 +30,8 @@ public final class CameraConstants {
 						Units.inchesToMeters(-2.0),
 						Units.inchesToMeters(9.5),
 						Units.inchesToMeters(19)), // X (red), Y (green), Z (height)
-				VecBuilder.fill(1.0, 1.0, 4),
-				VecBuilder.fill(0.5, 0.5, 1)),
+						VecBuilder.fill(2.5, 2.5, 0.5),
+						VecBuilder.fill(0.3, 0.3, 0.1)),  // X, Y, Rotation -> Multi-tag (lower uncertainty)
 
 		ELEVATED(
 				"OV9281_01",
@@ -37,16 +40,16 @@ public final class CameraConstants {
 						Units.inchesToMeters(-5.5),
 						Units.inchesToMeters(-11.5),
 						Units.inchesToMeters(38.5)), // X (red), Y (green), Z (height)
-				VecBuilder.fill(1.0, 1.0, 4),
-				VecBuilder.fill(0.5, 0.5, 1)),
+						VecBuilder.fill(1.8, 1.8, 0.3),  // Lower Z uncertainty for elevated cam
+						VecBuilder.fill(0.25, 0.25, 0.08)),
 
 		BACK_LEFT(
 				"OV9281_03",
 				new Rotation3d(0, Units.degreesToRadians((-155 - 15) + 180 - 15), 0),
 				new Translation3d(
 						Units.inchesToMeters(11.25), Units.inchesToMeters(-9), Units.inchesToMeters(19.5)),
-				VecBuilder.fill(1.0, 1.0, 4),
-				VecBuilder.fill(0.5, 0.5, 1)),
+						VecBuilder.fill(3.0, 3.0, 0.6),  // Wider FOV needs higher uncertainty
+						VecBuilder.fill(0.4, 0.4, 0.15)),
 
 		FRONT_RIGHT(
 				"OV9281_02",
@@ -55,8 +58,8 @@ public final class CameraConstants {
 						Units.inchesToMeters(-2.0),
 						Units.inchesToMeters(-9.5),
 						Units.inchesToMeters(19)), // X (red), Y (green), Z (height)
-				VecBuilder.fill(1.0, 1.0, 4),
-				VecBuilder.fill(0.5, 0.5, 1));
+						VecBuilder.fill(2.5, 2.5, 0.5),
+						VecBuilder.fill(0.3, 0.3, 0.1));
 
 		public final String name;
 		public final Rotation3d rotation;
