@@ -218,9 +218,8 @@ public class IO_SwerveReal implements IO_SwerveBase {
 						}
 					},
 					new PPHolonomicDriveController(
-							new PIDConstants(4.5, 0.0, 0.0), // Translation PID constants
-							new PIDConstants(8, 0.0, 0.0) // Rotation PID constants
-							),
+							new PIDConstants(3.2, 0.0, 0.0), // Translation PID constants
+							getHeadingPID()),
 					config,
 					() -> {
 						// Boolean supplier that controls when the path will be mirrored for the red alliance
@@ -255,5 +254,13 @@ public class IO_SwerveReal implements IO_SwerveBase {
 	/** Update odometry for the swerve drive. */
 	public void updateOdometry() {
 		swerveDrive.updateOdometry();
+	}
+
+	private PIDConstants getHeadingPID() {
+
+		return new PIDConstants(
+				swerveDrive.swerveController.config.headingPIDF.p, // Rotation PID
+				swerveDrive.swerveController.config.headingPIDF.i,
+				swerveDrive.swerveController.config.headingPIDF.d);
 	}
 }

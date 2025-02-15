@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.CameraConstants;
-import frc.robot.constants.CameraConstants.Camera;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.util.AllianceFlipUtil;
@@ -37,7 +36,6 @@ import frc.robot.util.ExpDecayFF;
 import frc.robot.util.ExpDecayFF.RotationState;
 import frc.robot.util.Triangle2d;
 import frc.robot.vision.SUB_Vision;
-import frc.robot.vision.VisionShared.CameraEstimationData;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveController;
@@ -78,15 +76,42 @@ public class SUB_Swerve extends SubsystemBase {
 		// Update vision with current swerve pose
 		vision.updateLastRobotPose(getPose());
 
-		// Try each camera in priority order for vision updates
-		Optional<CameraEstimationData> estimationData =
+		/*
+		Optional<CameraEstimationData> frontLeftData =
 				vision.getCameraEstimationData(Camera.FRONT_LEFT);
-		if (estimationData.isPresent()) {
+		if (frontLeftData.isPresent()) {
 			io.addVisionMeasurement(
-					new Pose2d(estimationData.get().pose().getTranslation(), io.getHeading()),
-					estimationData.get().timestamp(),
-					estimationData.get().stdDevMatrix());
+					new Pose2d(frontLeftData.get().pose().getTranslation(), io.getHeading()),
+					frontLeftData.get().timestamp(),
+					frontLeftData.get().stdDevMatrix());
 		}
+
+		Optional<CameraEstimationData> frontRightData =
+				vision.getCameraEstimationData(Camera.FRONT_RIGHT);
+		if (frontRightData.isPresent()) {
+			io.addVisionMeasurement(
+					new Pose2d(frontRightData.get().pose().getTranslation(), io.getHeading()),
+					frontRightData.get().timestamp(),
+					frontRightData.get().stdDevMatrix());
+		}
+
+		Optional<CameraEstimationData> backLeftData = vision.getCameraEstimationData(Camera.BACK_LEFT);
+		if (backLeftData.isPresent()) {
+			io.addVisionMeasurement(
+					new Pose2d(backLeftData.get().pose().getTranslation(), io.getHeading()),
+					backLeftData.get().timestamp(),
+					backLeftData.get().stdDevMatrix());
+		}
+
+		Optional<CameraEstimationData> elevatorData = vision.getCameraEstimationData(Camera.ELEVATED);
+		if (elevatorData.isPresent()) {
+			io.addVisionMeasurement(
+					new Pose2d(elevatorData.get().pose().getTranslation(), io.getHeading()),
+					elevatorData.get().timestamp(),
+					elevatorData.get().stdDevMatrix());
+		}
+
+		*/
 
 		// Update camera positions for visualization
 		updateCameraPositions();

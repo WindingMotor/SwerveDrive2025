@@ -60,6 +60,10 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = RobotConstants.Elevator.MIN_HEIGHT;
 
+		// Reset encoder to zero
+		leftMotor_10.setPosition(0);
+		rightMotor_9.setPosition(0);
+
 		// Setup both motors
 		setupMotors(motorConfigs);
 
@@ -88,8 +92,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		inputs.rightMotorVoltage = rightMotor_9.getMotorVoltage().getValueAsDouble();
 		inputs.leftMotorCurrent = leftMotor_10.getSupplyCurrent().getValueAsDouble();
 		inputs.rightMotorCurrent = rightMotor_9.getSupplyCurrent().getValueAsDouble();
-		// inputs.leftMotorPower = leftMotor_10.getDutyCycle().getValueAsDouble();
-		// inputs.rightMotorPower = rightMotor_9.getDutyCycle().getValueAsDouble();
 	}
 
 	@Override
@@ -98,7 +100,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		double targetRot = newPositionM / RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 
 		// Update motor request
-		magicMotion.withPosition(targetRot);
+		// magicMotion.withPosition(targetRot);
 
 		leftMotor_10.setControl(magicMotion);
 		rightMotor_9.setControl(magicMotion);
@@ -136,9 +138,5 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		// Set brake mode
 		leftMotor_10.setNeutralMode(NeutralModeValue.Brake);
 		rightMotor_9.setNeutralMode(NeutralModeValue.Brake);
-
-		// Reset encoder to zero
-		leftMotor_10.setPosition(0);
-		rightMotor_9.setPosition(0);
 	}
 }

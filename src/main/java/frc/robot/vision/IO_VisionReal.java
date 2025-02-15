@@ -48,7 +48,7 @@ public class IO_VisionReal implements IO_VisionBase {
 		initializeCamera(Camera.FRONT_RIGHT, "OV9281_02");
 		initializeCamera(Camera.BACK_LEFT, "OV9281_03");
 
-		initializeCamera(Camera.ELEVATED, "OV9281_044");
+		initializeCamera(Camera.ELEVATED, "OV9281_01");
 	}
 
 	/**

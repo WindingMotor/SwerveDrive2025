@@ -48,7 +48,7 @@ public class CMD_Drive extends Command {
 		// Get controller inputs once
 		double vX = -controller.getRawAxis(controllerMap.forwardAxis);
 		double vY = controller.getRawAxis(controllerMap.strafeAxis);
-		double headingAdjust = controller.getRawAxis(controllerMap.rotationAxis);
+		double headingAdjust = -controller.getRawAxis(controllerMap.rotationAxis);
 		double currentHeading = swerve.getHeading().getRadians();
 		double currentYaw = -swerve.inputs.gyroYawDegrees;
 

@@ -50,15 +50,15 @@ public class SuperstructureState {
 
 	// Pre-defined states
 	// Height (M), Angle (Deg), Speed (RPM)
-	public static final State IDLE = createState("IDLE", 0.05, 90, 0.0); // 18
+	public static final State IDLE = createState("IDLE", 0.05, 35, 0.0); // 18
 	public static final State CLIMB = createState("CLIMB", 0.8, 0, 0.0);
 
 	// Coral states
-	public static final State CORAL_STATION = createState("CORAL_STATION", 0.38, 32, 0.3);
-	public static final State L1_SCORING = createState("L1_SCORING", 0.5, 100, 0.0);
-	public static final State L2_SCORING = createState("L2_SCORING", 0.8, 120, 0.0);
-	public static final State L3_SCORING = createState("L3_SCORING", 1.4, 120, 0.0);
-	public static final State L4_SCORING = createState("L4_SCORING", 2.415, 128, 0.0);
+	public static final State CORAL_STATION = createState("CORAL_STATION", 0.32, 32, 0.3);
+	public static final State L1_SCORING = createState("L1_SCORING", 0.3, 100, 0.0);
+	public static final State L2_SCORING = createState("L2_SCORING", 0.52, 120, 0.0);
+	public static final State L3_SCORING = createState("L3_SCORING", 0.93, 120, 0.0);
+	public static final State L4_SCORING = createState("L4_SCORING", 1.5, 128, 0.0);
 
 	// Algae states
 	public static final State ALGAE_GROUND = createState("ALGAE_GROUND", 0.1, 135, 0.95);

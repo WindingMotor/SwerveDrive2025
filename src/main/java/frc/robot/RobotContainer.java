@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.CMD_Drive;
-import frc.robot.commands.generic.CMD_Eject;
 import frc.robot.commands.generic.CMD_Elevator;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.InputConstants;
@@ -28,7 +27,7 @@ import frc.robot.superstructure.SuperstructureState;
 import frc.robot.swerve.IO_SwerveReal;
 import frc.robot.swerve.SUB_Swerve;
 import frc.robot.util.SUB_Led;
-import frc.robot.vision.IO_VisionSim;
+import frc.robot.vision.IO_VisionReal;
 import frc.robot.vision.SUB_Vision;
 import java.io.File;
 
@@ -69,7 +68,7 @@ public class RobotContainer {
 	}
 
 	private void initializeSubsystems() {
-		vision = new SUB_Vision(new IO_VisionSim());
+		vision = new SUB_Vision(new IO_VisionReal());
 		swerve =
 				new SUB_Swerve(
 						new IO_SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")), vision);
@@ -78,7 +77,7 @@ public class RobotContainer {
 		led = new SUB_Led();
 		superstructure = new SUB_Superstructure(intake, elevator, led);
 
-		// orchestra = new Music();
+		//	orchestra = new Music();
 	}
 
 	private void configureDefaultCommands() {
@@ -95,10 +94,14 @@ public class RobotContainer {
 
 		//	operatorController
 		//			.rightStick()
-		//			.onTrue(new InstantCommand(() -> orchestra.playSong("lagtrain.chrp")));
+		//			.onTrue(new InstantCommand(() -> orchestra.playSong("doom.chrp")));
 
 		// Extake
-		operatorController.x().onTrue(new CMD_Eject(superstructure));
+		// operatorController.x().onTrue(new CMD_Eject(superstructure));
+
+		// operatorController
+		//		.x()
+		//		.onTrue(swerve.driveToPose(new Pose2d(new Translation2d(13.1, 6.0), new Rotation2d())));
 
 		// Coral Controls
 		operatorController
@@ -126,6 +129,6 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		return swerve.getAutonomousCommand("RIGHT_4L4");
+		return swerve.getAutonomousCommand("TEST");
 	}
 }
