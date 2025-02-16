@@ -32,12 +32,14 @@ public interface IO_SwerveBase {
 		public Pose2d robotPose = new Pose2d();
 		public double gyroYawDegrees = 0;
 		public double gyroYawRateDegreesPerSec = 0;
+		public ChassisSpeeds speeds;
 
 		@Override
 		public void toLog(LogTable table) {
 			table.put("RobotPose", robotPose);
 			table.put("gyroYawDegrees", gyroYawDegrees);
 			table.put("gyroYawRateDegreesPerSec", gyroYawRateDegreesPerSec);
+			table.put("speeds", speeds);
 		}
 
 		@Override
@@ -45,6 +47,7 @@ public interface IO_SwerveBase {
 			robotPose = table.get("RobotPose", robotPose);
 			gyroYawDegrees = table.get("gyroYawDegrees", gyroYawDegrees);
 			gyroYawRateDegreesPerSec = table.get("gyroYawRateDegreesPerSec", gyroYawRateDegreesPerSec);
+			speeds = table.get("speeds", speeds);
 		}
 	}
 

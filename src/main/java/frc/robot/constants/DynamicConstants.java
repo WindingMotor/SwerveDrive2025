@@ -12,4 +12,8 @@ import frc.robot.util.ExpDecayFF.RotationState;
 public final class DynamicConstants {
 
 	public static RotationState GLOBAL_ROTATION_STATE = RotationState.NONE;
+
+	public static void updateRotationState(RotationState newRotationState) {
+		GLOBAL_ROTATION_STATE = newRotationState;
+	}
 }

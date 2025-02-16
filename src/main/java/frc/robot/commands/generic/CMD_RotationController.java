@@ -8,20 +8,23 @@
 package frc.robot.commands.generic;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.constants.DynamicConstants;
+import frc.robot.swerve.SUB_RotationController;
 import frc.robot.util.ExpDecayFF.RotationState;
 
 public class CMD_RotationController extends Command {
 	private final RotationState rotationState;
+	private SUB_RotationController rotationControllerHusk;
 
-	public CMD_RotationController(RotationState rotationState) {
+	public CMD_RotationController(
+			SUB_RotationController rotationControllerHusk, RotationState rotationState) {
+		this.rotationControllerHusk = rotationControllerHusk;
 		this.rotationState = rotationState;
-		addRequirements();
+		addRequirements(rotationControllerHusk);
 	}
 
 	@Override
 	public void initialize() {
-		DynamicConstants.GLOBAL_ROTATION_STATE = rotationState;
+		rotationControllerHusk.updateRotationState(rotationState);
 	}
 
 	@Override

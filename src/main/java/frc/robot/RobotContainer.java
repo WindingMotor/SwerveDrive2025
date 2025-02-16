@@ -78,7 +78,7 @@ public class RobotContainer {
 		intake = new SUB_Intake(new IO_IntakeReal());
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
 		led = new SUB_Led();
-		superstructure = new SUB_Superstructure(intake, elevator, led);
+		superstructure = new SUB_Superstructure(intake, elevator, led, swerve);
 
 		orchestra = new Music();
 

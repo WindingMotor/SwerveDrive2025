@@ -7,13 +7,11 @@
 
 package frc.robot.superstructure;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.elevator.SUB_Elevator;
 import frc.robot.intake.SUB_Intake;
 import frc.robot.superstructure.SuperstructureState.State;
+import frc.robot.swerve.SUB_Swerve;
 import frc.robot.util.SUB_Led;
 import org.littletonrobotics.junction.Logger;
 
@@ -26,13 +24,16 @@ public class SUB_Superstructure extends SubsystemBase {
 	public SUB_Intake intake;
 	public SUB_Elevator elevator;
 	public SUB_Led led;
+	private SUB_Swerve swerve;
 
 	private boolean previousIntakeSensorState = false;
 
-	public SUB_Superstructure(SUB_Intake intake, SUB_Elevator elevator, SUB_Led led) {
+	public SUB_Superstructure(
+			SUB_Intake intake, SUB_Elevator elevator, SUB_Led led, SUB_Swerve swerve) {
 		this.intake = intake;
 		this.elevator = elevator;
 		this.led = led;
+		this.swerve = swerve;
 	}
 
 	public void updateSuperstructureState(SuperstructureState.State newSuperstructureState) {
@@ -63,9 +64,13 @@ public class SUB_Superstructure extends SubsystemBase {
 		return currentSuperstructureState;
 	}
 
+	double minDistTeleop = 1.2;
+	double minDistAuto = 2.5;
+
 	@Override
 	public void periodic() {
 
+		/*
 		// Check for sensor state change from false to true
 		if (!previousIntakeSensorState
 				&& intake.getSensorState()
@@ -74,6 +79,57 @@ public class SUB_Superstructure extends SubsystemBase {
 			CommandScheduler.getInstance()
 					.schedule(new CMD_Superstructure(this, SuperstructureState.IDLE));
 		}
+
+		Pair<Integer, Double> closestTagData = swerve.getClosestAprilTagID();
+		int closestTagId = closestTagData.getFirst();
+		double closestTagDistanceM = closestTagData.getSecond();
+
+		double minDist = minDistTeleop;
+		if (DriverStation.isAutonomousEnabled()) {
+			minDist = minDistAuto;
+		}
+
+		if (closestTagId == -1 || closestTagDistanceM >= minDist) {
+			DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.NONE;
+			return;
+		} else {
+			switch (closestTagId) {
+				case 2:
+					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.SOURCE_RIGHT;
+					CommandScheduler.getInstance()
+							.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
+					break;
+
+				case 7:
+					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.REEF_BOTTOM;
+					break;
+
+				case 8:
+					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.REEF_BOTTOM_RIGHT;
+					break;
+
+				case 6:
+					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.REEF_BOTTOM_LEFT;
+					break;
+
+				case 9:
+					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.REEF_TOP_RIGHT;
+					break;
+
+				case 10:
+					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.REEF_TOP;
+					break;
+
+				case 11:
+					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.REEF_TOP_LEFT;
+					break;
+
+				default:
+					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.NONE;
+					break;
+			}
+		}
+			*/
 
 		/*
 

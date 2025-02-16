@@ -56,10 +56,11 @@ public class CMD_Drive extends Command {
 		boolean isButton3Pressed = controller.button(3).getAsBoolean();
 		if (isButton3Pressed) {
 			// swerve.getRotationFFController().setState(RotationState.LEFT);
-			DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.BACKWARD;
+			DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.LEFT;
 		} else {
-			DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.NONE;
+			// DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.NONE;
 		}
+
 		/*
 			Pair<Integer, Double> closestTagData = swerve.getClosestAprilTagID();
 			int closestTagId = closestTagData.getFirst();

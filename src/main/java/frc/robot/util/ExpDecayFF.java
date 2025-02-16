@@ -57,9 +57,17 @@ public class ExpDecayFF {
 	public enum RotationState {
 		NONE(0),
 		FORWARD(0),
-		BACKWARD(179),
-		RIGHT(-90),
-		LEFT(90);
+		BACKWARD(180),
+		RIGHT(90),
+		LEFT(-90),
+		SOURCE_RIGHT(130),
+		SOURCE_LEFT(-130),
+		REEF_BOTTOM_RIGHT(-60),
+		REEF_BOTTOM_LEFT(60),
+		REEF_BOTTOM(0),
+		REEF_TOP_RIGHT(-120),
+		REEF_TOP_LEFT(120),
+		REEF_TOP(180);
 
 		private final double angle;
 
@@ -161,7 +169,6 @@ public class ExpDecayFF {
 		// The scale factor is now 0 when far away and 1 when close,
 		// so we need to invert it when applying it to max FF
 		double ffValue = maxStaticFF * (1.0 - scaleFactor);
-
 		// Apply direction
 		return Math.copySign(ffValue, error);
 	}

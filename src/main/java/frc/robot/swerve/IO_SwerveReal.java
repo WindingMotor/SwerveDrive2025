@@ -46,6 +46,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 	private final SwerveInputs inputs = new SwerveInputs();
 
 	private final ExpDecayFF rotationController;
+	private double rotationControllerValue = 0.0;
 
 	public IO_SwerveReal(File directory) {
 		// Configure the Telemetry before creating the SwerveDrive
@@ -77,6 +78,8 @@ public class IO_SwerveReal implements IO_SwerveBase {
 		swerveDrive.stopOdometryThread();
 
 		this.rotationController = new ExpDecayFF(6.0, 1, 0.1);
+
+		swerveDrive.setMotorIdleMode(true);
 	}
 
 	@Override
@@ -85,6 +88,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 		inputs.gyroYawRateDegreesPerSec =
 				Units.radiansToDegrees(swerveDrive.getRobotVelocity().omegaRadiansPerSecond);
 		inputs.gyroYawDegrees = swerveDrive.getYaw().getDegrees();
+		inputs.speeds = swerveDrive.getRobotVelocity();
 
 		/*
 		 * Before offset applied in AScope
@@ -109,34 +113,45 @@ public class IO_SwerveReal implements IO_SwerveBase {
 						new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)) // arm rotation
 						));
 			*/
+
 		Logger.recordOutput("Rotation Controller State", rotationController.getState().toString());
 
 		rotationController.setState(DynamicConstants.GLOBAL_ROTATION_STATE);
+		if (rotationController.getState() != RotationState.NONE) {
+			rotationControllerValue = rotationController.calculate(-inputs.gyroYawDegrees);
+			Logger.recordOutput("Rotation Command", rotationControllerValue);
+			Logger.recordOutput("Current Yaw", -inputs.gyroYawDegrees);
+			Logger.recordOutput("Current Setpoint", rotationController.getTargetAngle());
+		}
 	}
 
 	@Override
 	public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
-		double newRotation = rotation;
-		if (rotationController.getState() != RotationState.NONE) {
-			newRotation = rotationController.calculate(-inputs.gyroYawDegrees);
-			Logger.recordOutput("Rotation Command", newRotation);
-			Logger.recordOutput("Current Yaw", -inputs.gyroYawDegrees);
-			Logger.recordOutput("Current Setpoint", rotationController.getTargetAngle());
+
+		if (DriverStation.isTeleop()) {
+			if (rotationController.getState() != RotationState.NONE) {
+				swerveDrive.drive(translation, rotationControllerValue, fieldRelative, true);
+			} else {
+				swerveDrive.drive(translation, rotation, fieldRelative, true);
+			}
+		} else {
+			swerveDrive.drive(translation, -rotation, fieldRelative, true);
 		}
-		swerveDrive.drive(translation, newRotation, fieldRelative, true);
 	}
 
 	@Override
 	public void drive(ChassisSpeeds velocity) {
+		swerveDrive.drive(velocity);
+		/*
 		if (rotationController.getState() != RotationState.NONE) {
-			double newRotation = rotationController.calculate(-inputs.gyroYawDegrees);
-			Logger.recordOutput("Rotation Command", newRotation);
 			velocity =
-					new ChassisSpeeds(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond, newRotation);
+					new ChassisSpeeds(
+							velocity.vxMetersPerSecond, velocity.vyMetersPerSecond, rotationControllerValue);
 		} else {
 			velocity = new ChassisSpeeds(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond, 0.0);
 		}
 		swerveDrive.drive(velocity);
+		*/
 	}
 
 	@Override
@@ -240,9 +255,14 @@ public class IO_SwerveReal implements IO_SwerveBase {
 					this::getRobotVelocity, // ChassisSpeeds supplier (MUST BE ROBOT RELATIVE)
 					(speedsRobotRelative, moduleFeedForwards) -> {
 						if (enableFeedforward) {
+							ChassisSpeeds newSpeeds =
+									new ChassisSpeeds(
+											speedsRobotRelative.vxMetersPerSecond,
+											speedsRobotRelative.vyMetersPerSecond,
+											speedsRobotRelative.omegaRadiansPerSecond);
 							swerveDrive.drive(
-									speedsRobotRelative,
-									swerveDrive.kinematics.toSwerveModuleStates(speedsRobotRelative),
+									newSpeeds,
+									swerveDrive.kinematics.toSwerveModuleStates(newSpeeds),
 									moduleFeedForwards.linearForces());
 						} else {
 							swerveDrive.setChassisSpeeds(speedsRobotRelative);
