@@ -28,14 +28,15 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.CameraConstants;
+import frc.robot.constants.CameraConstants.Camera;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Circle2d;
 import frc.robot.util.ExpDecayFF;
-import frc.robot.util.ExpDecayFF.RotationState;
 import frc.robot.util.Triangle2d;
 import frc.robot.vision.SUB_Vision;
+import frc.robot.vision.VisionShared.CameraEstimationData;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveController;
@@ -48,8 +49,6 @@ public class SUB_Swerve extends SubsystemBase {
 	public final IO_SwerveBase.SwerveInputs inputs = new IO_SwerveBase.SwerveInputs();
 	private final AprilTagFieldLayout aprilTagFieldLayout;
 
-	private final ExpDecayFF rotationController;
-
 	public SUB_Swerve(IO_SwerveBase io, SUB_Vision vision) {
 		this.io = io;
 		this.vision = vision;
@@ -60,25 +59,26 @@ public class SUB_Swerve extends SubsystemBase {
 			throw new RuntimeException("Failed to load AprilTag field layout", e);
 		}
 
-		this.rotationController = new ExpDecayFF(6.0, 1, 0.1);
 		setMotorBrake(true);
 		io.setupPathPlanner(this);
 	}
 
 	@Override
 	public void periodic() {
+
 		// Update inputs first
 		io.updateInputs(inputs);
 		Logger.processInputs("Swerve", inputs);
 
-		// NOTE: Without this code the vision system will stop functioning entirely!
+		// WE MUST manually update swerve odometry
+		io.getSwerveDrive().updateOdometry();
 
 		// Update vision with current swerve pose
 		vision.updateLastRobotPose(getPose());
 
-		/*
 		Optional<CameraEstimationData> frontLeftData =
 				vision.getCameraEstimationData(Camera.FRONT_LEFT);
+
 		if (frontLeftData.isPresent()) {
 			io.addVisionMeasurement(
 					new Pose2d(frontLeftData.get().pose().getTranslation(), io.getHeading()),
@@ -103,6 +103,7 @@ public class SUB_Swerve extends SubsystemBase {
 					backLeftData.get().stdDevMatrix());
 		}
 
+		/*
 		Optional<CameraEstimationData> elevatorData = vision.getCameraEstimationData(Camera.ELEVATED);
 		if (elevatorData.isPresent()) {
 			io.addVisionMeasurement(
@@ -110,8 +111,7 @@ public class SUB_Swerve extends SubsystemBase {
 					elevatorData.get().timestamp(),
 					elevatorData.get().stdDevMatrix());
 		}
-
-		*/
+					*/
 
 		// Update camera positions for visualization
 		updateCameraPositions();
@@ -273,12 +273,7 @@ public class SUB_Swerve extends SubsystemBase {
 	}
 
 	public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
-		double newRotation = rotation;
-		if (rotationController.getState() != RotationState.NONE) {
-			newRotation = rotationController.calculate(-inputs.gyroYawDegrees);
-			Logger.recordOutput("Rotation Command", newRotation);
-		}
-		io.drive(translation, newRotation, fieldRelative);
+		io.drive(translation, rotation, fieldRelative);
 	}
 
 	public void drive(ChassisSpeeds velocity) {
@@ -364,6 +359,6 @@ public class SUB_Swerve extends SubsystemBase {
 	}
 
 	public ExpDecayFF getRotationFFController() {
-		return rotationController;
+		return io.getRotationController();
 	}
 }

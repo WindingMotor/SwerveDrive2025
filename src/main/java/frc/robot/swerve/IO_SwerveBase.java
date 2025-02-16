@@ -17,10 +17,12 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.util.ExpDecayFF;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 import swervelib.SwerveController;
+import swervelib.SwerveDrive;
 import swervelib.parser.SwerveDriveConfiguration;
 
 public interface IO_SwerveBase {
@@ -103,4 +105,8 @@ public interface IO_SwerveBase {
 	public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs);
 
 	public Command setAllAngle(double angle);
+
+	public SwerveDrive getSwerveDrive();
+
+	public ExpDecayFF getRotationController();
 }

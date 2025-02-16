@@ -57,9 +57,9 @@ public class ExpDecayFF {
 	public enum RotationState {
 		NONE(0),
 		FORWARD(0),
-		BACKWARD(180),
-		RIGHT(90),
-		LEFT(-90);
+		BACKWARD(179),
+		RIGHT(-90),
+		LEFT(90);
 
 		private final double angle;
 

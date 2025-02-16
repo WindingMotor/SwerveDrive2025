@@ -7,4 +7,20 @@
 
 package frc.robot.util;
 
-public class CommandRegistrar {}
+import com.pathplanner.lib.auto.NamedCommands;
+import frc.robot.commands.generic.CMD_RotationController;
+import frc.robot.commands.generic.CMD_Superstructure;
+import frc.robot.superstructure.SUB_Superstructure;
+import frc.robot.superstructure.SuperstructureState;
+import frc.robot.swerve.SUB_Swerve;
+import frc.robot.util.ExpDecayFF.RotationState;
+
+public class CommandRegistrar {
+
+	public static void registerCommands(SUB_Swerve swerve, SUB_Superstructure superstructure) {
+
+		NamedCommands.registerCommand("Rot_Source", new CMD_RotationController(RotationState.BACKWARD));
+		NamedCommands.registerCommand(
+				"Intake_Coral", new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
+	}
+}

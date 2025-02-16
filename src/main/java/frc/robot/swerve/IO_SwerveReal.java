@@ -28,8 +28,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.CameraConstants;
+import frc.robot.constants.DynamicConstants;
 import frc.robot.constants.RobotConstants;
+import frc.robot.util.ExpDecayFF;
+import frc.robot.util.ExpDecayFF.RotationState;
 import java.io.File;
+import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveDriveConfiguration;
@@ -40,6 +44,8 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 	private final SwerveDrive swerveDrive;
 	private final SwerveInputs inputs = new SwerveInputs();
+
+	private final ExpDecayFF rotationController;
 
 	public IO_SwerveReal(File directory) {
 		// Configure the Telemetry before creating the SwerveDrive
@@ -58,13 +64,19 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 		// Configure SwerveDrive settings
 		// swerveDrive.setHeadingCorrection(false);
-		//	swerveDrive.setCosineCompensator(true);
-		//	swerveDrive.setAngularVelocityCompensation(true, false, 0.1);
-		//	swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
+
+		swerveDrive.setCosineCompensator(true);
+		swerveDrive.setAngularVelocityCompensation(true, false, -0.03);
+		swerveDrive.setModuleEncoderAutoSynchronize(false, 3);
+
 		// swerveDrive.pushOffsetsToEncoders();
 
-    swerveDrive.setVisionMeasurementStdDevs(
-        CameraConstants.VISION_ESTIMATION_STD_DEVS);
+		swerveDrive.setVisionMeasurementStdDevs(CameraConstants.VISION_ESTIMATION_STD_DEVS);
+
+		// Stop inteernal odometry thread to increase speeed
+		swerveDrive.stopOdometryThread();
+
+		this.rotationController = new ExpDecayFF(6.0, 1, 0.1);
 	}
 
 	@Override
@@ -73,7 +85,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 		inputs.gyroYawRateDegreesPerSec =
 				Units.radiansToDegrees(swerveDrive.getRobotVelocity().omegaRadiansPerSecond);
 		inputs.gyroYawDegrees = swerveDrive.getYaw().getDegrees();
-		
+
 		/*
 		 * Before offset applied in AScope
 		Logger.recordOutput(
@@ -97,15 +109,33 @@ public class IO_SwerveReal implements IO_SwerveBase {
 						new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)) // arm rotation
 						));
 			*/
+		Logger.recordOutput("Rotation Controller State", rotationController.getState().toString());
+
+		rotationController.setState(DynamicConstants.GLOBAL_ROTATION_STATE);
 	}
 
 	@Override
 	public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
-		swerveDrive.drive(translation, rotation, fieldRelative, true);
+		double newRotation = rotation;
+		if (rotationController.getState() != RotationState.NONE) {
+			newRotation = rotationController.calculate(-inputs.gyroYawDegrees);
+			Logger.recordOutput("Rotation Command", newRotation);
+			Logger.recordOutput("Current Yaw", -inputs.gyroYawDegrees);
+			Logger.recordOutput("Current Setpoint", rotationController.getTargetAngle());
+		}
+		swerveDrive.drive(translation, newRotation, fieldRelative, true);
 	}
 
 	@Override
 	public void drive(ChassisSpeeds velocity) {
+		if (rotationController.getState() != RotationState.NONE) {
+			double newRotation = rotationController.calculate(-inputs.gyroYawDegrees);
+			Logger.recordOutput("Rotation Command", newRotation);
+			velocity =
+					new ChassisSpeeds(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond, newRotation);
+		} else {
+			velocity = new ChassisSpeeds(velocity.vxMetersPerSecond, velocity.vyMetersPerSecond, 0.0);
+		}
 		swerveDrive.drive(velocity);
 	}
 
@@ -116,7 +146,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 	@Override
 	public void resetOdometry(Pose2d initialHolonomicPose) {
-		swerveDrive.resetOdometry(initialHolonomicPose);
+		swerveDrive.resetOdometry(new Pose2d(initialHolonomicPose.getTranslation(), new Rotation2d()));
 	}
 
 	@Override
@@ -134,9 +164,13 @@ public class IO_SwerveReal implements IO_SwerveBase {
 		return swerveDrive.getPose();
 	}
 
+	private Pose2d getPosePathPlanner() {
+		return new Pose2d(swerveDrive.getPose().getTranslation(), swerveDrive.getYaw());
+	}
+
 	@Override
 	public Rotation2d getHeading() {
-		return getPose().getRotation();
+		return swerveDrive.getYaw();
 	}
 
 	@Override
@@ -201,7 +235,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 			// Configure AutoBuilder
 			AutoBuilder.configure(
-					this::getPose, // Robot pose supplier
+					this::getPosePathPlanner, // Robot pose supplier
 					this::resetOdometry, // Method to reset odometry
 					this::getRobotVelocity, // ChassisSpeeds supplier (MUST BE ROBOT RELATIVE)
 					(speedsRobotRelative, moduleFeedForwards) -> {
@@ -215,7 +249,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 						}
 					},
 					new PPHolonomicDriveController(
-							new PIDConstants(3.2, 0.0, 0.0), // Translation PID constants
+							new PIDConstants(1.25, 0.0, 0.0), // Translation PID constants
 							getHeadingPID()),
 					config,
 					() -> {
@@ -254,10 +288,17 @@ public class IO_SwerveReal implements IO_SwerveBase {
 	}
 
 	private PIDConstants getHeadingPID() {
-
 		return new PIDConstants(
 				swerveDrive.swerveController.config.headingPIDF.p, // Rotation PID
 				swerveDrive.swerveController.config.headingPIDF.i,
 				swerveDrive.swerveController.config.headingPIDF.d);
+	}
+
+	public SwerveDrive getSwerveDrive() {
+		return swerveDrive;
+	}
+
+	public ExpDecayFF getRotationController() {
+		return rotationController;
 	}
 }

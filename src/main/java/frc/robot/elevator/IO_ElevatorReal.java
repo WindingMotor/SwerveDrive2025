@@ -100,7 +100,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		double targetRot = newPositionM / RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 
 		// Update motor request
-		// magicMotion.withPosition(targetRot);
+		magicMotion.withPosition(targetRot);
 
 		leftMotor_10.setControl(magicMotion);
 		rightMotor_9.setControl(magicMotion);

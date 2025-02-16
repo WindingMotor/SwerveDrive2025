@@ -30,7 +30,7 @@ public final class RobotConstants {
 	public static final Matter CHASSIS =
 			new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
 	public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
-	public static final double MAX_SPEED = 5.450; // m/s
+	public static final double MAX_SPEED = 4.7; // m/s
 
 	public final class Intake {
 
@@ -92,6 +92,6 @@ public final class RobotConstants {
 		 */
 		// Position Limits
 		public static final double MIN_HEIGHT = 0.0; // m
-		public static final double MAX_HEIGHT = 2.4; // m
+		public static final double MAX_HEIGHT = 1.85; // m
 	}
 }

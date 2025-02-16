@@ -7,11 +7,11 @@
 
 package frc.robot.commands.drive;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.constants.DynamicConstants;
 import frc.robot.constants.InputConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.swerve.SUB_Swerve;
@@ -56,23 +56,28 @@ public class CMD_Drive extends Command {
 		boolean isButton3Pressed = controller.button(3).getAsBoolean();
 		if (isButton3Pressed) {
 			// swerve.getRotationFFController().setState(RotationState.LEFT);
-
+			DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.BACKWARD;
+		} else {
+			DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.NONE;
+		}
+		/*
 			Pair<Integer, Double> closestTagData = swerve.getClosestAprilTagID();
 			int closestTagId = closestTagData.getFirst();
 			double closestTagDistanceM = closestTagData.getSecond();
 
 			if (closestTagId != -1 && closestTagDistanceM < 0.5) {
 				if (closestTagId == 7) {
-					swerve.getRotationFFController().setState(RotationState.FORWARD);
+					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.FORWARD;
 				} else if (closestTagId == 6) {
-					swerve.getRotationFFController().setState(RotationState.BACKWARD);
+					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.BACKWARD;
 				}
 			}
 
 		} else if (swerve.getRotationFFController().getState() != RotationState.NONE) {
-			swerve.getRotationFFController().setState(RotationState.NONE);
+			DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.NONE;
 		}
 
+		*/
 		// Scale inputs once
 		Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(vX, vY));
 		double scaledX = scaledInputs.getX();

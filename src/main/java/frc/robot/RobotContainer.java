@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.CMD_Drive;
+import frc.robot.commands.generic.CMD_Eject;
 import frc.robot.commands.generic.CMD_Elevator;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.InputConstants;
@@ -26,6 +27,8 @@ import frc.robot.superstructure.SUB_Superstructure;
 import frc.robot.superstructure.SuperstructureState;
 import frc.robot.swerve.IO_SwerveReal;
 import frc.robot.swerve.SUB_Swerve;
+import frc.robot.util.CommandRegistrar;
+import frc.robot.util.Music;
 import frc.robot.util.SUB_Led;
 import frc.robot.vision.IO_VisionReal;
 import frc.robot.vision.SUB_Vision;
@@ -45,7 +48,7 @@ public class RobotContainer {
 	private SUB_Superstructure superstructure;
 	private SUB_Led led;
 
-	// private Music orchestra;
+	private Music orchestra;
 
 	public RobotContainer() {
 		// Initialize Controllers
@@ -77,7 +80,9 @@ public class RobotContainer {
 		led = new SUB_Led();
 		superstructure = new SUB_Superstructure(intake, elevator, led);
 
-		//	orchestra = new Music();
+		orchestra = new Music();
+
+		CommandRegistrar.registerCommands(swerve, superstructure);
 	}
 
 	private void configureDefaultCommands() {
@@ -93,11 +98,14 @@ public class RobotContainer {
 	private void configureButtonBindings() {
 
 		//	operatorController
-		//			.rightStick()
-		//			.onTrue(new InstantCommand(() -> orchestra.playSong("doom.chrp")));
+		//		.rightStick()
+		//		.onTrue(new InstantCommand(() -> orchestra.playSong("shelter.chrp")));
 
 		// Extake
-		// operatorController.x().onTrue(new CMD_Eject(superstructure));
+		operatorController.x().onTrue(new CMD_Eject(superstructure));
+		operatorController
+				.x()
+				.toggleOnFalse(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
 
 		// operatorController
 		//		.x()
@@ -107,6 +115,13 @@ public class RobotContainer {
 		operatorController
 				.rightBumper()
 				.onTrue(new CMD_ElevatorCoral(superstructure, true)); // DPAD-UP - Coral up
+
+		operatorController
+				.rightTrigger()
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING));
+		operatorController
+				.leftTrigger()
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L3_SCORING));
 
 		// Algae Controls
 		operatorController.leftBumper().onTrue(new CMD_ElevatorAlgae(superstructure, true));
@@ -122,13 +137,16 @@ public class RobotContainer {
 		operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
 
 		// Climbing
-
 		operatorController
 				.leftStick()
 				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.CLIMB));
+
+		operatorController
+				.rightStick()
+				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.CLIMB_BTM));
 	}
 
 	public Command getAutonomousCommand() {
-		return swerve.getAutonomousCommand("TEST");
+		return swerve.getAutonomousCommand("T1");
 	}
 }

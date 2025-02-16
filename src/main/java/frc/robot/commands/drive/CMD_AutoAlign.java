@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.constants.DynamicConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.swerve.SUB_Swerve;
 import frc.robot.util.ExpDecayFF;
@@ -90,7 +91,7 @@ public class CMD_AutoAlign extends Command {
 		double vY = MathUtil.clamp(yCorrection + yFeedForward, -1.0, 1.0);
 
 		// Set rotation state
-		swerveRotationController.setState(rotationState);
+		DynamicConstants.GLOBAL_ROTATION_STATE = rotationState;
 
 		// Calculate speeds (we dont need to update the omegaRadians as rotation state handles it)
 		desiredSpeeds =

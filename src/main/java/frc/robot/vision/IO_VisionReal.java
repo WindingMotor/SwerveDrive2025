@@ -45,9 +45,8 @@ public class IO_VisionReal implements IO_VisionBase {
 
 		// Initialize all cameras with their specific configurations
 		initializeCamera(Camera.FRONT_LEFT, "OV2311_4");
-		initializeCamera(Camera.FRONT_RIGHT, "OV9281_02");
+		initializeCamera(Camera.FRONT_RIGHT, "OV2311_5");
 		initializeCamera(Camera.BACK_LEFT, "OV9281_03");
-
 		initializeCamera(Camera.ELEVATED, "OV9281_01");
 	}
 
@@ -92,7 +91,7 @@ public class IO_VisionReal implements IO_VisionBase {
 	 * @param inputs The vision inputs to update
 	 */
 	private void processCamera(Camera cameraType, VisionInputs inputs) {
-		
+
 		CameraData data = cameraData.get(cameraType);
 		PhotonPipelineResult result = data.camera.getLatestResult();
 
@@ -119,19 +118,14 @@ public class IO_VisionReal implements IO_VisionBase {
 							robotPose3d,
 							result.getTimestampSeconds(),
 							result.getTargets(),
-							PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR
-							);
+							PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR);
 
 			// Update pose estimate
 			VisionShared.setPoseEstimate(inputs, cameraType, robotPose3d.toPose2d());
 
 			// Update standard deviations
 			VisionShared.updateEstimationStdDevs(
-					cameraType,
-					estimatedPose, 
-					result.getTargets(),
-					data,
-					tagLayout);
+					cameraType, estimatedPose, result.getTargets(), data, tagLayout);
 		}
 		// Fallback to single-tag estimation if needed
 		else {
