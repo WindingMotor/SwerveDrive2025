@@ -24,7 +24,7 @@ public final class RobotConstants {
 	public static final double BATTERY_VOLTAGE_CRITICAL = 10.5; // Volts
 	public static final double BATTERY_VOLTAGE_WARNING = 11.5; // Volts
 
-	public static final boolean FORCE_REDUX_SERVER_ON = false;
+	public static final boolean FORCE_REDUX_SERVER_ON = true;
 
 	public static final double ROBOT_MASS = 65.000; // kg
 	public static final Matter CHASSIS =

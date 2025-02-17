@@ -7,7 +7,6 @@
 
 package frc.robot;
 
-import com.reduxrobotics.canand.CanandEventLoop;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,9 +32,9 @@ public class Robot extends LoggedRobot {
 		// Force the Redux server to start on port 7244 on the RoboRIO
 		// To use download Redux Alchemist navigate to settings then enter RoboRIO IP:
 		// roboRIO-2106-FRC.local
-		if (RobotConstants.FORCE_REDUX_SERVER_ON) {
-			CanandEventLoop.getInstance();
-		}
+		// if (RobotConstants.FORCE_REDUX_SERVER_ON) {
+		//	CanandEventLoop.getInstance();
+		// }
 
 		// Log build metadata
 		Logger.recordMetadata("Maven Name", BuildConstants.MAVEN_NAME);

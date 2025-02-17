@@ -3,6 +3,7 @@
     "front": -10.375,
     "left": 10.375
   },
+  "absoluteEncoderOffset": 0,
   "drive": {
     "type": "krakenx60",
     "id": 3,
@@ -10,17 +11,17 @@
   },
   "inverted": {
     "drive": true,
-    "angle": true
+    "angle": false
   },
   "angle": {
-    "type": "sparkmax_neo",
+    "type": "krakenx60",
     "id": 4,
     "canbus": "canivore"
   },
   "encoder": {
-    "type": "canandmag",
-    "id": 0,
-    "canbus": null
+    "type": "canandmag_can",
+    "id": 21,
+    "canbus": "rio"
   },
   "absoluteEncoderInverted": true
 }

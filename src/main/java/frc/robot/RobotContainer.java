@@ -8,6 +8,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
+import com.reduxrobotics.canand.CanandEventLoop;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -83,6 +84,8 @@ public class RobotContainer {
 		orchestra = new Music();
 
 		CommandRegistrar.registerCommands(swerve, superstructure);
+
+		CanandEventLoop.getInstance();
 	}
 
 	private void configureDefaultCommands() {

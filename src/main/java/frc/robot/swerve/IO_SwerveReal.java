@@ -50,7 +50,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 	public IO_SwerveReal(File directory) {
 		// Configure the Telemetry before creating the SwerveDrive
-		SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.NONE;
+		SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
 		try {
 			swerveDrive =
 					new SwerveParser(directory)
@@ -65,10 +65,9 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 		// Configure SwerveDrive settings
 		// swerveDrive.setHeadingCorrection(false);
-
-		swerveDrive.setCosineCompensator(true);
-		swerveDrive.setAngularVelocityCompensation(true, false, -0.03);
-		swerveDrive.setModuleEncoderAutoSynchronize(false, 3);
+		//	swerveDrive.setCosineCompensator(true);
+		//	swerveDrive.setAngularVelocityCompensation(true, false, -0.03);
+		// swerveDrive.setModuleEncoderAutoSynchronize(false, 3);
 
 		// swerveDrive.pushOffsetsToEncoders();
 
@@ -80,6 +79,8 @@ public class IO_SwerveReal implements IO_SwerveBase {
 		this.rotationController = new ExpDecayFF(6.0, 1, 0.1);
 
 		swerveDrive.setMotorIdleMode(true);
+
+		//	swerveDrive.pushOffsetsToEncoders();
 	}
 
 	@Override
