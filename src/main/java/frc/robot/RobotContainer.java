@@ -9,13 +9,11 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
 import com.reduxrobotics.canand.CanandEventLoop;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
-import frc.robot.commands.drive.CMD_Drive;
 import frc.robot.commands.generic.CMD_Eject;
 import frc.robot.commands.generic.CMD_Elevator;
 import frc.robot.commands.generic.CMD_Superstructure;
@@ -26,12 +24,9 @@ import frc.robot.intake.IO_IntakeReal;
 import frc.robot.intake.SUB_Intake;
 import frc.robot.superstructure.SUB_Superstructure;
 import frc.robot.superstructure.SuperstructureState;
-import frc.robot.swerve.IO_SwerveReal;
-import frc.robot.swerve.SUB_Swerve;
 import frc.robot.util.SUB_Led;
 import frc.robot.vision.IO_VisionReal;
 import frc.robot.vision.SUB_Vision;
-import java.io.File;
 
 public class RobotContainer {
 	// Controller Configuration
@@ -40,7 +35,6 @@ public class RobotContainer {
 	private InputConstants globalInputMap;
 
 	// Subsystems
-	private SUB_Swerve swerve;
 	private SUB_Intake intake;
 	private SUB_Vision vision;
 	private SUB_Elevator elevator;
@@ -71,24 +65,16 @@ public class RobotContainer {
 
 	private void initializeSubsystems() {
 		vision = new SUB_Vision(new IO_VisionReal());
-		swerve =
-				new SUB_Swerve(
-						new IO_SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")), vision);
 		intake = new SUB_Intake(new IO_IntakeReal());
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
 		led = new SUB_Led();
-		superstructure = new SUB_Superstructure(intake, elevator, led, swerve);
-
-		//	orchestra = new Music();
+		superstructure = new SUB_Superstructure(intake, elevator, led);
 
 		// CommandRegistrar.registerCommands(swerve, superstructure);
-
 		CanandEventLoop.getInstance();
 	}
 
-	private void configureDefaultCommands() {
-		swerve.setDefaultCommand(new CMD_Drive(swerve, driverController, globalInputMap));
-	}
+	private void configureDefaultCommands() {}
 
 	private void configureWebserverCommands() {}
 
@@ -98,19 +84,11 @@ public class RobotContainer {
 
 	private void configureButtonBindings() {
 
-		//	operatorController
-		//		.rightStick()
-		//		.onTrue(new InstantCommand(() -> orchestra.playSong("shelter.chrp")));
-
 		// Extake
 		operatorController.x().onTrue(new CMD_Eject(superstructure));
 		operatorController
 				.x()
 				.toggleOnFalse(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
-
-		// operatorController
-		//		.x()
-		//		.onTrue(swerve.driveToPose(new Pose2d(new Translation2d(13.1, 6.0), new Rotation2d())));
 
 		// Coral Controls
 		operatorController
@@ -148,7 +126,7 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		return swerve.getAutonomousCommand("T1");
-		// return null;
+		// return swerve.getAutonomousCommand("T1");
+		return null;
 	}
 }
