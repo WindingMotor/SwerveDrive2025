@@ -28,8 +28,6 @@ import frc.robot.superstructure.SUB_Superstructure;
 import frc.robot.superstructure.SuperstructureState;
 import frc.robot.swerve.IO_SwerveReal;
 import frc.robot.swerve.SUB_Swerve;
-import frc.robot.util.CommandRegistrar;
-import frc.robot.util.Music;
 import frc.robot.util.SUB_Led;
 import frc.robot.vision.IO_VisionReal;
 import frc.robot.vision.SUB_Vision;
@@ -49,7 +47,7 @@ public class RobotContainer {
 	private SUB_Superstructure superstructure;
 	private SUB_Led led;
 
-	private Music orchestra;
+	// private Music orchestra;
 
 	public RobotContainer() {
 		// Initialize Controllers
@@ -81,9 +79,9 @@ public class RobotContainer {
 		led = new SUB_Led();
 		superstructure = new SUB_Superstructure(intake, elevator, led, swerve);
 
-		orchestra = new Music();
+		//	orchestra = new Music();
 
-		CommandRegistrar.registerCommands(swerve, superstructure);
+		// CommandRegistrar.registerCommands(swerve, superstructure);
 
 		CanandEventLoop.getInstance();
 	}
@@ -151,5 +149,6 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		return swerve.getAutonomousCommand("T1");
+		// return null;
 	}
 }
