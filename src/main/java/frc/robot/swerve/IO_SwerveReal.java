@@ -271,7 +271,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 					},
 					new PPHolonomicDriveController(
 							new PIDConstants(1.25, 0.0, 0.0), // Translation PID constants
-							getHeadingPID()),
+							new PIDConstants(10, 0.0, 0.0)),
 					config,
 					() -> {
 						// Boolean supplier that controls when the path will be mirrored for the red alliance

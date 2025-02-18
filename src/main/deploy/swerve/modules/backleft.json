@@ -3,7 +3,7 @@
     "front": -10.375,
     "left": 10.375
   },
-  "absoluteEncoderOffset": 0,
+  "absoluteEncoderOffset": 223.5,
   "drive": {
     "type": "krakenx60",
     "id": 3,
@@ -19,9 +19,9 @@
     "canbus": "canivore"
   },
   "encoder": {
-    "type": "canandmag_can",
-    "id": 21,
-    "canbus": "rio"
+    "type": "ctre_mag",
+    "id": 7,
+    "canbus": null
   },
-  "absoluteEncoderInverted": true
+  "absoluteEncoderInverted": false
 }
