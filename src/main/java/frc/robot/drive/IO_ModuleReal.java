@@ -130,15 +130,26 @@ public class IO_ModuleReal implements IO_ModuleBase {
 						: InvertedValue.CounterClockwise_Positive;
 		tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
 
-		// Configure Canandmag
-		CanandmagSettings canandmagSettings = new CanandmagSettings();
-		canandmagSettings.setZeroOffset(constants.EncoderOffset);
-		canandmagSettings.setInvertDirection(constants.EncoderInverted);
-		canandmag.setSettings(canandmagSettings);
+        // Configure Canandmag
+        CanandmagSettings canandmagSettings = new CanandmagSettings();
+        canandmagSettings.setZeroOffset(constants.EncoderOffset);
+        canandmagSettings.setInvertDirection(constants.EncoderInverted);
+        canandmag.setSettings(canandmagSettings);
 
-		// Set turnMotor encoder to Canandmag position
-		double absolutePosition = canandmag.getAbsPosition();
-		tryUntilOk(10, () -> turnTalon.setPosition(absolutePosition, 0.25));
+        // Verify Canandmag is connected
+        if (!canandmag.isConnected()) {
+            throw new RuntimeException("Canandmag not connected during initialization");
+        }
+
+        // Get absolute position (0 to 1) and verify it's valid
+        double absolutePosition = canandmag.getAbsPosition();
+        if (absolutePosition < 0.0 || absolutePosition >= 1.0) {
+            throw new RuntimeException("Invalid absolute position: " + absolutePosition);
+        }
+
+        // No need to convert units because TalonFX.setPosition() expects rotations in Phoenix v6
+        // The Canandmag returns 0-1 which matches the rotations unit expected by the TalonFX
+        tryUntilOk(10, () -> turnTalon.setPosition(absolutePosition, 0.25));
 
 		// Create timestamp queue
 		timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();

@@ -24,15 +24,6 @@ public final class RobotConstants {
 	public static final double BATTERY_VOLTAGE_CRITICAL = 10.5; // Volts
 	public static final double BATTERY_VOLTAGE_WARNING = 11.5; // Volts
 
-	public static final boolean FORCE_REDUX_SERVER_ON = true;
-
-	public static final double ROBOT_MASS = 65.000; // kg
-	public static final Matter CHASSIS =
-			new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
-	public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
-
-	public static final double MAX_SPEED = 4.7; // m/s
-
 	public final class Intake {
 
 		public static final int ARM_MOTOR_ID = 21;
@@ -78,19 +69,6 @@ public final class RobotConstants {
 		public static final double KI = 1.6658; // No output for integrated error
 		public static final double KD = 0.0; //  A velocity error of 1 m/s results in 0.1 V output
 
-		/*
-		 *
-		 * 		public static final double KS = 0.2; // Add V output to overcome static friction
-
-		public static final double KV = 0.75; // Velocity of 1 m/s results in 0.01 V output //  0.085;
-		public static final double KA = 0.005; // Accel of 1 m/s² results in 0.00 V output
-
-		public static final double KG = 0.26; // Gravity Compensation
-
-		public static final double KP = 0.8; //  A position error of 1m results in 12 V output
-		public static final double KI = 0.0; // No output for integrated error
-		public static final double KD = 0.0; //  A velocity error of 1 m/s results in 0.1 V output
-		 */
 		// Position Limits
 		public static final double MIN_HEIGHT = 0.0; // m
 		public static final double MAX_HEIGHT = 1.85; // m
