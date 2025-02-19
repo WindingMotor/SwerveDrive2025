@@ -44,6 +44,7 @@ import frc.robot.constants.RobotConstants;
 import frc.robot.constants.RobotConstants.RobotMode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.vision.SUB_Vision;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -64,7 +65,7 @@ public class Drive extends SubsystemBase {
 							Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
 	// PathPlanner config constants
-	private static final double ROBOT_MASS_KG = 74.088;
+	private static final double ROBOT_MASS_KG = 65.0;
 	private static final double ROBOT_MOI = 6.883;
 	private static final double WHEEL_COF = 1.2;
 	private static final RobotConfig PP_CONFIG =
@@ -101,13 +102,17 @@ public class Drive extends SubsystemBase {
 	private SwerveDrivePoseEstimator poseEstimator =
 			new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
+	private SUB_Vision vision;
+
 	public Drive(
 			IO_GyroBase gyroIO,
+			SUB_Vision vision,
 			IO_ModuleBase flModuleIO,
 			IO_ModuleBase frModuleIO,
 			IO_ModuleBase blModuleIO,
 			IO_ModuleBase brModuleIO) {
 		this.gyroIO = gyroIO;
+		this.vision = vision;
 		modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
 		modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
 		modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
@@ -155,8 +160,10 @@ public class Drive extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+
 		odometryLock.lock(); // Prevents odometry updates while reading data
 		gyroIO.updateInputs(gyroInputs);
+
 		Logger.processInputs("Drive/Gyro", gyroInputs);
 		for (var module : modules) {
 			module.periodic();
@@ -207,6 +214,42 @@ public class Drive extends SubsystemBase {
 			// Apply update
 			poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
 		}
+
+		/*
+		// Update odometry with vision measurements
+		vision.updateLastRobotPose(getPose());
+
+		Optional<CameraEstimationData> frontLeftData =
+				vision.getCameraEstimationData(Camera.FRONT_LEFT);
+		if (frontLeftData.isPresent()) {
+			poseEstimator.addVisionMeasurement(
+					new Pose2d(
+							frontLeftData.get().pose().getTranslation(),
+							frontLeftData.get().pose().getRotation()),
+					frontLeftData.get().timestamp(),
+					frontLeftData.get().stdDevMatrix());
+		}
+
+		Optional<CameraEstimationData> frontRightData =
+				vision.getCameraEstimationData(Camera.FRONT_RIGHT);
+		if (frontRightData.isPresent()) {
+			poseEstimator.addVisionMeasurement(
+					new Pose2d(
+							frontRightData.get().pose().getTranslation(),
+							frontRightData.get().pose().getRotation()),
+					frontRightData.get().timestamp(),
+					frontRightData.get().stdDevMatrix());
+		}
+
+		Optional<CameraEstimationData> backLeftData = vision.getCameraEstimationData(Camera.BACK_LEFT);
+		if (backLeftData.isPresent()) {
+			poseEstimator.addVisionMeasurement(
+					new Pose2d(
+							backLeftData.get().pose().getTranslation(), backLeftData.get().pose().getRotation()),
+					backLeftData.get().timestamp(),
+					backLeftData.get().stdDevMatrix());
+		}
+					*/
 
 		// Update gyro alert
 		gyroDisconnectedAlert.set(!gyroInputs.connected && RobotConstants.ROBOT_MODE != RobotMode.SIM);

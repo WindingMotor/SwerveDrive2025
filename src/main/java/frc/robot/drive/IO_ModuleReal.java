@@ -117,7 +117,8 @@ public class IO_ModuleReal implements IO_ModuleBase {
 		turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 		turnConfig.Slot0 = constants.SteerMotorGains;
 		turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-		turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
+		turnConfig.Feedback.SensorToMechanismRatio = 1;
+		turnConfig.Feedback.SensorToMechanismRatio = TunerConstants.kSteerGearRatio;
 		turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
 		turnConfig.MotionMagic.MotionMagicAcceleration =
 				turnConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;
@@ -133,7 +134,7 @@ public class IO_ModuleReal implements IO_ModuleBase {
 		// Configure Canandmag
 		CanandmagSettings canandmagSettings = new CanandmagSettings();
 		canandmagSettings.setZeroOffset(constants.EncoderOffset);
-		canandmagSettings.setInvertDirection(constants.EncoderInverted);
+		canandmagSettings.setInvertDirection(true);
 		canandmag.setSettings(canandmagSettings);
 
 		// Verify Canandmag is connected
@@ -143,9 +144,6 @@ public class IO_ModuleReal implements IO_ModuleBase {
 
 		// Get absolute position (0 to 1) and verify it's valid
 		double absolutePosition = canandmag.getAbsPosition();
-		if (absolutePosition < 0.0 || absolutePosition >= 1.0) {
-			throw new RuntimeException("Invalid absolute position: " + absolutePosition);
-		}
 
 		// No need to convert units because TalonFX.setPosition() expects rotations in Phoenix v6
 		// The Canandmag returns 0-1 which matches the rotations unit expected by the TalonFX

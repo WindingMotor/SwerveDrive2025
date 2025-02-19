@@ -29,9 +29,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
-	private static final double DEADBAND = 0.1;
+	private static final double DEADBAND = 0.01;
 	private static final double ANGLE_KP = 5.0;
 	private static final double ANGLE_KD = 0.4;
 	private static final double ANGLE_MAX_VELOCITY = 8.0;
@@ -75,13 +76,13 @@ public class DriveCommands {
 					double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
 
 					// Square rotation value for more precise control
-					omega = Math.copySign(omega * omega, omega);
+					// omega = Math.copySign(omega * omega, omega);
 
 					// Convert to field relative speeds & send command
 					ChassisSpeeds speeds =
 							new ChassisSpeeds(
-									linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-									linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+									linearVelocity.getX() * 5.0,
+									linearVelocity.getY() * 5.0,
 									omega * drive.getMaxAngularSpeedRadPerSec());
 					boolean isFlipped =
 							DriverStation.getAlliance().isPresent()
@@ -273,6 +274,7 @@ public class DriveCommands {
 													"\tWheel Delta: " + formatter.format(wheelDelta) + " radians");
 											System.out.println(
 													"\tGyro Delta: " + formatter.format(state.gyroDelta) + " radians");
+											Logger.recordOutput("Wheel Radius M ", formatter.format(wheelRadius));
 											System.out.println(
 													"\tWheel Radius: "
 															+ formatter.format(wheelRadius)

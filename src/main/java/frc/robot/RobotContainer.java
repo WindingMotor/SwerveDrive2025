@@ -10,10 +10,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.reduxrobotics.canand.CanandEventLoop;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -96,6 +93,7 @@ public class RobotContainer {
 				drive =
 						new Drive(
 								new IO_GyroReal(),
+								vision,
 								new IO_ModuleReal(TunerConstants.FrontLeft),
 								new IO_ModuleReal(TunerConstants.FrontRight),
 								new IO_ModuleReal(TunerConstants.BackLeft),
@@ -107,6 +105,7 @@ public class RobotContainer {
 				drive =
 						new Drive(
 								new IO_GyroBase() {},
+								vision,
 								new IO_ModuleSim(TunerConstants.FrontLeft),
 								new IO_ModuleSim(TunerConstants.FrontRight),
 								new IO_ModuleSim(TunerConstants.BackLeft),
@@ -118,6 +117,7 @@ public class RobotContainer {
 				drive =
 						new Drive(
 								new IO_GyroBase() {},
+								vision,
 								new IO_ModuleBase() {},
 								new IO_ModuleBase() {},
 								new IO_ModuleBase() {},
@@ -156,29 +156,33 @@ public class RobotContainer {
 		drive.setDefaultCommand(
 				DriveCommands.joystickDrive(
 						drive,
-						driverController::getLeftX,
-						driverController::getLeftY,
-						driverController::getRightX));
+						() -> driverController.getRawAxis(1),
+						() -> -driverController.getRawAxis(0),
+						() -> driverController.getRawAxis(3)));
 
 		// Switch to X pattern when X button is pressed
-		driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+		// driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
 		// Reset gyro to 0° when B button is pressed
-		driverController
-				.b()
-				.onTrue(
-						Commands.runOnce(
-										() ->
-												drive.setPose(
-														new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-										drive)
-								.ignoringDisable(true));
+		/*
+				driverController
+						.b()
+						.onTrue(
+								Commands.runOnce(
+												() ->
+														drive.setPose(
+																new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+												drive)
+										.ignoringDisable(true));
+		*/
 
 		// Extake
 		operatorController.x().onTrue(new CMD_Eject(superstructure));
+		/*
 		operatorController
 				.x()
 				.toggleOnFalse(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
+		*/
 
 		// Coral Controls
 		operatorController
@@ -217,6 +221,6 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		// return swerve.getAutonomousCommand("T1");
-		return null;
+		return autoChooser.get();
 	}
 }
