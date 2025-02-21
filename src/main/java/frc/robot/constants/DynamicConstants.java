@@ -7,7 +7,7 @@
 
 package frc.robot.constants;
 
-import frc.robot.util.ExpDecayFF.RotationState;
+import frc.robot.util.math.ExpDecayFF.RotationState;
 
 public final class DynamicConstants {
 

@@ -7,43 +7,49 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R_S_3L4"
+            "pathName": "T1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4C"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.4
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "R_1M_3L4"
+            "pathName": "T2"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "R_2M_3L4"
+            "name": "L4"
           }
         },
         {
-          "type": "path",
+          "type": "wait",
           "data": {
-            "pathName": "R_3M_3L4"
+            "waitTime": 0.2
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "R_E_3L4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "R_S_4L4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "R_E_4L4"
+            "name": "Eject"
           }
         }
       ]

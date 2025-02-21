@@ -11,21 +11,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "S_L4"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "L_1M_3L4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake_Coral"
           }
         },
         {
@@ -35,21 +23,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "S_L4"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "L_3M_3L4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake_Coral"
           }
         },
         {
@@ -59,33 +35,15 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "S_L4"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "L_S_4L4"
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Intake_Coral"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "L_E_4L4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "S_L4"
           }
         }
       ]

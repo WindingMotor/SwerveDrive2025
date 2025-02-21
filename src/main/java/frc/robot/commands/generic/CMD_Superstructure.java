@@ -8,8 +8,8 @@
 package frc.robot.commands.generic;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.superstructure.SUB_Superstructure;
-import frc.robot.superstructure.SuperstructureState;
+import frc.robot.subsystems.superstructure.SUB_Superstructure;
+import frc.robot.subsystems.superstructure.SuperstructureState;
 
 public class CMD_Superstructure extends Command {
 	private final SUB_Superstructure superstructure;

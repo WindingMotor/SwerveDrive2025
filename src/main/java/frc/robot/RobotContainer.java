@@ -11,7 +11,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.reduxrobotics.canand.CanandEventLoop;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
@@ -22,22 +21,22 @@ import frc.robot.commands.generic.CMD_Elevator;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.InputConstants;
 import frc.robot.constants.RobotConstants;
-import frc.robot.drive.Drive;
-import frc.robot.drive.IO_GyroBase;
-import frc.robot.drive.IO_GyroReal;
-import frc.robot.drive.IO_ModuleBase;
-import frc.robot.drive.IO_ModuleReal;
-import frc.robot.drive.IO_ModuleSim;
-import frc.robot.elevator.IO_ElevatorReal;
-import frc.robot.elevator.SUB_Elevator;
-import frc.robot.generated.TunerConstants;
-import frc.robot.intake.IO_IntakeReal;
-import frc.robot.intake.SUB_Intake;
-import frc.robot.superstructure.SUB_Superstructure;
-import frc.robot.superstructure.SuperstructureState;
-import frc.robot.util.SUB_Led;
-import frc.robot.vision.IO_VisionReal;
-import frc.robot.vision.SUB_Vision;
+import frc.robot.constants.TunerConstants;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.IO_GyroBase;
+import frc.robot.subsystems.drive.IO_GyroReal;
+import frc.robot.subsystems.drive.IO_ModuleBase;
+import frc.robot.subsystems.drive.IO_ModuleReal;
+import frc.robot.subsystems.drive.IO_ModuleSim;
+import frc.robot.subsystems.elevator.IO_ElevatorReal;
+import frc.robot.subsystems.elevator.SUB_Elevator;
+import frc.robot.subsystems.intake.IO_IntakeReal;
+import frc.robot.subsystems.intake.SUB_Intake;
+import frc.robot.subsystems.led.SUB_Led;
+import frc.robot.subsystems.superstructure.SUB_Superstructure;
+import frc.robot.subsystems.superstructure.SuperstructureState;
+import frc.robot.subsystems.vision.IO_VisionReal;
+import frc.robot.subsystems.vision.SUB_Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
@@ -54,7 +53,7 @@ public class RobotContainer {
 	private SUB_Vision vision;
 	private SUB_Elevator elevator;
 	private SUB_Superstructure superstructure;
-	private SUB_Led led;
+	private final SUB_Led led = new SUB_Led(1, 62);
 
 	// private Music orchestra;
 
@@ -65,9 +64,10 @@ public class RobotContainer {
 		// Initialize Subsystems
 		initializeSubsystems();
 
+		configurePathplannerCommands();
+
 		// Configure Robot Functionality
 		configureWebserverCommands();
-		configurePathPlannerCommands();
 		configureButtonBindings();
 	}
 
@@ -81,8 +81,7 @@ public class RobotContainer {
 		vision = new SUB_Vision(new IO_VisionReal());
 		intake = new SUB_Intake(new IO_IntakeReal());
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
-		led = new SUB_Led();
-		superstructure = new SUB_Superstructure(intake, elevator, led);
+		superstructure = new SUB_Superstructure(drive, intake, elevator, led);
 
 		// CommandRegistrar.registerCommands(swerve, superstructure);
 		CanandEventLoop.getInstance();
@@ -147,8 +146,36 @@ public class RobotContainer {
 
 	private void configureWebserverCommands() {}
 
-	private void configurePathPlannerCommands() {
-		NamedCommands.registerCommand("Intake_Algae", new PrintCommand("Intake Algae"));
+	private void configurePathplannerCommands() {
+
+		NamedCommands.registerCommand(
+				"Intake_Coral", new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
+
+		NamedCommands.registerCommand(
+				"L1", new CMD_Superstructure(superstructure, SuperstructureState.L1_SCORING));
+
+		NamedCommands.registerCommand(
+				"L2", new CMD_Superstructure(superstructure, SuperstructureState.L2_SCORING));
+
+		NamedCommands.registerCommand(
+				"L2C", new CMD_Superstructure(superstructure, SuperstructureState.L2_CLEAR));
+
+		NamedCommands.registerCommand(
+				"L3", new CMD_Superstructure(superstructure, SuperstructureState.L3_SCORING));
+
+		NamedCommands.registerCommand(
+				"L3C", new CMD_Superstructure(superstructure, SuperstructureState.L3_CLEAR));
+
+		NamedCommands.registerCommand(
+				"L4", new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING));
+
+		NamedCommands.registerCommand(
+				"L4C", new CMD_Superstructure(superstructure, SuperstructureState.L4_CLEAR));
+
+		NamedCommands.registerCommand("Eject", new CMD_Eject(superstructure));
+
+		NamedCommands.registerCommand(
+				"Idle", new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
 	}
 
 	private void configureButtonBindings() {
@@ -156,9 +183,9 @@ public class RobotContainer {
 		drive.setDefaultCommand(
 				DriveCommands.joystickDrive(
 						drive,
-						() -> driverController.getRawAxis(1),
-						() -> -driverController.getRawAxis(0),
-						() -> driverController.getRawAxis(3)));
+						() -> -driverController.getRawAxis(1),
+						() -> driverController.getRawAxis(0),
+						() -> -driverController.getRawAxis(3)));
 
 		// Switch to X pattern when X button is pressed
 		// driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
@@ -210,17 +237,15 @@ public class RobotContainer {
 		operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
 
 		// Climbing
-		operatorController
-				.leftStick()
-				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.CLIMB));
+		operatorController.leftStick().onTrue(new CMD_Elevator(elevator, SuperstructureState.CLIMB));
 
 		operatorController
 				.rightStick()
-				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.CLIMB_BTM));
+				.onTrue(new CMD_Elevator(elevator, SuperstructureState.CLIMB_BTM));
 	}
 
 	public Command getAutonomousCommand() {
 		// return swerve.getAutonomousCommand("T1");
-		return autoChooser.get();
+		return AutoBuilder.buildAuto("T1A");
 	}
 }

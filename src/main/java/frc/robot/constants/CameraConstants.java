@@ -25,43 +25,41 @@ public final class CameraConstants {
 	public enum Camera {
 		FRONT_RIGHT(
 				"OV2311_4",
-				new Rotation3d(0, Math.toRadians(-24.094 + 15), Math.toRadians(75 + 45)),
+				new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(75)),
 				new Translation3d(
-						Units.inchesToMeters(-2.0),
+						Units.inchesToMeters(2.0),
 						Units.inchesToMeters(9.5),
 						Units.inchesToMeters(19)), // X (red), Y (green), Z (height)
-				VecBuilder.fill(2.5, 2.5, 0.5),
+				VecBuilder.fill(5, 5, 10),
 				VecBuilder.fill(0.3, 0.3, 0.1)), // X, Y, Rotation -> Multi-tag (lower uncertainty)
 
 		ELEVATED(
 				"OV9281_01",
 				new Rotation3d(
-						Units.degreesToRadians(180),
-						Units.degreesToRadians(180 - 30),
-						Units.degreesToRadians(-35 - 5)),
+						Units.degreesToRadians(0), Units.degreesToRadians(-10), Units.degreesToRadians(0)),
 				new Translation3d(
-						Units.inchesToMeters(-5.5),
-						Units.inchesToMeters(-11.5),
-						Units.inchesToMeters(38.5)), // X (red), Y (green), Z (height)
-				VecBuilder.fill(1.8, 1.8, 0.3), // Lower Z uncertainty for elevated cam
+						Units.inchesToMeters(12),
+						Units.inchesToMeters(0),
+						Units.inchesToMeters(6)), // X (red), Y (green), Z (height)
+				VecBuilder.fill(5, 5, 10),
 				VecBuilder.fill(0.25, 0.25, 0.08)),
 
 		BACK_LEFT(
 				"OV9281_03",
-				new Rotation3d(0, Units.degreesToRadians((-155 - 15) + 180 - 15), 0),
+				new Rotation3d(0, Units.degreesToRadians((-155 - 15)), 0),
 				new Translation3d(
-						Units.inchesToMeters(11.25), Units.inchesToMeters(-9), Units.inchesToMeters(19.5)),
-				VecBuilder.fill(3.0, 3.0, 0.6), // Wider FOV needs higher uncertainty
+						Units.inchesToMeters(-11.25), Units.inchesToMeters(9), Units.inchesToMeters(19.5)),
+				VecBuilder.fill(5, 5, 10),
 				VecBuilder.fill(0.4, 0.4, 0.15)),
 
 		FRONT_LEFT(
 				"OV9281_02",
-				new Rotation3d(0, Math.toRadians(-24.094 + 15), Math.toRadians(-75 - 45)),
+				new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(-75)),
 				new Translation3d(
-						Units.inchesToMeters(-2.0),
+						Units.inchesToMeters(2.0),
 						Units.inchesToMeters(-9.5),
 						Units.inchesToMeters(19)), // X (red), Y (green), Z (height)
-				VecBuilder.fill(2.5, 2.5, 0.5),
+				VecBuilder.fill(5, 5, 10),
 				VecBuilder.fill(0.3, 0.3, 0.1));
 
 		public final String name;
