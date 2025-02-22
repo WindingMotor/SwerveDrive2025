@@ -11,39 +11,15 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 0.1
+            "name": "L2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "L4C"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.4
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "T2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L4"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.2
+            "name": "ALN_BOTTOM_RIGHT_BOTTOM"
           }
         },
         {

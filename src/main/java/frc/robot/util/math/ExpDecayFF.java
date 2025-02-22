@@ -51,35 +51,6 @@ public class ExpDecayFF {
 	private final double ffExponent;
 	private final double endingTolerance;
 
-	private RotationState currentState = RotationState.NONE;
-
-	/** Represents different rotation states of the robot with their corresponding angles. */
-	public enum RotationState {
-		NONE(0),
-		FORWARD(0),
-		BACKWARD(180),
-		RIGHT(90),
-		LEFT(-90),
-		SOURCE_RIGHT(130),
-		SOURCE_LEFT(-130),
-		REEF_BOTTOM_RIGHT(-60),
-		REEF_BOTTOM_LEFT(60),
-		REEF_BOTTOM(0),
-		REEF_TOP_RIGHT(-120),
-		REEF_TOP_LEFT(120),
-		REEF_TOP(180);
-
-		private final double angle;
-
-		RotationState(double angle) {
-			this.angle = angle;
-		}
-
-		public double getAngle() {
-			return angle;
-		}
-	}
-
 	/**
 	 * Creates a new RotationFFController.
 	 *
@@ -91,33 +62,6 @@ public class ExpDecayFF {
 		this.maxStaticFF = maxStaticFF;
 		this.ffExponent = ffExponent;
 		this.endingTolerance = endingTolerance;
-	}
-
-	/**
-	 * Sets the current rotation state.
-	 *
-	 * @param state The new rotation state
-	 */
-	public void setState(RotationState state) {
-		this.currentState = state;
-	}
-
-	/**
-	 * Gets the current rotation state.
-	 *
-	 * @return The current RotationState
-	 */
-	public RotationState getState() {
-		return currentState;
-	}
-
-	/**
-	 * Gets the target angle for the current state.
-	 *
-	 * @return The target angle in degrees
-	 */
-	public double getTargetAngle() {
-		return currentState.getAngle();
 	}
 
 	/** Normalizes an angle to be within -180 to 180 degrees */
@@ -140,19 +84,10 @@ public class ExpDecayFF {
 		return error;
 	}
 
-	/**
-	 * Calculates the rotation command based on current error
-	 *
-	 * @param currentAngle The current angle in degrees
-	 * @return The calculated feedforward command value
-	 */
-	public double calculate(double currentAngle) {
-		if (currentState == RotationState.NONE) {
-			return 0.0;
-		}
+	public double calculate(double currentAngle, double targetAngle) {
 
 		// Calculate shortest path error
-		double error = getShortestDistance(currentAngle, currentState.getAngle());
+		double error = getShortestDistance(currentAngle, targetAngle);
 
 		// If within tolerance, stop rotating
 		if (Math.abs(error) < endingTolerance) {
@@ -179,10 +114,7 @@ public class ExpDecayFF {
 	 * @param currentAngle The current angle in degrees
 	 * @return true if within tolerance or in NONE state, false otherwise
 	 */
-	public boolean atTarget(double currentAngle) {
-		if (currentState == RotationState.NONE) {
-			return true;
-		}
-		return Math.abs(getShortestDistance(currentAngle, currentState.getAngle())) < endingTolerance;
+	public boolean atTarget(double currentAngle, double targetAngle) {
+		return Math.abs(getShortestDistance(currentAngle, targetAngle)) < endingTolerance;
 	}
 }

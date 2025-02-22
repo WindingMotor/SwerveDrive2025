@@ -65,6 +65,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
+
 	private final AprilTagFieldLayout aprilTagFieldLayout =
 			AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
@@ -119,6 +120,8 @@ public class Drive extends SubsystemBase {
 			new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
 	private SUB_Vision vision;
+
+	private Pair<Integer, Double> closestTagData = Pair.of(-1, Double.MAX_VALUE);
 
 	public Drive(
 			IO_GyroBase gyroIO,
@@ -298,10 +301,36 @@ public class Drive extends SubsystemBase {
 						backLeftData.get().stdDevMatrix());
 		}
 
+		// Front Left
+		Optional<CameraEstimationData> frontLeftData =
+				vision.getCameraEstimationData(Camera.FRONT_LEFT);
+		if (frontLeftData.isPresent()) {
+			String estimateType = vision.inputs.flEstimateType;
+			if (estimateType == EstimateType.MULTITAG.toString()
+					|| (estimateType == EstimateType.SINGLETAG.toString()
+							&& frontLeftData
+											.get()
+											.pose()
+											.getTranslation()
+											.getDistance(getApriltagLocation(vision.inputs.flBestTargetID))
+									< 2.5))
+				poseEstimator.addVisionMeasurement(
+						new Pose2d(
+								frontLeftData.get().pose().getTranslation(),
+								frontLeftData.get().pose().getRotation()),
+						frontLeftData.get().timestamp(),
+						frontLeftData.get().stdDevMatrix());
+		}
+
 		// Update gyro alert
 		gyroDisconnectedAlert.set(!gyroInputs.connected && RobotConstants.ROBOT_MODE != RobotMode.SIM);
 
+		// Update camera positions
 		updateCameraPositions();
+
+		// Update closest AprilTag data
+		closestTagData = getClosestAprilTagID();
+		Logger.recordOutput("ClosestApriltagID", closestTagData.getFirst());
 	}
 
 	private void updateCameraPositions() {
@@ -537,5 +566,9 @@ public class Drive extends SubsystemBase {
 		} else {
 			return new Translation2d();
 		}
+	}
+
+	public Pair<Integer, Double> getRecentClosestTagData() {
+		return closestTagData;
 	}
 }

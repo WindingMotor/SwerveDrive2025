@@ -17,30 +17,39 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.math.ExpDecayFF;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
 	private static final double DEADBAND = 0.01;
-	private static final double ANGLE_KP = 5.0;
-	private static final double ANGLE_KD = 0.4;
-	private static final double ANGLE_MAX_VELOCITY = 8.0;
-	private static final double ANGLE_MAX_ACCELERATION = 20.0;
+	private static final double ANGLE_MAX_VELOCITY = 10.0;
+	private static final double ANGLE_MAX_ACCELERATION = 15.0;
 	private static final double FF_START_DELAY = 2.0; // Secs
 	private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
 	private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
 	private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
+	private static final double MAX_ASSIST_DISTANCE = 2.0; // Meters
+
+	private static final double ANGLE_KP = 5.5;
+	private static final double ANGLE_KD = 0.6;
+
+	private static final double TRANSLATION_KP = 4.5;
+	private static final double TRANSLATION_KD = 0.1;
+
+	private static final ExpDecayFF rotationController = new ExpDecayFF(6.0, 1.0, 0.25);
 
 	private DriveCommands() {}
 
@@ -61,7 +70,7 @@ public class DriveCommands {
 	/**
 	 * Field relative drive command using two joysticks (controlling linear and angular velocities).
 	 */
-	public static Command joystickDrive(
+	public static Command driveNormal(
 			Drive drive,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
@@ -95,57 +104,243 @@ public class DriveCommands {
 	}
 
 	/**
-	 * Field relative drive command using joystick for linear control and PID for angular control.
-	 * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
-	 * absolute rotation with a joystick.
+	 * Creates a command that will drive to a specified pose using PID control. Uses separate PID
+	 * controllers for x, y and rotation.
 	 */
-	public static Command joystickDriveAtAngle(
+	public static Command driveToPose(Drive drive, Supplier<Pose2d> targetPoseSupplier) {
+		// Create ExpDecayFF controllers for x, y and rotation
+		ExpDecayFF xController = new ExpDecayFF(150.0, 1.5, 0.015);
+		ExpDecayFF yController = new ExpDecayFF(150.0, 1.5, 0.015);
+		ExpDecayFF rotController = new ExpDecayFF(6, 1.0, 0.35);
+
+		return Commands.run(
+						() -> {
+							// Get current pose and target pose
+							Pose2d currentPose = drive.getPose();
+							Pose2d targetPose = targetPoseSupplier.get();
+
+							// Calculate control outputs
+							double xOutput = xController.calculate(currentPose.getX(), targetPose.getX());
+							double yOutput = yController.calculate(currentPose.getY(), targetPose.getY());
+							double rotationOutput =
+									rotController.calculate(
+											currentPose.getRotation().getDegrees(),
+											targetPose.getRotation().getDegrees());
+
+							// Create field-relative speeds
+							ChassisSpeeds speeds =
+									ChassisSpeeds.fromFieldRelativeSpeeds(
+											xOutput, yOutput, rotationOutput, drive.getRotation());
+
+							// Command the drive
+							drive.runVelocity(speeds);
+
+							// Log target pose for visualization
+							Logger.recordOutput("Odometry/TargetPose", targetPose);
+						},
+						drive)
+				.until(
+						() -> {
+							Pose2d currentPose = drive.getPose();
+							Pose2d targetPose = targetPoseSupplier.get();
+
+							return xController.atTarget(currentPose.getX(), targetPose.getX())
+									&& yController.atTarget(currentPose.getY(), targetPose.getY())
+									&& rotController.atTarget(
+											currentPose.getRotation().getDegrees(),
+											targetPose.getRotation().getDegrees());
+						});
+	}
+
+	public static Command driveToZone(Drive drive, ZonePose zonePose) {
+		return driveToPose(drive, zonePose.getPose());
+	}
+
+	/** Overloaded version that accepts a fixed target pose rather than a supplier. */
+	public static Command driveToPose(Drive drive, Pose2d targetPose) {
+		return driveToPose(drive, () -> targetPose);
+	}
+
+	public static Optional<Pose2d> getCloserSourcePose(Drive drive) {
+
+		int id = drive.getRecentClosestTagData().getFirst();
+
+		if (id == 1) {
+			return Optional.ofNullable(
+					new Pose2d(new Translation2d(16.94, 1.2), Rotation2d.fromDegrees(-55)));
+		} else if (id == 2) {
+			return Optional.ofNullable(
+					new Pose2d(new Translation2d(16.31, 7.35), Rotation2d.fromDegrees(44)));
+		} else {
+			return Optional.empty();
+		}
+	}
+
+	public static Command driveToSource(Drive drive) {
+		Optional<Pose2d> poseOptional = getCloserSourcePose(drive);
+		if (poseOptional.isPresent()) {
+			return DriveCommands.driveToPose(drive, poseOptional.get());
+		} else {
+			return new PrintCommand("Drive to Source: Empty Optional");
+		}
+	}
+
+	/*
+	if (id == 1) {
+		return DriveCommands.driveToPose(
+				drive, new Pose2d(new Translation2d(16.94, 1.2), Rotation2d.fromDegrees(-55)));
+
+	} else if (id == 2) {
+		return DriveCommands.driveToPose(
+				drive, new Pose2d(new Translation2d(16.31, 7.35), Rotation2d.fromDegrees(44)));
+	} else {
+		return new PrintCommand("Nothing...");
+	}
+		*/
+
+	/*
+	 * Field relative drive command using two joysticks (controlling linear and angular velocities).
+	 * Includes rotation assist mode. When rotation assist is enabled, the robot will automatically
+	 * rotate to the nearest ZONE of the field.
+	 */
+	public static Command driveWithAssist(
 			Drive drive,
 			DoubleSupplier xSupplier,
 			DoubleSupplier ySupplier,
-			Supplier<Rotation2d> rotationSupplier) {
+			DoubleSupplier omegaSupplier,
+			BooleanSupplier assistOnSupplier) {
 
-		// Create PID controller
-		ProfiledPIDController angleController =
+		// Construct command
+		return Commands.run(
+				() -> {
+					// Get target rotation based on closest AprilTag
+
+					int closestTagId = drive.getRecentClosestTagData().getFirst();
+					double distanceM = drive.getRecentClosestTagData().getSecond();
+					ZoneAngle targetZone = getZoneAngleForTagID(closestTagId);
+
+					// Convert zone angle to radians
+					Rotation2d targetRotation = Rotation2d.fromDegrees(targetZone.getAngle());
+
+					// Get linear velocity
+					Translation2d linearVelocity =
+							getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+
+					// Calculate angular speed based on assist mode and distance check
+					double omega = 0.0;
+					if (assistOnSupplier.getAsBoolean()
+							&& distanceM < MAX_ASSIST_DISTANCE
+							&& targetZone != ZoneAngle.NONE) {
+						omega =
+								rotationController.calculate(
+												drive.getRotation().getDegrees(), targetRotation.getDegrees())
+										+ (omegaSupplier.getAsDouble());
+					} else {
+						omega =
+								MathUtil.applyDeadband(
+										omegaSupplier.getAsDouble() * drive.getMaxAngularSpeedRadPerSec(), DEADBAND);
+					}
+
+					// Convert to field relative speeds & send command
+					ChassisSpeeds speeds =
+							new ChassisSpeeds(
+									linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+									linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+									omega);
+
+					// Command the drive
+					drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, drive.getRotation()));
+
+					// Log target rotation for debugging
+					Logger.recordOutput("Drive/TargetRotation", targetRotation.getDegrees());
+				},
+				drive);
+
+		// Reset PID controller when command starts
+
+	}
+
+	/**
+	 * Creates a command that will drive to a specified transform and zone angle using PID control.
+	 * The transform is relative to the robot's current pose.
+	 */
+	public static Command driveToTransform(Drive drive, Transform2d transform, ZoneAngle zoneAngle) {
+		// Create PID controllers for x, y and rotation
+		ProfiledPIDController xController =
+				new ProfiledPIDController(
+						TRANSLATION_KP,
+						0.0,
+						TRANSLATION_KD,
+						new TrapezoidProfile.Constraints(
+								drive.getMaxLinearSpeedMetersPerSec(), 2.0)); // Max acceleration in m/s^2
+
+		ProfiledPIDController yController =
+				new ProfiledPIDController(
+						TRANSLATION_KP,
+						0.0,
+						TRANSLATION_KD,
+						new TrapezoidProfile.Constraints(
+								drive.getMaxLinearSpeedMetersPerSec(), 2.0)); // Max acceleration in m/s^2
+
+		ProfiledPIDController rotationController =
 				new ProfiledPIDController(
 						ANGLE_KP,
 						0.0,
 						ANGLE_KD,
 						new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
-		angleController.enableContinuousInput(-Math.PI, Math.PI);
+		rotationController.enableContinuousInput(-Math.PI, Math.PI);
 
-		// Construct command
 		return Commands.run(
 						() -> {
-							// Get linear velocity
-							Translation2d linearVelocity =
-									getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+							// Get current pose and calculate target pose
+							Pose2d currentPose = drive.getPose();
+							Pose2d targetPose = currentPose.transformBy(transform);
 
-							// Calculate angular speed
-							double omega =
-									angleController.calculate(
-											drive.getRotation().getRadians(), rotationSupplier.get().getRadians());
+							// Get target rotation from zone angle
+							Rotation2d targetRotation = Rotation2d.fromDegrees(zoneAngle.getAngle());
 
-							// Convert to field relative speeds & send command
+							// Calculate control outputs
+							double xOutput = xController.calculate(currentPose.getX(), targetPose.getX());
+							double yOutput = yController.calculate(currentPose.getY(), targetPose.getY());
+							double rotationOutput =
+									rotationController.calculate(
+											currentPose.getRotation().getRadians(), targetRotation.getRadians());
+
+							// Create field-relative speeds
 							ChassisSpeeds speeds =
-									new ChassisSpeeds(
-											linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-											linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-											omega);
-							boolean isFlipped =
-									DriverStation.getAlliance().isPresent()
-											&& DriverStation.getAlliance().get() == Alliance.Red;
-							drive.runVelocity(
 									ChassisSpeeds.fromFieldRelativeSpeeds(
-											speeds,
-											isFlipped
-													? drive.getRotation().plus(new Rotation2d(Math.PI))
-													: drive.getRotation()));
+											xOutput, yOutput, rotationOutput, drive.getRotation());
+
+							// Command the drive
+							drive.runVelocity(speeds);
+
+							// Log data for debugging
+							Logger.recordOutput("Odometry/TargetPose", targetPose);
+							Logger.recordOutput("Drive/TargetRotation", targetRotation.getDegrees());
 						},
 						drive)
+				// Reset PID controllers when command starts
+				.beforeStarting(
+						() -> {
+							Pose2d currentPose = drive.getPose();
+							xController.reset(currentPose.getX());
+							yController.reset(currentPose.getY());
+							rotationController.reset(currentPose.getRotation().getRadians());
+						});
+	}
 
-				// Reset PID controller when command starts
-				.beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+	/** Overloaded version that accepts a transform supplier for dynamic transforms. */
+	public static Command driveToTransform(
+			Drive drive, Supplier<Transform2d> transformSupplier, ZoneAngle zoneAngle) {
+		return driveToTransform(drive, transformSupplier.get(), zoneAngle);
+	}
+
+	/**
+	 * Overloaded version that accepts both transform and zone angle suppliers for dynamic updates.
+	 */
+	public static Command driveToTransform(
+			Drive drive, Supplier<Transform2d> transformSupplier, Supplier<ZoneAngle> zoneAngleSupplier) {
+		return driveToTransform(drive, transformSupplier.get(), zoneAngleSupplier.get());
 	}
 
 	/**
@@ -286,4 +481,130 @@ public class DriveCommands {
 		Rotation2d lastAngle = new Rotation2d();
 		double gyroDelta = 0.0;
 	}
+
+	public enum ZoneAngle {
+		NONE(0),
+		FORWARD(180),
+		BACKWARD(0),
+		RIGHT(-90),
+		LEFT(90),
+		SOURCE_RIGHT(44),
+		SOURCE_LEFT(-44),
+		REEF_BOTTOM_RIGHT(-120),
+		REEF_BOTTOM_LEFT(120),
+		REEF_BOTTOM(180),
+		REEF_TOP_RIGHT(120),
+		REEF_TOP_LEFT(-120),
+		REEF_TOP(0);
+
+		private final double angle;
+
+		ZoneAngle(double angle) {
+			this.angle = angle;
+		}
+
+		public double getAngle() {
+			return angle;
+		}
+
+		public Rotation2d getRotation() {
+			return Rotation2d.fromDegrees(angle);
+		}
+	}
+
+	/**
+	 * Gets the appropriate zone angle based on AprilTag ID and alliance color.
+	 *
+	 * @param id The AprilTag ID
+	 * @return The ZoneAngle for the given tag ID
+	 */
+	public static ZoneAngle getZoneAngleForTagID(int id) {
+		switch (id) {
+			case 2:
+			case 12:
+				return ZoneAngle.SOURCE_RIGHT;
+
+			case 1:
+			case 13:
+				return ZoneAngle.SOURCE_LEFT;
+
+			case 7:
+			case 18:
+				return ZoneAngle.REEF_BOTTOM;
+
+			case 6:
+			case 19:
+				return ZoneAngle.REEF_BOTTOM_LEFT;
+
+			case 8:
+			case 17:
+				return ZoneAngle.REEF_BOTTOM_RIGHT;
+
+			case 11:
+			case 20:
+				return ZoneAngle.REEF_TOP_LEFT;
+
+			case 10:
+			case 21:
+				return ZoneAngle.REEF_TOP;
+
+			case 9:
+			case 22:
+				return ZoneAngle.REEF_TOP_RIGHT;
+
+			default:
+				return ZoneAngle.NONE;
+		}
+	}
+
+	public enum ZonePose {
+		NONE(new Translation2d(), ZoneAngle.NONE),
+		FORWARD(new Translation2d(), ZoneAngle.FORWARD),
+		BACKWARD(new Translation2d(), ZoneAngle.BACKWARD),
+		RIGHT(new Translation2d(), ZoneAngle.RIGHT),
+		LEFT(new Translation2d(), ZoneAngle.LEFT),
+
+		// SOURCE
+		SOURCE_RIGHT(new Translation2d(16.28, 7.4), ZoneAngle.SOURCE_RIGHT),
+		SOURCE_LEFT(new Translation2d(16.8, 0.95), ZoneAngle.SOURCE_LEFT),
+
+		// BOTTOM RIGHT
+		REEF_BOTTOM_RIGHT_TOP(new Translation2d(13.546, 5.24), ZoneAngle.REEF_BOTTOM_RIGHT),
+		REEF_BOTTOM_RIGHT_BOTTOM(new Translation2d(13.89, 5.1), ZoneAngle.REEF_BOTTOM_RIGHT),
+
+		// BOTTOM LEFT
+		REEF_BOTTOM_LEFT(new Translation2d(), ZoneAngle.REEF_BOTTOM_LEFT),
+
+		// BOTTOM
+		REEF_BOTTOM(new Translation2d(), ZoneAngle.REEF_BOTTOM),
+
+		// TOP RIGHT
+		REEF_TOP_RIGHT(new Translation2d(), ZoneAngle.REEF_TOP_RIGHT),
+
+		// TOP LEFT
+		REEF_TOP_LEFT(new Translation2d(), ZoneAngle.REEF_TOP_LEFT),
+
+		REEF_TOP(new Translation2d(), ZoneAngle.REEF_TOP);
+
+		private final Translation2d translation;
+		private final ZoneAngle zoneAngle;
+
+		ZonePose(Translation2d translation, ZoneAngle zoneAngle) {
+			this.translation = translation;
+			this.zoneAngle = zoneAngle;
+		}
+
+		public Translation2d getTranslation() {
+			return translation;
+		}
+
+		public ZoneAngle getZoneAngle() {
+			return zoneAngle;
+		}
+
+		public Pose2d getPose() {
+			return new Pose2d(translation, zoneAngle.getRotation());
+		}
+	}
 }
+

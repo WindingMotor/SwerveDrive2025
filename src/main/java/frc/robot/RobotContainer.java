@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.DriveCommands;
+import frc.robot.commands.drive.DriveCommands.ZonePose;
 import frc.robot.commands.generic.CMD_Eject;
 import frc.robot.commands.generic.CMD_Elevator;
 import frc.robot.commands.generic.CMD_Superstructure;
@@ -81,7 +82,6 @@ public class RobotContainer {
 		vision = new SUB_Vision(new IO_VisionReal());
 		intake = new SUB_Intake(new IO_IntakeReal());
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
-		superstructure = new SUB_Superstructure(drive, intake, elevator, led);
 
 		// CommandRegistrar.registerCommands(swerve, superstructure);
 		CanandEventLoop.getInstance();
@@ -124,6 +124,8 @@ public class RobotContainer {
 				break;
 		}
 
+		superstructure = new SUB_Superstructure(drive, intake, elevator, led);
+
 		// Set up auto routines
 		autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -150,6 +152,10 @@ public class RobotContainer {
 
 		NamedCommands.registerCommand(
 				"Intake_Coral", new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
+
+		NamedCommands.registerCommand(
+				"ALN_BOTTOM_RIGHT_BOTTOM",
+				DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_BOTTOM));
 
 		NamedCommands.registerCommand(
 				"L1", new CMD_Superstructure(superstructure, SuperstructureState.L1_SCORING));
@@ -180,68 +186,69 @@ public class RobotContainer {
 
 	private void configureButtonBindings() {
 
+		// Drive w/ Assist Rotation
 		drive.setDefaultCommand(
-				DriveCommands.joystickDrive(
+				DriveCommands.driveWithAssist(
 						drive,
 						() -> -driverController.getRawAxis(1),
 						() -> driverController.getRawAxis(0),
+						() -> -driverController.getRawAxis(3),
+						() -> driverController.button(3).getAsBoolean()));
+
+		/*
+		drive.setDefaultCommand(
+				DriveCommands.driveNormal(
+						drive,
+						() -> driverController.getRawAxis(1),
+						() -> -driverController.getRawAxis(0),
 						() -> -driverController.getRawAxis(3)));
-
-		// Switch to X pattern when X button is pressed
-		// driverController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-		// Reset gyro to 0° when B button is pressed
-		/*
-				driverController
-						.b()
-						.onTrue(
-								Commands.runOnce(
-												() ->
-														drive.setPose(
-																new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-												drive)
-										.ignoringDisable(true));
 		*/
 
-		// Extake
+		// Eject
 		operatorController.x().onTrue(new CMD_Eject(superstructure));
-		/*
-		operatorController
-				.x()
-				.toggleOnFalse(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
-		*/
 
-		// Coral Controls
+		// Coral Raise L1-to-L4
 		operatorController
 				.rightBumper()
 				.onTrue(new CMD_ElevatorCoral(superstructure, true)); // DPAD-UP - Coral up
 
+		// L4 Quick
 		operatorController
 				.rightTrigger()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING));
+
+		// L3 Quick
 		operatorController
 				.leftTrigger()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L3_SCORING));
 
-		// Algae Controls
+		// Algae Raise AL2-AL3
 		operatorController.leftBumper().onTrue(new CMD_ElevatorAlgae(superstructure, true));
 
 		// Intake
 		operatorController
 				.a()
-				.onTrue(
-						new CMD_Superstructure(
-								superstructure, SuperstructureState.CORAL_STATION)); // A - Intake coral
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
 
-		// Superstructure Controls
+		// Idle
 		operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
 
-		// Climbing
+		// Climb Raise
 		operatorController.leftStick().onTrue(new CMD_Elevator(elevator, SuperstructureState.CLIMB));
 
+		// Climb Lower
+		/*
 		operatorController
 				.rightStick()
 				.onTrue(new CMD_Elevator(elevator, SuperstructureState.CLIMB_BTM));
+		*/
+
+		// Auto align test
+		operatorController.leftStick().onTrue(DriveCommands.driveToZone(drive, ZonePose.SOURCE_LEFT));
+
+	//	operatorController
+		//		.rightStick()
+		//		.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_BOTTOM));
 	}
 
 	public Command getAutonomousCommand() {

@@ -7,18 +7,15 @@
 
 package frc.robot.subsystems.superstructure;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.generic.CMD_Superstructure;
-import frc.robot.constants.DynamicConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.SUB_Elevator;
 import frc.robot.subsystems.intake.SUB_Intake;
 import frc.robot.subsystems.led.SUB_Led;
 import frc.robot.subsystems.superstructure.SuperstructureState.State;
-import frc.robot.util.math.ExpDecayFF.RotationState;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_Superstructure extends SubsystemBase {
@@ -69,8 +66,8 @@ public class SUB_Superstructure extends SubsystemBase {
 		return currentSuperstructureState;
 	}
 
-	double minDistTeleop = 1.2;
-	double minDistAuto = 2.5;
+	double MIN_DIST_TELEOP = 1.5;
+	double MIN_DIST_AUTO = 2;
 
 	@Override
 	public void periodic() {
@@ -84,52 +81,46 @@ public class SUB_Superstructure extends SubsystemBase {
 					.schedule(new CMD_Superstructure(this, SuperstructureState.IDLE));
 		}
 
-		Pair<Integer, Double> closestTagData = drive.getClosestAprilTagID();
-		int closestTagId = closestTagData.getFirst();
-		double closestTagDistanceM = closestTagData.getSecond();
+		int closestTagId = drive.getRecentClosestTagData().getFirst();
+		double distanceM = drive.getRecentClosestTagData().getSecond();
 
-		double minDist = minDistTeleop;
+		double minDist = MIN_DIST_TELEOP;
 		if (DriverStation.isAutonomousEnabled()) {
-			minDist = minDistAuto;
+			minDist = MIN_DIST_AUTO;
 		}
 
-		if (closestTagId == -1 || closestTagDistanceM >= minDist) {
-			DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.NONE;
+		if (closestTagId == -1 || distanceM >= minDist) {
+
 			return;
 		} else {
 			switch (closestTagId) {
 				case 2:
-					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.SOURCE_RIGHT;
+				case 1:
+				case 12:
+				case 13:
 					CommandScheduler.getInstance()
 							.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
 					break;
 
 				case 7:
-					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.REEF_BOTTOM;
 					break;
 
 				case 8:
-					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.REEF_BOTTOM_RIGHT;
 					break;
 
 				case 6:
-					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.REEF_BOTTOM_LEFT;
 					break;
 
 				case 9:
-					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.REEF_TOP_RIGHT;
 					break;
 
 				case 10:
-					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.REEF_TOP;
 					break;
 
 				case 11:
-					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.REEF_TOP_LEFT;
 					break;
 
 				default:
-					DynamicConstants.GLOBAL_ROTATION_STATE = RotationState.NONE;
 					break;
 			}
 		}
