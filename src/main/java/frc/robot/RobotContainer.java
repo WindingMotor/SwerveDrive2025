@@ -18,6 +18,7 @@ import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveCommands.ZonePose;
 import frc.robot.commands.generic.CMD_Eject;
+import frc.robot.commands.generic.CMD_IntakeRace;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.InputConstants;
 import frc.robot.constants.RobotConstants;
@@ -152,6 +153,11 @@ public class RobotContainer {
 		NamedCommands.registerCommand(
 				"Intake_Coral", new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
 
+		NamedCommands.registerCommand(
+				"Intake_Race",
+				new CMD_IntakeRace(intake)
+						.andThen(new CMD_Superstructure(superstructure, SuperstructureState.IDLE)));
+
 		// BOTTOM RIGHT
 		NamedCommands.registerCommand(
 				"ALN_BOTTOM_RIGHT_TOP", DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
@@ -173,6 +179,13 @@ public class RobotContainer {
 
 		NamedCommands.registerCommand(
 				"ALN_REEF_BOTTOM_RIGHT", DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT));
+
+		// SOURCE
+		NamedCommands.registerCommand(
+				"ALN_SOURCE_RIGHT", DriveCommands.driveToZone(drive, ZonePose.SOURCE_RIGHT));
+
+		NamedCommands.registerCommand(
+				"ALN_SOURCE_LEFT", DriveCommands.driveToZone(drive, ZonePose.SOURCE_LEFT));
 
 		// //
 
@@ -247,7 +260,9 @@ public class RobotContainer {
 		// Intake
 		operatorController
 				.a()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
+				.onTrue(
+						new CMD_IntakeRace(intake)
+								.andThen(new CMD_Superstructure(superstructure, SuperstructureState.IDLE)));
 
 		// Idle
 		operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
@@ -271,7 +286,7 @@ public class RobotContainer {
 
 		operatorController
 				.rightStick()
-				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT));
+				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
 	}
 
 	public Command getAutonomousCommand() {

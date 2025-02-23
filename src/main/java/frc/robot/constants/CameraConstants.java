@@ -25,7 +25,7 @@ public final class CameraConstants {
 	public enum Camera {
 		FRONT_RIGHT(
 				"OV2311_5",
-				new Rotation3d(0.0, Units.degreesToRadians(-24.094), Units.degreesToRadians(-75)),
+				new Rotation3d(0, Units.degreesToRadians(-15.0), Units.degreesToRadians(-45)),
 				new Translation3d(
 						Units.inchesToMeters(2.0),
 						Units.inchesToMeters(-9.5),

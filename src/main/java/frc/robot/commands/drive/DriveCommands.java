@@ -109,9 +109,9 @@ public class DriveCommands {
 	 */
 	public static Command driveToPose(Drive drive, Supplier<Pose2d> targetPoseSupplier) {
 		// Create ExpDecayFF controllers for x, y and rotation
-		ExpDecayFF xController = new ExpDecayFF(150.0, 1.5, 0.015);
-		ExpDecayFF yController = new ExpDecayFF(150.0, 1.5, 0.015);
-		ExpDecayFF rotController = new ExpDecayFF(6, 1.0, 0.35);
+		ExpDecayFF xController = new ExpDecayFF(150.0, 1.5, 0.032);
+		ExpDecayFF yController = new ExpDecayFF(150.0, 1.5, 0.032);
+		ExpDecayFF rotController = new ExpDecayFF(6, 1.0, 0.95);
 
 		return Commands.run(
 						() -> {
@@ -136,7 +136,23 @@ public class DriveCommands {
 							drive.runVelocity(speeds);
 
 							// Log target pose for visualization
-							Logger.recordOutput("Odometry/TargetPose", targetPose);
+							Logger.recordOutput("ZonePose/TargetPose", targetPose);
+							Logger.recordOutput("ZonePose/ErrorX", currentPose.getX() - targetPose.getX());
+							Logger.recordOutput("ZonePose/ErrorY", currentPose.getY() - targetPose.getY());
+							Logger.recordOutput(
+									"ZonePose/ErrorOmega",
+									currentPose.getRotation().getDegrees() - targetPose.getRotation().getDegrees());
+							Logger.recordOutput(
+									"ZonePose/XAtTargret?",
+									xController.atTarget(currentPose.getX(), targetPose.getX()));
+							Logger.recordOutput(
+									"ZonePose/YAtTargret?",
+									yController.atTarget(currentPose.getY(), targetPose.getY()));
+							Logger.recordOutput(
+									"ZonePose/OmegaAtTargret?",
+									rotController.atTarget(
+											currentPose.getRotation().getDegrees(),
+											targetPose.getRotation().getDegrees()));
 						},
 						drive)
 				.until(
@@ -488,7 +504,7 @@ public class DriveCommands {
 		BACKWARD(0),
 		RIGHT(-90),
 		LEFT(90),
-		SOURCE_RIGHT(55),
+		SOURCE_RIGHT(53),
 		SOURCE_LEFT(-55),
 		REEF_BOTTOM_RIGHT(-120),
 		REEF_BOTTOM_LEFT(120),
@@ -565,11 +581,11 @@ public class DriveCommands {
 		LEFT(new Translation2d(), ZoneAngle.LEFT),
 
 		// SOURCE
-		SOURCE_RIGHT(new Translation2d(16.28, 7.4), ZoneAngle.SOURCE_RIGHT),
+		SOURCE_RIGHT(new Translation2d(16.25, 7.25), ZoneAngle.SOURCE_RIGHT),
 		SOURCE_LEFT(new Translation2d(16.8, 0.95), ZoneAngle.SOURCE_LEFT),
 
 		// BOTTOM RIGHT
-		REEF_BOTTOM_RIGHT_TOP(new Translation2d(13.546, 5.24), ZoneAngle.REEF_BOTTOM_RIGHT),
+		REEF_BOTTOM_RIGHT_TOP(new Translation2d(13.62, 5.16), ZoneAngle.REEF_BOTTOM_RIGHT),
 		REEF_BOTTOM_RIGHT_BOTTOM(new Translation2d(13.89, 5.1), ZoneAngle.REEF_BOTTOM_RIGHT),
 
 		// BOTTOM LEFT
