@@ -57,8 +57,8 @@ public class SuperstructureState {
 	// Coral states
 	public static final State CORAL_STATION = createState("CORAL_STATION", 0.32, 32, 0.3);
 	public static final State L1_SCORING = createState("L1_SCORING", 0.3, 100, 0.0);
-	public static final State L2_SCORING = createState("L2_SCORING", 0.52, 120, 0.0);
-	public static final State L3_SCORING = createState("L3_SCORING", 0.935, 120, 0.0);
+	public static final State L2_SCORING = createState("L2_SCORING", 0.54, 120, 0.0); // .052
+	public static final State L3_SCORING = createState("L3_SCORING", 0.945, 120, 0.0); // .935
 	public static final State L4_SCORING = createState("L4_SCORING", 1.64, 134, 0.0);
 
 	// Auto Clearing Presets

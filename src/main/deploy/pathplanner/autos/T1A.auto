@@ -11,15 +11,28 @@
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "L2"
+            "waitTime": 0.02
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "ALN_BOTTOM_RIGHT_BOTTOM"
+            "name": "L4"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "ALN_TOP_RIGHT_BOTTOM"
+                }
+              }
+            ]
           }
         },
         {

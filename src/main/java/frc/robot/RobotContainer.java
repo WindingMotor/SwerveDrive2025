@@ -18,7 +18,6 @@ import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveCommands.ZonePose;
 import frc.robot.commands.generic.CMD_Eject;
-import frc.robot.commands.generic.CMD_Elevator;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.InputConstants;
 import frc.robot.constants.RobotConstants;
@@ -153,9 +152,29 @@ public class RobotContainer {
 		NamedCommands.registerCommand(
 				"Intake_Coral", new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
 
+		// BOTTOM RIGHT
+		NamedCommands.registerCommand(
+				"ALN_BOTTOM_RIGHT_TOP", DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
+
 		NamedCommands.registerCommand(
 				"ALN_BOTTOM_RIGHT_BOTTOM",
 				DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_BOTTOM));
+
+		// TOP RIGHT
+		NamedCommands.registerCommand(
+				"ALN_REEF_TOP_RIGHT_TOP", DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_RIGHT_TOP));
+
+		NamedCommands.registerCommand(
+				"ALN_TOP_RIGHT_BOTTOM", DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_RIGHT_BOTTOM));
+
+		// BOTTOM
+		NamedCommands.registerCommand(
+				"ALN_REEF_BOTTOM_LEFT", DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_LEFT));
+
+		NamedCommands.registerCommand(
+				"ALN_REEF_BOTTOM_RIGHT", DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT));
+
+		// //
 
 		NamedCommands.registerCommand(
 				"L1", new CMD_Superstructure(superstructure, SuperstructureState.L1_SCORING));
@@ -234,21 +253,25 @@ public class RobotContainer {
 		operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
 
 		// Climb Raise
-		operatorController.leftStick().onTrue(new CMD_Elevator(elevator, SuperstructureState.CLIMB));
+		// operatorController.leftStick().onTrue(new CMD_Elevator(elevator, SuperstructureState.CLIMB));
 
 		// Climb Lower
-		/*
-		operatorController
-				.rightStick()
-				.onTrue(new CMD_Elevator(elevator, SuperstructureState.CLIMB_BTM));
-		*/
+
+		// operatorController
+		//		.rightStick()
+		//		.onTrue(new CMD_Elevator(elevator, SuperstructureState.CLIMB_BTM));
 
 		// Auto align test
-		operatorController.leftStick().onTrue(DriveCommands.driveToZone(drive, ZonePose.SOURCE_LEFT));
+		// operatorController.rightStick().onTrue(DriveCommands.driveToZone(drive,
+		// ZonePose.SOURCE_LEFT));
 
-	//	operatorController
-		//		.rightStick()
-		//		.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_BOTTOM));
+		operatorController
+				.leftStick()
+				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_LEFT));
+
+		operatorController
+				.rightStick()
+				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT));
 	}
 
 	public Command getAutonomousCommand() {
