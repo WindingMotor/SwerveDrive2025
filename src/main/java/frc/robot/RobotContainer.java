@@ -72,7 +72,8 @@ public class RobotContainer {
 
 	private void initializeControllers() {
 		driverController = new CommandXboxController(0);
-		operatorController = new CommandXboxController(1);;
+		operatorController = new CommandXboxController(1);
+		;
 	}
 
 	private void initializeSubsystems() {
@@ -127,10 +128,10 @@ public class RobotContainer {
 		autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
 		// Set up SysId routines
-		autoChooser.addOption(
-				"Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-		autoChooser.addOption(
-				"Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+		//	autoChooser.addOption(
+		//		"Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+		//	autoChooser.addOption(
+		//		"Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
 		autoChooser.addOption(
 				"Drive SysId (Quasistatic Forward)",
 				drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
