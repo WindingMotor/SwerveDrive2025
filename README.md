@@ -1,4 +1,4 @@
-# 2025 Season Reefscape - SwerveDrive2025
+# FRC 2106 2025 Season Reefscape - SwerveDrive2025 - Guppy
 
 [![License](https://img.shields.io/badge/License-MIT-blue)](https://github.com/WindingMotor/SwerveDrive2025/blob/main/LICENSE) ![Last Commit](https://img.shields.io/github/last-commit/WindingMotor/SwerveDrive2025?color=yellow)
 
