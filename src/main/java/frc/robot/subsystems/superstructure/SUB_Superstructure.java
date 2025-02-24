@@ -73,14 +73,14 @@ public class SUB_Superstructure extends SubsystemBase {
 	public void periodic() {
 
 		// Check for sensor state change from false to true
-		/* 		if (!previousIntakeSensorState
+		 		if (!previousIntakeSensorState
 				&& intake.getSensorState()
 				&& DriverStation.isEnabled()
 				&& currentSuperstructureState == SuperstructureState.CORAL_STATION) {
 			CommandScheduler.getInstance()
 					.schedule(new CMD_Superstructure(this, SuperstructureState.IDLE));
 		}
-					*/
+					
 
 		int closestTagId = drive.getRecentClosestTagData().getFirst();
 		double distanceM = drive.getRecentClosestTagData().getSecond();
@@ -128,21 +128,6 @@ public class SUB_Superstructure extends SubsystemBase {
 				}
 			}
 		}
-
-		/*
-
-		if (previousIntakeSensorState
-				&& !intake.getSensorState()
-				&& DriverStation.isEnabled()
-				&& (previousSuperstructureState == SuperstructureState.L1_SCORING
-						|| previousSuperstructureState == SuperstructureState.L2_SCORING
-						|| previousSuperstructureState == SuperstructureState.L3_SCORING
-						|| previousSuperstructureState == SuperstructureState.L4_SCORING)
-				&& currentSuperstructureState == currentDynamicEjectState) {
-			CommandScheduler.getInstance()
-					.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
-		}
-					*/
 
 		previousIntakeSensorState = intake.getSensorState();
 	}

@@ -20,7 +20,6 @@ import frc.robot.commands.drive.DriveCommands.ZonePose;
 import frc.robot.commands.generic.CMD_Eject;
 import frc.robot.commands.generic.CMD_IntakeRace;
 import frc.robot.commands.generic.CMD_Superstructure;
-import frc.robot.constants.InputConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -44,7 +43,6 @@ public class RobotContainer {
 	// Controller Configuration
 	private CommandXboxController driverController;
 	private CommandXboxController operatorController;
-	private InputConstants globalInputMap;
 
 	private Drive drive;
 	private LoggedDashboardChooser<Command> autoChooser;
@@ -74,8 +72,7 @@ public class RobotContainer {
 
 	private void initializeControllers() {
 		driverController = new CommandXboxController(0);
-		operatorController = new CommandXboxController(1);
-		globalInputMap = InputConstants.TX16S_MAIN;
+		operatorController = new CommandXboxController(1);;
 	}
 
 	private void initializeSubsystems() {
