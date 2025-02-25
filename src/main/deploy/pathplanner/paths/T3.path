@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.4139145083549547,
-        "y": 0.8245586499178625
+        "x": 1.7768827425410296,
+        "y": 0.8333390815250107
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3635927553542606,
-        "y": 1.559775972811732
+        "x": 2.7265609895403355,
+        "y": 1.5685564044188802
       },
       "isLocked": false,
       "linkedName": "T2E"
     },
     {
       "anchor": {
-        "x": 2.9551662330804276,
-        "y": 1.8799759554469744
+        "x": 2.936519994749155,
+        "y": 2.155805722342565
       },
       "prevControl": {
-        "x": 2.5434191086411535,
-        "y": 1.0739418178273286
+        "x": 2.524772870309881,
+        "y": 1.349771584722919
       },
       "nextControl": null,
       "isLocked": false,
@@ -47,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.5896746163805
+    "rotation": 55.60868164498485
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -125.00000000000001
+    "rotation": -125.50038982664935
   },
   "useDefaultConstraints": true
 }

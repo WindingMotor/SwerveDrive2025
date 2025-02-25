@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
+import frc.robot.commands.drive.CharacterizationCommands;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveCommands.ZonePose;
 import frc.robot.commands.generic.CMD_Eject;
@@ -128,8 +129,9 @@ public class RobotContainer {
 		autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
 		// Set up SysId routines
-		//	autoChooser.addOption(
-		//		"Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+		autoChooser.addOption(
+				"Drive Wheel Radius Characterization",
+				CharacterizationCommands.wheelRadiusCharacterization(drive));
 		//	autoChooser.addOption(
 		//		"Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
 		autoChooser.addOption(
@@ -280,15 +282,16 @@ public class RobotContainer {
 
 		operatorController
 				.leftStick()
-				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_LEFT));
+				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_RIGHT_BOTTOM));
 
 		operatorController
 				.rightStick()
-				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
+				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_RIGHT_TOP));
 	}
 
 	public Command getAutonomousCommand() {
 		// return swerve.getAutonomousCommand("T1");
 		return AutoBuilder.buildAuto("T1A");
+		// return CharacterizationCommands.wheelRadiusCharacterization(drive);
 	}
 }

@@ -8,13 +8,11 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -30,15 +28,7 @@ import org.littletonrobotics.junction.Logger;
 public class DriveCommands {
 	// #region Constants
 	private static final double DEADBAND = 0.01;
-	private static final double ANGLE_MAX_VELOCITY = 10.0;
-	private static final double ANGLE_MAX_ACCELERATION = 15.0;
 	private static final double MAX_ASSIST_DISTANCE = 2.0; // Meters
-
-	private static final double ANGLE_KP = 5.5;
-	private static final double ANGLE_KD = 0.6;
-
-	private static final double TRANSLATION_KP = 4.5;
-	private static final double TRANSLATION_KD = 0.1;
 
 	private static final ExpDecayFF rotationController = new ExpDecayFF(6.0, 1.0, 0.25);
 
@@ -187,8 +177,8 @@ public class DriveCommands {
 	 */
 	public static Command driveToPose(Drive drive, Supplier<Pose2d> targetPoseSupplier) {
 		// Create ExpDecayFF controllers for x, y and rotation
-		ExpDecayFF xController = new ExpDecayFF(150.0, 1.5, 0.032);
-		ExpDecayFF yController = new ExpDecayFF(150.0, 1.5, 0.032);
+		ExpDecayFF xController = new ExpDecayFF(210.0, 1.5, 0.04);
+		ExpDecayFF yController = new ExpDecayFF(210.0, 1.5, 0.04);
 		ExpDecayFF rotController = new ExpDecayFF(6, 1.0, 0.95);
 
 		return Commands.run(
@@ -312,8 +302,8 @@ public class DriveCommands {
 		BACKWARD(0),
 		RIGHT(-90),
 		LEFT(90),
-		SOURCE_RIGHT(53),
-		SOURCE_LEFT(-55),
+		SOURCE_RIGHT(46.9),
+		SOURCE_LEFT(-46.9),
 		REEF_BOTTOM_RIGHT(-120),
 		REEF_BOTTOM_LEFT(120),
 		REEF_BOTTOM(180),
@@ -392,12 +382,12 @@ public class DriveCommands {
 		LEFT(new Translation2d(), ZoneAngle.LEFT),
 
 		// SOURCE
-		SOURCE_RIGHT(new Translation2d(16.25, 7.25), ZoneAngle.SOURCE_RIGHT),
+		SOURCE_RIGHT(new Translation2d(15.72, 7.7), ZoneAngle.SOURCE_RIGHT),
 		SOURCE_LEFT(new Translation2d(16.8, 0.95), ZoneAngle.SOURCE_LEFT),
 
 		// BOTTOM RIGHT
-		REEF_BOTTOM_RIGHT_TOP(new Translation2d(13.62, 5.16), ZoneAngle.REEF_BOTTOM_RIGHT),
-		REEF_BOTTOM_RIGHT_BOTTOM(new Translation2d(13.89, 5.1), ZoneAngle.REEF_BOTTOM_RIGHT),
+		REEF_BOTTOM_RIGHT_TOP(new Translation2d(13.51, 5.14), ZoneAngle.REEF_BOTTOM_RIGHT), // g
+		REEF_BOTTOM_RIGHT_BOTTOM(new Translation2d(13.8, 4.98), ZoneAngle.REEF_BOTTOM_RIGHT), // g
 
 		// BOTTOM LEFT
 		// REEF_BOTTOM_LEFT(new Translation2d(), ZoneAngle.REEF_BOTTOM_LEFT),
@@ -407,8 +397,8 @@ public class DriveCommands {
 		REEF_BOTTOM_RIGHT(new Translation2d(14.384, 4.181), ZoneAngle.REEF_BOTTOM),
 
 		// TOP RIGHT
-		REEF_TOP_RIGHT_BOTTOM(new Translation2d(12.553, 5.249), ZoneAngle.REEF_TOP_RIGHT),
-		REEF_TOP_RIGHT_TOP(new Translation2d(12.265, 5.083), ZoneAngle.REEF_TOP_RIGHT),
+		REEF_TOP_RIGHT_BOTTOM(new Translation2d(12.58, 5.18), ZoneAngle.REEF_TOP_RIGHT),
+		REEF_TOP_RIGHT_TOP(new Translation2d(12.31, 4.99), ZoneAngle.REEF_TOP_RIGHT),
 
 		// TOP LEFT
 		REEF_TOP_LEFT(new Translation2d(), ZoneAngle.REEF_TOP_LEFT),

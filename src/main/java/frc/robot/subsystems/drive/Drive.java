@@ -237,30 +237,6 @@ public class Drive extends SubsystemBase {
 		// Update odometry with vision measurements
 		vision.updateLastRobotPose(getPose());
 
-		/*
-		Optional<CameraEstimationData> frontLeftData =
-				vision.getCameraEstimationData(Camera.FRONT_LEFT);
-		if (frontLeftData.isPresent()) {
-			poseEstimator.addVisionMeasurement(
-					new Pose2d(
-							frontLeftData.get().pose().getTranslation(),
-							frontLeftData.get().pose().getRotation()),
-					frontLeftData.get().timestamp(),
-					frontLeftData.get().stdDevMatrix());
-		}
-
-		Optional<CameraEstimationData> frontRightData =
-				vision.getCameraEstimationData(Camera.FRONT_RIGHT);
-		if (frontRightData.isPresent()) {
-			poseEstimator.addVisionMeasurement(
-					new Pose2d(
-							frontRightData.get().pose().getTranslation(),
-							frontRightData.get().pose().getRotation()),
-					frontRightData.get().timestamp(),
-					frontRightData.get().stdDevMatrix());
-		}
-					*/
-
 		// Elevator data
 		Optional<CameraEstimationData> elevatorData = vision.getCameraEstimationData(Camera.ELEVATED);
 		if (elevatorData.isPresent()) {
@@ -320,6 +296,27 @@ public class Drive extends SubsystemBase {
 								frontLeftData.get().pose().getRotation()),
 						frontLeftData.get().timestamp(),
 						frontLeftData.get().stdDevMatrix());
+		}
+
+		// Front Right
+		Optional<CameraEstimationData> frontRightData =
+				vision.getCameraEstimationData(Camera.FRONT_RIGHT);
+		if (frontRightData.isPresent()) {
+			String estimateType = vision.inputs.frEstimateType;
+			if (estimateType == EstimateType.MULTITAG.toString()
+					|| (estimateType == EstimateType.SINGLETAG.toString()
+							&& frontRightData
+											.get()
+											.pose()
+											.getTranslation()
+											.getDistance(getApriltagLocation(vision.inputs.frBestTargetID))
+									< 2.5))
+				poseEstimator.addVisionMeasurement(
+						new Pose2d(
+								frontRightData.get().pose().getTranslation(),
+								frontRightData.get().pose().getRotation()),
+						frontRightData.get().timestamp(),
+						frontRightData.get().stdDevMatrix());
 		}
 
 		// Update gyro alert

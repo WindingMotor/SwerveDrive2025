@@ -86,12 +86,6 @@
                 "data": {
                   "name": "Intake_Race"
                 }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.0
-                }
               }
             ]
           }
