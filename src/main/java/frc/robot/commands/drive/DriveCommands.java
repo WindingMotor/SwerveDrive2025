@@ -111,7 +111,7 @@ public class DriveCommands {
 		// Create ExpDecayFF controllers for x, y and rotation
 		ExpDecayFF xController = new ExpDecayFF(200.0, 1.5, 0.032);
 		ExpDecayFF yController = new ExpDecayFF(200.0, 1.5, 0.032);
-		ExpDecayFF rotController = new ExpDecayFF(6, 1.0, 0.95);
+		ExpDecayFF rotController = new ExpDecayFF(6, 1.0, 1.0);
 
 		return Commands.run(
 						() -> {
@@ -600,7 +600,8 @@ public class DriveCommands {
 		REEF_TOP_RIGHT_TOP(new Translation2d(12.265, 5.083), ZoneAngle.REEF_TOP_RIGHT),
 
 		// TOP LEFT
-		REEF_TOP_LEFT(new Translation2d(), ZoneAngle.REEF_TOP_LEFT),
+		REEF_TOP_LEFT_TOP(new Translation2d(12.312, 3.052), ZoneAngle.REEF_TOP_LEFT),
+		REEF_TOP_LEFT_BOTTOM(new Translation2d(), ZoneAngle.REEF_TOP_LEFT),
 
 		REEF_TOP(new Translation2d(), ZoneAngle.REEF_TOP);
 

@@ -158,6 +158,13 @@ public class RobotContainer {
 				new CMD_IntakeRace(intake)
 						.andThen(new CMD_Superstructure(superstructure, SuperstructureState.IDLE)));
 
+		// TOP LEFT
+		NamedCommands.registerCommand(
+				"ALN_REEF_TOP_LEFT_TOP", DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_LEFT_TOP));
+
+		NamedCommands.registerCommand(
+				"ALN_TOP_LEFT_BOTTOM", DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_LEFT_BOTTOM));
+
 		// BOTTOM RIGHT
 		NamedCommands.registerCommand(
 				"ALN_BOTTOM_RIGHT_TOP", DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
@@ -282,11 +289,11 @@ public class RobotContainer {
 
 		operatorController
 				.leftStick()
-				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_LEFT));
+				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_LEFT_TOP));
 
-		operatorController
-				.rightStick()
-				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
+		// operatorController
+		//		.rightStick()
+		//		.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
 
 		operatorController
 				.povDown()
@@ -295,6 +302,6 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		// return swerve.getAutonomousCommand("T1");
-		return AutoBuilder.buildAuto("T1A");
+		return AutoBuilder.buildAuto("1P_Left");
 	}
 }
