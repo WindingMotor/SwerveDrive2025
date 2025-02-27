@@ -72,15 +72,17 @@ public class SUB_Superstructure extends SubsystemBase {
 	@Override
 	public void periodic() {
 
-		// Check for sensor state change from false to true
-		/* 		if (!previousIntakeSensorState
-				&& intake.getSensorState()
-				&& DriverStation.isEnabled()
-				&& currentSuperstructureState == SuperstructureState.CORAL_STATION) {
-			CommandScheduler.getInstance()
-					.schedule(new CMD_Superstructure(this, SuperstructureState.IDLE));
+		// Check for sensor state changes and update current limit accordingly
+		if (intake.getSensorState() != previousIntakeSensorState) {
+			// If sensor changed to true, do the no spin idle
+			if (intake.getSensorState()) {
+				updateSuperstructureState(SuperstructureState.IDLE_CALM);
+			}
+			// If sensor changed to false, restore normal current limit
+			else {
+				// intake.setLowerCurrentLimit(false);
+			}
 		}
-					*/
 
 		int closestTagId = drive.getRecentClosestTagData().getFirst();
 		double distanceM = drive.getRecentClosestTagData().getSecond();
@@ -101,8 +103,10 @@ public class SUB_Superstructure extends SubsystemBase {
 					case 1:
 					case 12:
 					case 13:
-						CommandScheduler.getInstance()
-								.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
+						if (!intake.getSensorState()) {
+							CommandScheduler.getInstance()
+									.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
+						}
 						break;
 
 					case 7:

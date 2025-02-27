@@ -109,8 +109,8 @@ public class DriveCommands {
 	 */
 	public static Command driveToPose(Drive drive, Supplier<Pose2d> targetPoseSupplier) {
 		// Create ExpDecayFF controllers for x, y and rotation
-		ExpDecayFF xController = new ExpDecayFF(150.0, 1.5, 0.032);
-		ExpDecayFF yController = new ExpDecayFF(150.0, 1.5, 0.032);
+		ExpDecayFF xController = new ExpDecayFF(200.0, 1.5, 0.032);
+		ExpDecayFF yController = new ExpDecayFF(200.0, 1.5, 0.032);
 		ExpDecayFF rotController = new ExpDecayFF(6, 1.0, 0.95);
 
 		return Commands.run(
@@ -585,7 +585,7 @@ public class DriveCommands {
 		SOURCE_LEFT(new Translation2d(16.8, 0.95), ZoneAngle.SOURCE_LEFT),
 
 		// BOTTOM RIGHT
-		REEF_BOTTOM_RIGHT_TOP(new Translation2d(13.62, 5.16), ZoneAngle.REEF_BOTTOM_RIGHT),
+		REEF_BOTTOM_RIGHT_TOP(new Translation2d(13.55, 5.25), ZoneAngle.REEF_BOTTOM_RIGHT),
 		REEF_BOTTOM_RIGHT_BOTTOM(new Translation2d(13.89, 5.1), ZoneAngle.REEF_BOTTOM_RIGHT),
 
 		// BOTTOM LEFT

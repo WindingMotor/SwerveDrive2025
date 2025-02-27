@@ -23,10 +23,10 @@ public final class RobotConstants {
 	public final class Intake {
 
 		public static final int ARM_MOTOR_ID = 21;
-		public static final int ARM_MOTOR_CURRENT_LIMIT = 25;
+		public static final int ARM_MOTOR_CURRENT_LIMIT = 35;
 
-		public static final int ARM_ENCODER_LOOP_OFFSET = 12;
-		public static final int ARM_ENCODER_PID_OFFSET = -14;
+		public static final int ARM_ENCODER_LOOP_OFFSET = -35 + 15; // 12
+		public static final double ARM_ENCODER_PID_OFFSET = ((-35.0 + 15.0) + 22.51) + 15 + .8; // -14
 		public static final int ARM_ENCODER_FACTOR = 165;
 
 		public static final double ARM_P = 0.013;
@@ -34,7 +34,8 @@ public final class RobotConstants {
 		public static final double ARM_D = 0.0;
 
 		public static final int WHEEL_MOTOR_ID = 22;
-		public static final int WHEEL_MOTOR_CURRENT_LIMIT = 55;
+		public static final int WHEEL_MOTOR_CURRENT_LIMIT_NORMAL = 55;
+		public static final int WHEEL_MOTOR_CURRENT_LIMIT_LOWER = 5;
 
 		public static final int SENSOR_RIO_ID = 9;
 	}

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.4139145083549547,
-        "y": 0.8245586499178625
+        "x": 1.6371694425423238,
+        "y": 1.1600966807746136
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3635927553542606,
-        "y": 1.559775972811732
+        "x": 2.5868476895416297,
+        "y": 1.895314003668483
       },
       "isLocked": false,
       "linkedName": "T2E"
@@ -30,8 +30,8 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.3230963456003292,
-      "rotationDegrees": -3.6320419887303155
+      "waypointRelativePos": 0.4080682051809208,
+      "rotationDegrees": 55.48787806084789
     }
   ],
   "constraintZones": [],
@@ -39,9 +39,9 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 5.0,
-    "maxAngularVelocity": 1000.0,
-    "maxAngularAcceleration": 1500.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 500.0,
+    "maxAngularAcceleration": 800.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -55,5 +55,5 @@
     "velocity": 0,
     "rotation": -125.00000000000001
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

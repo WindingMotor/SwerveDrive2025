@@ -40,4 +40,8 @@ public class SUB_Intake extends SubsystemBase {
 	public boolean getSensorState() {
 		return inputs.sensor;
 	}
+
+	public void setLowerCurrentLimit(boolean enabled) {
+		io.setLowerCurrentLimit(enabled);
+	}
 }

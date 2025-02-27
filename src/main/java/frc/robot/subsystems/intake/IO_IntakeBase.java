@@ -47,4 +47,6 @@ public interface IO_IntakeBase {
 	public void setArmAngle(double angle);
 
 	public void setIntakeSpeed(double speed);
+
+	public void setLowerCurrentLimit(boolean enabled);
 }

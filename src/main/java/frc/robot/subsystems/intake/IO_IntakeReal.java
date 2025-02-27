@@ -9,39 +9,55 @@ package frc.robot.subsystems.intake;
 
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import frc.robot.constants.RobotConstants;
 import frc.robot.util.IRBeamBreak;
 
 public class IO_IntakeReal implements IO_IntakeBase {
 
 	private SparkMax armMotor;
-	private SparkMax wheelMotor;
+	private SparkFlex wheelMotor;
+	private SparkFlexConfig normalWheelConfig;
+	private SparkFlexConfig lowerWheelConfig;
+
 	private IRBeamBreak sensor;
+	private Debouncer sensorDebouncer;
 
 	public IO_IntakeReal() {
 
 		armMotor = new SparkMax(RobotConstants.Intake.ARM_MOTOR_ID, MotorType.kBrushless);
-		wheelMotor = new SparkMax(RobotConstants.Intake.WHEEL_MOTOR_ID, MotorType.kBrushless);
+		wheelMotor = new SparkFlex(RobotConstants.Intake.WHEEL_MOTOR_ID, MotorType.kBrushless);
 		sensor = new IRBeamBreak(RobotConstants.Intake.SENSOR_RIO_ID);
 
-		SparkMaxConfig wheelSparkMaxConfig = new SparkMaxConfig();
-		wheelSparkMaxConfig.smartCurrentLimit(RobotConstants.Intake.WHEEL_MOTOR_CURRENT_LIMIT);
+		// Add a debouncer with a time threshold (in seconds)
+		// Using both rising and falling edge debouncing
+		sensorDebouncer = new Debouncer(0.08, DebounceType.kBoth);
+
+		SparkFlexConfig wheelSparkMaxConfig = new SparkFlexConfig();
+		wheelSparkMaxConfig.smartCurrentLimit(RobotConstants.Intake.WHEEL_MOTOR_CURRENT_LIMIT_NORMAL);
+		wheelSparkMaxConfig.idleMode(IdleMode.kBrake);
 		wheelMotor.configure(
 				wheelSparkMaxConfig,
 				SparkBase.ResetMode.kNoResetSafeParameters,
 				SparkBase.PersistMode.kPersistParameters);
 
 		SparkMaxConfig armSparkMaxConfig = new SparkMaxConfig();
+		wheelSparkMaxConfig.smartCurrentLimit(RobotConstants.Intake.ARM_MOTOR_CURRENT_LIMIT);
 		armSparkMaxConfig.absoluteEncoder.positionConversionFactor(
 				RobotConstants.Intake.ARM_ENCODER_FACTOR);
 		armSparkMaxConfig.absoluteEncoder.inverted(true);
 		armSparkMaxConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
 		armSparkMaxConfig.inverted(true);
+		armSparkMaxConfig.idleMode(IdleMode.kBrake);
 
 		ClosedLoopConfig closedLoopConfig = new ClosedLoopConfig();
 
@@ -56,6 +72,13 @@ public class IO_IntakeReal implements IO_IntakeBase {
 				SparkBase.ResetMode.kNoResetSafeParameters,
 				SparkBase.PersistMode.kPersistParameters);
 
+		// Setup normal wheel config
+		normalWheelConfig = wheelSparkMaxConfig;
+
+		SparkFlexConfig newLowerWheelConfig = wheelSparkMaxConfig;
+		newLowerWheelConfig.smartCurrentLimit(RobotConstants.Intake.WHEEL_MOTOR_CURRENT_LIMIT_LOWER);
+		lowerWheelConfig = newLowerWheelConfig;
+
 		armMotor.getEncoder().setPosition(0);
 	}
 
@@ -68,7 +91,8 @@ public class IO_IntakeReal implements IO_IntakeBase {
 		inputs.armMotorCurrent = armMotor.getOutputCurrent();
 		inputs.wheelMotorCurrent = wheelMotor.getOutputCurrent();
 		inputs.wheelRPM = wheelMotor.getEncoder().getVelocity();
-		inputs.sensor = sensor.getState();
+		// Use the debouncer to filter the sensor readings
+		inputs.sensor = sensorDebouncer.calculate(sensor.getState());
 	}
 
 	@Override
@@ -81,5 +105,20 @@ public class IO_IntakeReal implements IO_IntakeBase {
 	@Override
 	public void setIntakeSpeed(double speed) {
 		wheelMotor.set(speed);
+	}
+
+	@Override
+	public void setLowerCurrentLimit(boolean enabled) {
+		if (enabled) {
+			wheelMotor.configure(
+					lowerWheelConfig,
+					SparkBase.ResetMode.kNoResetSafeParameters,
+					SparkBase.PersistMode.kPersistParameters);
+		} else {
+			wheelMotor.configure(
+					normalWheelConfig,
+					SparkBase.ResetMode.kNoResetSafeParameters,
+					SparkBase.PersistMode.kPersistParameters);
+		}
 	}
 }

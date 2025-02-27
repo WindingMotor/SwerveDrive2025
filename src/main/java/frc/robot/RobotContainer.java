@@ -287,6 +287,10 @@ public class RobotContainer {
 		operatorController
 				.rightStick()
 				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
+
+		operatorController
+				.povDown()
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_GROUND));
 	}
 
 	public Command getAutonomousCommand() {
