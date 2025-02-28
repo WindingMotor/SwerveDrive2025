@@ -22,6 +22,8 @@ import frc.robot.commands.generic.CMD_IntakeRace;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.TunerConstants;
+import frc.robot.subsystems.climb.IO_ClimbReal;
+import frc.robot.subsystems.climb.SUB_Climb;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.IO_GyroBase;
 import frc.robot.subsystems.drive.IO_GyroReal;
@@ -55,6 +57,8 @@ public class RobotContainer {
 	private SUB_Superstructure superstructure;
 	private final SUB_Led led = new SUB_Led(1, 62);
 
+	private SUB_Climb climb;
+
 	// private Music orchestra;
 
 	public RobotContainer() {
@@ -80,6 +84,7 @@ public class RobotContainer {
 		vision = new SUB_Vision(Robot.isReal() ? new IO_VisionReal() : new IO_VisionSim());
 		intake = new SUB_Intake(new IO_IntakeReal());
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
+		climb = new SUB_Climb(new IO_ClimbReal());
 
 		// CommandRegistrar.registerCommands(swerve, superstructure);
 		CanandEventLoop.getInstance();
@@ -293,9 +298,15 @@ public class RobotContainer {
 		//		.rightStick()
 		//		.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
 
-		operatorController
-				.povDown()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_GROUND));
+		//	operatorController
+		//			.povDown()
+		//			.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_GROUND));
+
+		operatorController.povUp().onTrue(climb.setSpeed(1));
+
+		operatorController.povDown().onFalse(climb.setSpeed(-1));
+
+		operatorController.povRight().onTrue(climb.setSpeed(0));
 	}
 
 	public Command getAutonomousCommand() {

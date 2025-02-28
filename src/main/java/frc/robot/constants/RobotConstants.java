@@ -70,4 +70,10 @@ public final class RobotConstants {
 		public static final double MIN_HEIGHT = 0.0; // m
 		public static final double MAX_HEIGHT = 1.85; // m
 	}
+
+	public final class Climb {
+
+		public static final int CLIMB_MOTOR_ID = 23;
+		public static final int CLIMB_MOTOR_CURRENT_LIMIT = 45;
+	}
 }
