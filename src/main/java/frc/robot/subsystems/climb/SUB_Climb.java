@@ -10,6 +10,7 @@ package frc.robot.subsystems.climb;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.math.ExpDecayFF;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_Climb extends SubsystemBase {
@@ -45,14 +46,14 @@ public class SUB_Climb extends SubsystemBase {
 	 * @return A command that completes when the target position is reached
 	 */
 	public Command goToPosition(double targetPosition, double speed) {
+		final ExpDecayFF controller = new ExpDecayFF(14, 5, .05);
+
 		return this.runEnd(
 						() -> {
 							// Get current position
 							double currentPosition = getMotorPosition();
-							// Calculate direction based on current vs target position
-							double direction = (targetPosition > currentPosition) ? 1.0 : -1.0;
-							// Apply direction to speed
-							setMotorSpeed(speed * direction);
+
+							setMotorSpeed(speed * controller.calculate(currentPosition, targetPosition));
 						},
 						() -> {
 							// Stop motor when command ends
@@ -62,14 +63,9 @@ public class SUB_Climb extends SubsystemBase {
 						() -> {
 							// Get current position for comparison
 							double currentPosition = getMotorPosition();
-							// Check if we've reached or passed the target position
-							if (targetPosition > inputs.motorPosition) {
-								// Moving up, finish when we reach or exceed target
-								return currentPosition >= targetPosition;
-							} else {
-								// Moving down, finish when we reach or go below target
-								return currentPosition <= targetPosition;
-							}
+
+							// Return true when within the deadband to stop the command
+							return controller.atTarget(currentPosition, targetPosition);
 						});
 	}
 
@@ -84,5 +80,33 @@ public class SUB_Climb extends SubsystemBase {
 				() -> {
 					setMotorSpeed(speed);
 				});
+	}
+
+	/**
+	 * Creates a command sequence for the climbing operation with the following steps: 1. Reset
+	 * encoder (start at 0rot) 2. Go to -12.0rot to pop out 3. Go to -3.11rot to start hook on 4. Wait
+	 * for confirmation button press 5. Pull down to -11.8rot
+	 *
+	 * @param confirmDownButton A boolean supplier that returns true when the confirm button is
+	 *     pressed
+	 * @param motorSpeed The speed to use for motor movements (0.0 to 1.0)
+	 * @return A sequential command that executes the full climbing sequence
+	 */
+	public Command climbSequence(
+			java.util.function.BooleanSupplier confirmDownButton, double motorSpeed) {
+		return Commands.sequence(
+				// Step 1: Reset encoder to 0.0rot. Auto done when robot starts
+
+				// Step 2: Go to -12.0rot to pop out
+				goToPosition(-12.0, motorSpeed),
+
+				// Step 3: Go to -3.11 to start hook on
+				goToPosition(-3.11, motorSpeed),
+
+				// Step 4: Wait for confirmation button press before continuing
+				Commands.waitUntil(confirmDownButton),
+
+				// Step 5: Pull down to -11.8rot
+				goToPosition(-11.85, motorSpeed));
 	}
 }

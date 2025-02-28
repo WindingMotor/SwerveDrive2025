@@ -302,11 +302,15 @@ public class RobotContainer {
 		//			.povDown()
 		//			.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_GROUND));
 
-		operatorController.povUp().onTrue(climb.setSpeed(1));
+		//	operatorController.povUp().onTrue(climb.setSpeed(1));
 
-		operatorController.povDown().onFalse(climb.setSpeed(-1));
+		//	operatorController.povDown().onFalse(climb.setSpeed(-1));
 
-		operatorController.povRight().onTrue(climb.setSpeed(0));
+		operatorController
+				.povRight()
+				.onTrue(climb.climbSequence(() -> operatorController.povRight().getAsBoolean(), 1.0));
+
+		operatorController.povLeft().onTrue(climb.goToPosition(0, 1));
 	}
 
 	public Command getAutonomousCommand() {
