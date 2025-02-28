@@ -20,7 +20,6 @@ import frc.robot.commands.drive.DriveCommands.ZonePose;
 import frc.robot.commands.generic.CMD_Eject;
 import frc.robot.commands.generic.CMD_IntakeRace;
 import frc.robot.commands.generic.CMD_Superstructure;
-import frc.robot.constants.InputConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -37,6 +36,7 @@ import frc.robot.subsystems.led.SUB_Led;
 import frc.robot.subsystems.superstructure.SUB_Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureState;
 import frc.robot.subsystems.vision.IO_VisionReal;
+import frc.robot.subsystems.vision.IO_VisionSim;
 import frc.robot.subsystems.vision.SUB_Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -44,7 +44,6 @@ public class RobotContainer {
 	// Controller Configuration
 	private CommandXboxController driverController;
 	private CommandXboxController operatorController;
-	private InputConstants globalInputMap;
 
 	private Drive drive;
 	private LoggedDashboardChooser<Command> autoChooser;
@@ -75,11 +74,10 @@ public class RobotContainer {
 	private void initializeControllers() {
 		driverController = new CommandXboxController(0);
 		operatorController = new CommandXboxController(1);
-		globalInputMap = InputConstants.TX16S_MAIN;
 	}
 
 	private void initializeSubsystems() {
-		vision = new SUB_Vision(new IO_VisionReal());
+		vision = new SUB_Vision(Robot.isReal() ? new IO_VisionReal() : new IO_VisionSim());
 		intake = new SUB_Intake(new IO_IntakeReal());
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
 
@@ -302,6 +300,6 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		// return swerve.getAutonomousCommand("T1");
-		return AutoBuilder.buildAuto("1P_Left");
+		return AutoBuilder.buildAuto("2P_Right");
 	}
 }

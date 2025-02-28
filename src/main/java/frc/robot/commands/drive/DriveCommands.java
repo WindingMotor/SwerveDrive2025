@@ -17,11 +17,14 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.math.AllianceFlipUtil;
 import frc.robot.util.math.ExpDecayFF;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -109,8 +112,8 @@ public class DriveCommands {
 	 */
 	public static Command driveToPose(Drive drive, Supplier<Pose2d> targetPoseSupplier) {
 		// Create ExpDecayFF controllers for x, y and rotation
-		ExpDecayFF xController = new ExpDecayFF(200.0, 1.5, 0.032);
-		ExpDecayFF yController = new ExpDecayFF(200.0, 1.5, 0.032);
+		ExpDecayFF xController = new ExpDecayFF(200.0, 1.5, 0.041);
+		ExpDecayFF yController = new ExpDecayFF(200.0, 1.5, 0.041);
 		ExpDecayFF rotController = new ExpDecayFF(6, 1.0, 1.0);
 
 		return Commands.run(
@@ -168,8 +171,14 @@ public class DriveCommands {
 						});
 	}
 
+	// Drive to a predefined zone based on zonePose alliance adjustment
 	public static Command driveToZone(Drive drive, ZonePose zonePose) {
-		return driveToPose(drive, zonePose.getPose());
+		var pose = zonePose.getPoseForAlliance();
+		if (pose.isPresent()) {
+			return driveToPose(drive, pose.get());
+		} else {
+			return new PrintCommand("Drive to Zone: Empty Optional");
+		}
 	}
 
 	/** Overloaded version that accepts a fixed target pose rather than a supplier. */
@@ -202,19 +211,6 @@ public class DriveCommands {
 	}
 
 	/*
-	if (id == 1) {
-		return DriveCommands.driveToPose(
-				drive, new Pose2d(new Translation2d(16.94, 1.2), Rotation2d.fromDegrees(-55)));
-
-	} else if (id == 2) {
-		return DriveCommands.driveToPose(
-				drive, new Pose2d(new Translation2d(16.31, 7.35), Rotation2d.fromDegrees(44)));
-	} else {
-		return new PrintCommand("Nothing...");
-	}
-		*/
-
-	/*
 	 * Field relative drive command using two joysticks (controlling linear and angular velocities).
 	 * Includes rotation assist mode. When rotation assist is enabled, the robot will automatically
 	 * rotate to the nearest ZONE of the field.
@@ -229,14 +225,31 @@ public class DriveCommands {
 		// Construct command
 		return Commands.run(
 				() -> {
-					// Get target rotation based on closest AprilTag
 
+					// Get allaince
+					var alliance = DriverStation.getAlliance();
+
+					// Get target rotation based on closest AprilTag
 					int closestTagId = drive.getRecentClosestTagData().getFirst();
 					double distanceM = drive.getRecentClosestTagData().getSecond();
 					ZoneAngle targetZone = getZoneAngleForTagID(closestTagId);
 
 					// Convert zone angle to radians
-					Rotation2d targetRotation = Rotation2d.fromDegrees(targetZone.getAngle());
+					Rotation2d initalTargetRotation = Rotation2d.fromDegrees(targetZone.getAngle());
+					Rotation2d targetRotation = null;
+
+					// If we are on blue alliance flip target rotation by 180
+					if (alliance.isPresent()) {
+						if (alliance.get() == Alliance.Blue) {
+							targetRotation = Rotation2d.fromDegrees(initalTargetRotation.getDegrees() - 180);
+							Logger.recordOutput("Drive/FlipTargetrot", true);
+						} else {
+							targetRotation = initalTargetRotation;
+							Logger.recordOutput("Drive/FlipTargetrot", false);
+						}
+					} else {
+						targetRotation = new Rotation2d();
+					}
 
 					// Get linear velocity
 					Translation2d linearVelocity =
@@ -265,7 +278,22 @@ public class DriveCommands {
 									omega);
 
 					// Command the drive
-					drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, drive.getRotation()));
+					if (alliance.isPresent()) {
+						if (alliance.get() == Alliance.Red) {
+							// Red
+							drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, drive.getRotation()));
+							Logger.recordOutput("Drive/ISROT", false);
+						} else {
+							// Blue
+							drive.runVelocity(
+									ChassisSpeeds.fromFieldRelativeSpeeds(
+											speeds, drive.getRotation().plus(Rotation2d.fromDegrees(180))));
+							Logger.recordOutput("Drive/ISROT", true);
+						}
+					} else {
+						// Backup if there is no alliance. I hope i dont have to drive backwards. (Isaac)
+						drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, drive.getRotation()));
+					}
 
 					// Log target rotation for debugging
 					Logger.recordOutput("Drive/TargetRotation", targetRotation.getDegrees());
@@ -623,6 +651,26 @@ public class DriveCommands {
 
 		public Pose2d getPose() {
 			return new Pose2d(translation, zoneAngle.getRotation());
+		}
+
+		public Optional<Pose2d> getPoseForAlliance() {
+			var alliance = DriverStation.getAlliance();
+			if (alliance.isPresent()) {
+				if (alliance.get() == DriverStation.Alliance.Red) {
+					// Red
+					return Optional.of(new Pose2d(translation, zoneAngle.getRotation()));
+				} else {
+					// Blue
+					Pose2d flippedPose = AllianceFlipUtil.apply(getPose());
+					// Apply flipped pose translation. No need to flip angle as its relative to where robot
+					// starts.
+					// I think....
+					return Optional.of(new Pose2d(flippedPose.getTranslation(), zoneAngle.getRotation()));
+				}
+
+			} else {
+				return Optional.empty();
+			}
 		}
 	}
 }

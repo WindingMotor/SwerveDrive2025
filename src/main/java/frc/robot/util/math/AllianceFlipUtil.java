@@ -13,16 +13,19 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import frc.robot.constants.FieldConstants;
+import edu.wpi.first.math.util.Units;
 
 public class AllianceFlipUtil {
 
+	public static final double fieldLength = Units.inchesToMeters(690.876);
+	public static final double fieldWidth = Units.inchesToMeters(317);
+
 	public static double applyX(double x) {
-		return shouldFlip() ? FieldConstants.fieldLength - x : x;
+		return shouldFlip() ? fieldLength - x : x;
 	}
 
 	public static double applyY(double y) {
-		return shouldFlip() ? FieldConstants.fieldWidth - y : y;
+		return shouldFlip() ? fieldWidth - y : y;
 	}
 
 	public static Translation2d apply(Translation2d translation) {

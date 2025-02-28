@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "Left_1"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "L4"
@@ -19,25 +13,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left_2"
+            "pathName": "Middle_1"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.2
+            "waitTime": 0.1
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Eject"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.12
           }
         }
       ]

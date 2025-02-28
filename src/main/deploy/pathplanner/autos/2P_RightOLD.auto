@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightTwo_1"
+            "pathName": "Right_1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.02
           }
         },
         {
@@ -17,15 +23,16 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "RightTwo_2"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.1
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "ALN_TOP_RIGHT_BOTTOM"
+                }
+              }
+            ]
           }
         },
         {
@@ -37,7 +44,25 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.12
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Idle"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right_2"
           }
         },
         {
@@ -47,45 +72,40 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.2
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RightTwo_3"
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "Intake_Race"
+            "name": "ALN_SOURCE_RIGHT"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake_Race"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              }
+            ]
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RightTwo_4"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.2
+            "pathName": "Right_3"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "L4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RightTwo_5"
           }
         },
         {
@@ -97,19 +117,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Eject"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.35
+            "name": "ALN_BOTTOM_RIGHT_TOP"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Idle"
+            "name": "Eject"
           }
         }
       ]

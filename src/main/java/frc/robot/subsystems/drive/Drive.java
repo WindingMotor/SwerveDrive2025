@@ -46,18 +46,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.auto.LocalADStarAK;
+import frc.robot.commands.drive.DriveCommands.ZonePose;
 import frc.robot.constants.CameraConstants;
 import frc.robot.constants.CameraConstants.Camera;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.RobotConstants.RobotMode;
 import frc.robot.constants.TunerConstants;
 import frc.robot.subsystems.vision.IO_VisionReal.EstimateType;
 import frc.robot.subsystems.vision.SUB_Vision;
 import frc.robot.subsystems.vision.VisionShared.CameraEstimationData;
-import frc.robot.util.math.AllianceFlipUtil;
-import frc.robot.util.math.Circle2d;
-import frc.robot.util.math.Triangle2d;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -175,6 +174,8 @@ public class Drive extends SubsystemBase {
 								(state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
 						new SysIdRoutine.Mechanism(
 								(voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+
+		// Get alliance
 	}
 
 	@Override
@@ -348,31 +349,25 @@ public class Drive extends SubsystemBase {
 									CameraConstants.CAMERA_POSITIONS[i].getRotation()));
 		}
 
-		// Blue sided reef circle
-		Translation2d blueReefCenter = FieldConstants.Reef.center;
-
-		Circle2d circle = new Circle2d(blueReefCenter.getX(), blueReefCenter.getY(), 1.5);
-		Pose2d[] estimatedEdgePoses = circle.getEstimatedEdgePoses(25);
-		Logger.recordOutput("BlueReefTest", estimatedEdgePoses);
-
-		// Red sided reef circle
-		Translation2d redReefCenter = AllianceFlipUtil.apply(blueReefCenter);
-
-		Circle2d redCircle = new Circle2d(redReefCenter.getX(), redReefCenter.getY(), 1.5);
-		Pose2d[] redEstimatedEdgePoses = redCircle.getEstimatedEdgePoses(25);
-		Logger.recordOutput("RedReefTest", redEstimatedEdgePoses);
-
-		// Test a triangle
-		Triangle2d triangle =
-				new Triangle2d(
-						new Translation2d(blueReefCenter.getX(), blueReefCenter.getY()),
-						new Translation2d(redReefCenter.getX(), redReefCenter.getY()),
-						new Translation2d(0, 0));
-
-		Logger.recordOutput("TriangleTest", triangle.getEstimatedEdgePoses(25));
-
 		// Record camera positions for visualization
 		Logger.recordOutput("CameraPositions", globalCameraPositions);
+		Logger.recordOutput("Alliance Zone Poses", getAllZonePoses());
+	}
+
+	/*
+	 * Returns all the zone poses for the current alliance with flipping.
+	 */
+	public static Pose2d[] getAllZonePoses() {
+		List<Pose2d> poses = new ArrayList<>();
+
+		for (ZonePose zonePose : ZonePose.values()) {
+			Optional<Pose2d> poseForAlliance = zonePose.getPoseForAlliance();
+			if (poseForAlliance.isPresent()) {
+				poses.add(poseForAlliance.get());
+			}
+		}
+
+		return poses.toArray(new Pose2d[0]);
 	}
 
 	/**

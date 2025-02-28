@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightTwo_1"
+            "pathName": "Left_1"
           }
         },
         {
@@ -19,13 +19,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightTwo_2"
+            "pathName": "Left_2"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.1
+            "waitTime": 0.18
           }
         },
         {
@@ -55,7 +55,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightTwo_3"
+            "pathName": "Left_3"
           }
         },
         {
@@ -67,7 +67,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightTwo_4"
+            "pathName": "Left_4"
           }
         },
         {
@@ -85,7 +85,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightTwo_5"
+            "pathName": "Left_5"
           }
         },
         {
