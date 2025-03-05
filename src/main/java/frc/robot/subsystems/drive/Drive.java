@@ -48,13 +48,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.auto.LocalADStarAK;
 import frc.robot.commands.drive.DriveCommands.ZonePose;
 import frc.robot.constants.CameraConstants;
-import frc.robot.constants.CameraConstants.Camera;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.RobotConstants.RobotMode;
 import frc.robot.constants.TunerConstants;
-import frc.robot.subsystems.vision.IO_VisionReal.EstimateType;
-import frc.robot.subsystems.vision.SUB_Vision;
-import frc.robot.subsystems.vision.VisionShared.CameraEstimationData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -118,19 +114,19 @@ public class Drive extends SubsystemBase {
 	private SwerveDrivePoseEstimator poseEstimator =
 			new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
-	private SUB_Vision vision;
+	// private SUB_Vision vision;
 
 	private Pair<Integer, Double> closestTagData = Pair.of(-1, Double.MAX_VALUE);
 
 	public Drive(
 			IO_GyroBase gyroIO,
-			SUB_Vision vision,
+			//	SUB_Vision vision,
 			IO_ModuleBase flModuleIO,
 			IO_ModuleBase frModuleIO,
 			IO_ModuleBase blModuleIO,
 			IO_ModuleBase brModuleIO) {
 		this.gyroIO = gyroIO;
-		this.vision = vision;
+		//	this.vision = vision;
 		modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
 		modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
 		modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
@@ -236,7 +232,7 @@ public class Drive extends SubsystemBase {
 		}
 
 		// Update odometry with vision measurements
-		vision.updateLastRobotPose(getPose());
+		// vision.updateLastRobotPose(getPose());
 
 		/*
 		Optional<CameraEstimationData> frontLeftData =
@@ -263,6 +259,7 @@ public class Drive extends SubsystemBase {
 					*/
 
 		// Elevator data
+		/*
 		Optional<CameraEstimationData> elevatorData = vision.getCameraEstimationData(Camera.ELEVATED);
 		if (elevatorData.isPresent()) {
 			String estimateType = vision.inputs.elEstimateType;
@@ -282,7 +279,6 @@ public class Drive extends SubsystemBase {
 						elevatorData.get().stdDevMatrix());
 		}
 
-		// Back left data
 		Optional<CameraEstimationData> backLeftData = vision.getCameraEstimationData(Camera.BACK_LEFT);
 		if (backLeftData.isPresent()) {
 			String estimateType = vision.inputs.blEstimateType;
@@ -302,7 +298,6 @@ public class Drive extends SubsystemBase {
 						backLeftData.get().stdDevMatrix());
 		}
 
-		// Front Left
 		Optional<CameraEstimationData> frontLeftData =
 				vision.getCameraEstimationData(Camera.FRONT_LEFT);
 		if (frontLeftData.isPresent()) {
@@ -323,6 +318,27 @@ public class Drive extends SubsystemBase {
 						frontLeftData.get().stdDevMatrix());
 		}
 
+		Optional<CameraEstimationData> frontRightData =
+				vision.getCameraEstimationData(Camera.FRONT_RIGHT);
+		if (frontRightData.isPresent()) {
+			String estimateType = vision.inputs.frEstimateType;
+			if (estimateType == EstimateType.MULTITAG.toString()
+					|| (estimateType == EstimateType.SINGLETAG.toString()
+							&& frontRightData
+											.get()
+											.pose()
+											.getTranslation()
+											.getDistance(getApriltagLocation(vision.inputs.frBestTargetID))
+									< 2.5))
+				poseEstimator.addVisionMeasurement(
+						new Pose2d(
+								frontRightData.get().pose().getTranslation(),
+								frontRightData.get().pose().getRotation()),
+						frontRightData.get().timestamp(),
+						frontRightData.get().stdDevMatrix());
+		}
+						*/
+
 		// Update gyro alert
 		gyroDisconnectedAlert.set(!gyroInputs.connected && RobotConstants.ROBOT_MODE != RobotMode.SIM);
 
@@ -330,8 +346,8 @@ public class Drive extends SubsystemBase {
 		updateCameraPositions();
 
 		// Update closest AprilTag data
-		closestTagData = getClosestAprilTagID();
-		Logger.recordOutput("ClosestApriltagID", closestTagData.getFirst());
+		// closestTagData = getClosestAprilTagID();
+		// Logger.recordOutput("ClosestApriltagID", closestTagData.getFirst());
 	}
 
 	private void updateCameraPositions() {

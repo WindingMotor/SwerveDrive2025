@@ -43,11 +43,11 @@ public class Robot extends LoggedRobot {
 		Logger.recordMetadata("ProjectName", "SwerveDrive2025");
 		Logger.recordMetadata("Robot Mode", RobotConstants.ROBOT_MODE.toString());
 		Logger.recordMetadata("Git Branch", BuildConstants.GIT_BRANCH);
-		Logger.recordMetadata("Authors", "(WindingMotor) Isaac S - (PeskyBuzz) Rae");
+		Logger.recordMetadata("Authors", "(WindingMotor) Isaac S - 2106 Junkyard DOgs");
 
 		switch (RobotConstants.ROBOT_MODE) {
 			case REAL:
-				// Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+				Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
 				Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
 				new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
 				break;

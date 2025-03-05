@@ -10,6 +10,7 @@ package frc.robot.subsystems.climb;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.led.SUB_Led;
 import frc.robot.util.math.ExpDecayFF;
 import org.littletonrobotics.junction.Logger;
 
@@ -93,20 +94,37 @@ public class SUB_Climb extends SubsystemBase {
 	 * @return A sequential command that executes the full climbing sequence
 	 */
 	public Command climbSequence(
-			java.util.function.BooleanSupplier confirmDownButton, double motorSpeed) {
+			java.util.function.BooleanSupplier confirmDownButton, double motorSpeed, SUB_Led led) {
 		return Commands.sequence(
 				// Step 1: Reset encoder to 0.0rot. Auto done when robot starts
 
-				// Step 2: Go to -12.0rot to pop out
+				// Climb mode LED wait
+				//	led.setClimbState(Pair.of(true, led.PUB_climbWaiting)),
+
+				// Pop-Out
 				goToPosition(-12.0, motorSpeed),
 
-				// Step 3: Go to -3.11 to start hook on
-				goToPosition(-3.11, motorSpeed),
-
-				// Step 4: Wait for confirmation button press before continuing
+				// WAIT
 				Commands.waitUntil(confirmDownButton),
+				goToPosition(3.0, motorSpeed),
 
-				// Step 5: Pull down to -11.8rot
-				goToPosition(-11.85, motorSpeed));
+				// WAIT, drive into it
+				Commands.waitUntil(confirmDownButton),
+				goToPosition(-12.0, motorSpeed));
+
+		// Climb mode LED ready
+		//	led.setClimbState(Pair.of(true, led.PUB_climbReady)),
+
+		// Step 3: Go to setpoint to start hook on
+		// goToPosition(-6.0, motorSpeed),
+
+		// Step 4: Wait for confirmation button press before continuing
+		// Commands.waitUntil(confirmDownButton),
+
+		// Climb mode LED ready
+		// led.setClimbState(Pair.of(true, led.PUB_climbGo)),
+
+		// Step 5: Pull down to -11.8rot
+		// goToPosition(-11.85, motorSpeed));
 	}
 }

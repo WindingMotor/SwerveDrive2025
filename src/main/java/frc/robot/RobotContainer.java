@@ -12,7 +12,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.reduxrobotics.canand.CanandEventLoop;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.DriveCommands;
@@ -37,9 +36,6 @@ import frc.robot.subsystems.intake.SUB_Intake;
 import frc.robot.subsystems.led.SUB_Led;
 import frc.robot.subsystems.superstructure.SUB_Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureState;
-import frc.robot.subsystems.vision.IO_VisionReal;
-import frc.robot.subsystems.vision.IO_VisionSim;
-import frc.robot.subsystems.vision.SUB_Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
@@ -52,7 +48,7 @@ public class RobotContainer {
 
 	// Subsystems
 	private SUB_Intake intake;
-	private SUB_Vision vision;
+	//	private SUB_Vision vision;
 	private SUB_Elevator elevator;
 	private SUB_Superstructure superstructure;
 	private final SUB_Led led = new SUB_Led(1, 62);
@@ -81,7 +77,7 @@ public class RobotContainer {
 	}
 
 	private void initializeSubsystems() {
-		vision = new SUB_Vision(Robot.isReal() ? new IO_VisionReal() : new IO_VisionSim());
+		//	vision = new SUB_Vision(Robot.isReal() ? new IO_VisionReal() : new IO_VisionSim());
 		intake = new SUB_Intake(new IO_IntakeReal());
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
 		climb = new SUB_Climb(new IO_ClimbReal());
@@ -95,7 +91,7 @@ public class RobotContainer {
 				drive =
 						new Drive(
 								new IO_GyroReal(),
-								vision,
+								// vision,
 								new IO_ModuleReal(TunerConstants.FrontLeft),
 								new IO_ModuleReal(TunerConstants.FrontRight),
 								new IO_ModuleReal(TunerConstants.BackLeft),
@@ -107,7 +103,7 @@ public class RobotContainer {
 				drive =
 						new Drive(
 								new IO_GyroBase() {},
-								vision,
+								//	vision,
 								new IO_ModuleSim(TunerConstants.FrontLeft),
 								new IO_ModuleSim(TunerConstants.FrontRight),
 								new IO_ModuleSim(TunerConstants.BackLeft),
@@ -119,7 +115,7 @@ public class RobotContainer {
 				drive =
 						new Drive(
 								new IO_GyroBase() {},
-								vision,
+								//	vision,
 								new IO_ModuleBase() {},
 								new IO_ModuleBase() {},
 								new IO_ModuleBase() {},
@@ -130,9 +126,10 @@ public class RobotContainer {
 		superstructure = new SUB_Superstructure(drive, intake, elevator, led);
 
 		// Set up auto routines
-		autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+		autoChooser = new LoggedDashboardChooser<>("Auto Choices");
 
 		// Set up SysId routines
+		/*
 		autoChooser.addOption(
 				"Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
 		autoChooser.addOption(
@@ -147,11 +144,20 @@ public class RobotContainer {
 				"Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
 		autoChooser.addOption(
 				"Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+				*/
 	}
 
 	private void configureWebserverCommands() {}
 
 	private void configurePathplannerCommands() {
+
+		// Add autos
+		autoChooser.addOption("1P Center", AutoBuilder.buildAuto("1P_Middle"));
+		autoChooser.addOption("1P Left", AutoBuilder.buildAuto("1P_Left"));
+		autoChooser.addOption("1P Right", AutoBuilder.buildAuto("1P_Right"));
+		autoChooser.addOption("2P Center", AutoBuilder.buildAuto("2P_Middle"));
+		autoChooser.addOption("2P Left", AutoBuilder.buildAuto("2P_Left"));
+		autoChooser.addOption("2P Right", AutoBuilder.buildAuto("2P_Right"));
 
 		NamedCommands.registerCommand(
 				"Intake_Coral", new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
@@ -196,8 +202,6 @@ public class RobotContainer {
 
 		NamedCommands.registerCommand(
 				"ALN_SOURCE_LEFT", DriveCommands.driveToZone(drive, ZonePose.SOURCE_LEFT));
-
-		// //
 
 		NamedCommands.registerCommand(
 				"L1", new CMD_Superstructure(superstructure, SuperstructureState.L1_SCORING));
@@ -254,10 +258,10 @@ public class RobotContainer {
 				.rightBumper()
 				.onTrue(new CMD_ElevatorCoral(superstructure, true)); // DPAD-UP - Coral up
 
-		// L4 Quick
+		// L2A Quick
 		operatorController
 				.rightTrigger()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING));
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_L2));
 
 		// L3 Quick
 		operatorController
@@ -290,9 +294,9 @@ public class RobotContainer {
 		// operatorController.rightStick().onTrue(DriveCommands.driveToZone(drive,
 		// ZonePose.SOURCE_LEFT));
 
-		operatorController
-				.leftStick()
-				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_LEFT_TOP));
+		// operatorController
+		//		.leftStick()
+		//	.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_LEFT_TOP));
 
 		// operatorController
 		//		.rightStick()
@@ -302,19 +306,26 @@ public class RobotContainer {
 		//			.povDown()
 		//			.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_GROUND));
 
-		//	operatorController.povUp().onTrue(climb.setSpeed(1));
+		operatorController.povUp().onTrue(climb.setSpeed(1));
 
-		//	operatorController.povDown().onFalse(climb.setSpeed(-1));
+		operatorController.povRight().onTrue(climb.setSpeed(0));
 
+		operatorController.povDown().onTrue(climb.setSpeed(-1));
+
+		// Climb normal
+		/*
 		operatorController
 				.povRight()
-				.onTrue(climb.climbSequence(() -> operatorController.povRight().getAsBoolean(), 1.0));
+				.onTrue(climb.climbSequence(() -> operatorController.povRight().getAsBoolean(), 1.0, led));
+				*/
 
-		operatorController.povLeft().onTrue(climb.goToPosition(0, 1));
+		// Climb zero
+		// operatorController.povLeft().onTrue(climb.goToPosition(0, 1));
 	}
 
 	public Command getAutonomousCommand() {
 		// return swerve.getAutonomousCommand("T1");
+		// return autoChooser.get();
 		return AutoBuilder.buildAuto("2P_Right");
 	}
 }

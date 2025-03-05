@@ -40,7 +40,7 @@ public class IO_IntakeReal implements IO_IntakeBase {
 
 		// Add a debouncer with a time threshold (in seconds)
 		// Using both rising and falling edge debouncing
-		sensorDebouncer = new Debouncer(0.08, DebounceType.kBoth);
+		sensorDebouncer = new Debouncer(0.11, DebounceType.kBoth);
 
 		SparkFlexConfig wheelSparkMaxConfig = new SparkFlexConfig();
 		wheelSparkMaxConfig.smartCurrentLimit(RobotConstants.Intake.WHEEL_MOTOR_CURRENT_LIMIT_NORMAL);

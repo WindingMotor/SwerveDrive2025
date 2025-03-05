@@ -9,6 +9,7 @@ package frc.robot.subsystems.led;
 
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,6 +24,7 @@ public class SUB_Led extends SubsystemBase {
 	private final AddressableLED ledStrip;
 	private final AddressableLEDBuffer ledBuffer;
 	private SuperstructureState.State localState;
+	private Pair<Boolean, LEDPattern> climbMode;
 
 	// Define LED patterns
 	private final LEDPattern rainbowPattern;
@@ -30,6 +32,10 @@ public class SUB_Led extends SubsystemBase {
 	private final LEDPattern intakePattern;
 	private final LEDPattern defaultPattern;
 	private final LEDPattern strobePattern;
+
+	public final LEDPattern PUB_climbWaiting;
+	public final LEDPattern PUB_climbReady;
+	public final LEDPattern PUB_climbGo;
 
 	public SUB_Led(int port, int length) {
 		this.localState = SuperstructureState.IDLE;
@@ -61,7 +67,12 @@ public class SUB_Led extends SubsystemBase {
 		// Strobe effect for CORAL_STATION
 		strobePattern = LEDPattern.solid(Color.kWhite).blink(Seconds.of(0.1));
 
+		PUB_climbWaiting = LEDPattern.solid(Color.kRed).blink(Seconds.of(0.05));
+		PUB_climbReady = LEDPattern.solid(Color.kGreen);
+		PUB_climbGo = LEDPattern.solid(Color.kBlue).blink(Seconds.of(0.1));
+
 		defaultPattern = rainbowPattern;
+		climbMode = Pair.of(false, defaultPattern);
 
 		setDefaultCommand(runPattern(defaultPattern).withName("Default"));
 		ledStrip.start();
@@ -72,7 +83,12 @@ public class SUB_Led extends SubsystemBase {
 		if (DriverStation.isDisabled()) {
 			rainbowPattern.applyTo(ledBuffer);
 		} else {
-			updateBasedOnState();
+			if (climbMode.getFirst()) {
+				LEDPattern pattern = climbMode.getSecond();
+				pattern.applyTo(ledBuffer);
+			} else {
+				updateBasedOnState();
+			}
 		}
 		ledStrip.setData(ledBuffer);
 	}
@@ -145,5 +161,9 @@ public class SUB_Led extends SubsystemBase {
 
 	public Command runPattern(LEDPattern pattern) {
 		return run(() -> pattern.applyTo(ledBuffer));
+	}
+
+	public Command setClimbState(Pair<Boolean, LEDPattern> climbMode) {
+		return run(() -> this.climbMode = climbMode);
 	}
 }
