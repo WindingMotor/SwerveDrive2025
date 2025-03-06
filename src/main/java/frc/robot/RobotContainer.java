@@ -36,6 +36,9 @@ import frc.robot.subsystems.intake.SUB_Intake;
 import frc.robot.subsystems.led.SUB_Led;
 import frc.robot.subsystems.superstructure.SUB_Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureState;
+import frc.robot.subsystems.vision.IO_VisionCamera;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
@@ -48,7 +51,7 @@ public class RobotContainer {
 
 	// Subsystems
 	private SUB_Intake intake;
-	//	private SUB_Vision vision;
+	private Vision vision;
 	private SUB_Elevator elevator;
 	private SUB_Superstructure superstructure;
 	private final SUB_Led led = new SUB_Led(1, 62);
@@ -77,7 +80,13 @@ public class RobotContainer {
 	}
 
 	private void initializeSubsystems() {
-		//	vision = new SUB_Vision(Robot.isReal() ? new IO_VisionReal() : new IO_VisionSim());
+
+		// Vision camera creation
+		vision =
+				new Vision(
+						drive::addVisionMeasurement,
+						new IO_VisionCamera(VisionConstants.camera0Name, VisionConstants.robotToCamera0));
+
 		intake = new SUB_Intake(new IO_IntakeReal());
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
 		climb = new SUB_Climb(new IO_ClimbReal());

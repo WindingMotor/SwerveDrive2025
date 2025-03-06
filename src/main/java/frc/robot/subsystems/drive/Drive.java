@@ -42,7 +42,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -52,9 +51,6 @@ import frc.robot.constants.CameraConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.RobotConstants.RobotMode;
 import frc.robot.constants.TunerConstants;
-import frc.robot.subsystems.apriltag.SUB_Apriltag;
-import frc.robot.subsystems.apriltag.SUB_Apriltag.VisionEstimates;
-import frc.robot.subsystems.apriltag.SUB_Apriltag.VisionMeasurement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -118,25 +114,15 @@ public class Drive extends SubsystemBase {
 	private SwerveDrivePoseEstimator poseEstimator =
 			new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
-	// private SUB_Vision vision;
-
 	private Pair<Integer, Double> closestTagData = Pair.of(-1, Double.MAX_VALUE);
-
-	SUB_Apriltag apriltag;
-	private final List<Pose2d> estimates = new ArrayList<>();
-	private final List<Pose3d> targets = new ArrayList<>();
 
 	public Drive(
 			IO_GyroBase gyroIO,
-			//	SUB_Vision vision,
 			IO_ModuleBase flModuleIO,
 			IO_ModuleBase frModuleIO,
 			IO_ModuleBase blModuleIO,
 			IO_ModuleBase brModuleIO) {
 		this.gyroIO = gyroIO;
-		//	this.vision = vision;
-
-		apriltag = new SUB_Apriltag();
 
 		modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
 		modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
@@ -245,46 +231,17 @@ public class Drive extends SubsystemBase {
 		// Update gyro alert
 		gyroDisconnectedAlert.set(!gyroInputs.connected && RobotConstants.ROBOT_MODE != RobotMode.SIM);
 
-		List<SUB_Apriltag.TimestampedYaw> yawMeasurements = new ArrayList<>();
-
-		yawMeasurements.add(new SUB_Apriltag.TimestampedYaw(rawGyroRotation, Timer.getFPGATimestamp()));
-
-		apriltag.addYawMeasurements(yawMeasurements);
-		apriltag.updateLastRobotPose(getPose());
-
-		VisionEstimates visionEstimates = apriltag.getUnreadResults();
-
-		for (VisionMeasurement measurement : visionEstimates.measurements()) {
-			if (measurement.stdDevs() == null) {
-				poseEstimator.addVisionMeasurement(measurement.visionPose(), measurement.timestamp());
-			} else {
-				poseEstimator.addVisionMeasurement(
-						measurement.visionPose(), measurement.timestamp(), measurement.stdDevs());
-			}
-		}
-
-		estimates.clear();
-		estimates.addAll(visionEstimates.getPoses());
-
-		targets.clear();
-		targets.addAll(visionEstimates.targets());
-
-		// Update camera positions
 		updateCameraPositions();
+	}
 
-		if (!visionEstimates.measurements().isEmpty()) {
-			// Log all vision measurements
-			Pose2d[] visionPoses =
-					visionEstimates.measurements().stream().map(m -> m.visionPose()).toArray(Pose2d[]::new);
-
-			Logger.recordOutput("Vision/EstimatedPosesAverage", visionPoses);
-
-			// Also log the most recent vision measurement
-			Logger.recordOutput("Vision/LatestEstimate", visionPoses[visionPoses.length - 1]);
-		}
-
-		// Don't forget to update closestTagData
-		closestTagData = getClosestAprilTagID();
+	/**
+	 * Adds a vision measurement to the pose estimator.
+	 *
+	 * @param visionPose The pose of the robot as measured by the vision camera.
+	 * @param timestamp The timestamp of the vision measurement in seconds.
+	 */
+	public void addVisionMeasurement(Pose2d visionPose, double timestamp) {
+		poseEstimator.addVisionMeasurement(visionPose, timestamp);
 	}
 
 	private void updateCameraPositions() {
