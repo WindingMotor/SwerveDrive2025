@@ -56,16 +56,30 @@ public final class SUB_Apriltag {
 	public static final record TimestampedYaw(Rotation2d yaw, double timestamp) {}
 
 	private static final AprilTagFields kField = AprilTagFields.k2025Reefscape;
-	private static final PoseStrategy kStrategy = PoseStrategy.PNP_DISTANCE_TRIG_SOLVE;
+	private static final PoseStrategy kStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
+	private static final PoseStrategy kBackupStrategy = PoseStrategy.PNP_DISTANCE_TRIG_SOLVE;
 
 	private final AprilTagFieldLayout aprilTags;
 	private final Camera[] cameras;
 
-	private SUB_Apriltag() {
+	private Pose2d lastRobotPose = new Pose2d();
+
+	/*
+		 *
+		 * 		initializeCamera(Camera.FRONT_LEFT, "OV2311_4");
+	initializeCamera(Camera.FRONT_RIGHT, "OV2311_5");
+	initializeCamera(Camera.BACK_LEFT, "OV9281_03");
+	initializeCamera(Camera.ELEVATED, "OV9281_02");
+
+		 */
+	public SUB_Apriltag() {
 		aprilTags = AprilTagFieldLayout.loadField(kField);
 		cameras =
 				new Camera[] {
-					new Camera("Front", CameraConstants.Camera.ELEVATED.getTransform()),
+					new Camera("OV9281_02", CameraConstants.Camera.ELEVATED.getTransform()), // FRONT Camera
+					// new Camera(
+					//	"OV2311_5", CameraConstants.Camera.FRONT_RIGHT.getTransform()), //  RIGHT Camera
+					new Camera("OV9281_03", CameraConstants.Camera.FRONT_LEFT.getTransform()), // LEFT Camera
 				};
 
 		NetworkTableInstance.getDefault()
@@ -85,6 +99,10 @@ public final class SUB_Apriltag {
 		}
 	}
 
+	public void updateLastRobotPose(Pose2d newPose2d) {
+		lastRobotPose = newPose2d;
+	}
+
 	/** Gets unread results from all cameras. */
 	public VisionEstimates getUnreadResults() {
 		List<VisionMeasurement> measurements = new ArrayList<>();
@@ -92,7 +110,19 @@ public final class SUB_Apriltag {
 
 		for (var camera : cameras) {
 			var result = camera.getUnreadResults();
-			measurements.addAll(result.measurements());
+
+			// Filter measurements to reduce jitter
+			for (VisionMeasurement measurement : result.measurements()) {
+				// Calculate distance between vision measurement and last known pose
+				double poseDifference =
+						lastRobotPose.getTranslation().getDistance(measurement.visionPose().getTranslation());
+
+				// Only keep measurements within a reasonable threshold
+				if (poseDifference < 1.0 || lastRobotPose.equals(new Pose2d())) {
+					measurements.add(measurement);
+				}
+			}
+
 			targets.addAll(result.targets());
 		}
 
@@ -113,6 +143,8 @@ public final class SUB_Apriltag {
 		private Camera(String cameraName, Transform3d robotToCamera) {
 			camera = new PhotonCamera(cameraName);
 			estimator = new PhotonPoseEstimator(aprilTags, kStrategy, robotToCamera);
+			estimator.setPrimaryStrategy(kStrategy);
+			estimator.setMultiTagFallbackStrategy(kBackupStrategy);
 		}
 
 		/**
@@ -132,6 +164,7 @@ public final class SUB_Apriltag {
 			List<Pose3d> targets = new ArrayList<>();
 
 			for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
+
 				var estimate = estimator.update(result);
 				if (estimate.isEmpty() || estimate.get().targetsUsed.isEmpty()) continue;
 
@@ -142,6 +175,7 @@ public final class SUB_Apriltag {
 				var tagLocation = aprilTags.getTagPose(id);
 				if (tagLocation.isEmpty()) continue;
 
+				// Calculate the std
 				double distance = target.bestCameraToTarget.getTranslation().getNorm();
 				double std = 0.1 * Math.pow(distance, 2.0);
 

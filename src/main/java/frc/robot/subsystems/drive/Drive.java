@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -51,6 +52,9 @@ import frc.robot.constants.CameraConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.RobotConstants.RobotMode;
 import frc.robot.constants.TunerConstants;
+import frc.robot.subsystems.apriltag.SUB_Apriltag;
+import frc.robot.subsystems.apriltag.SUB_Apriltag.VisionEstimates;
+import frc.robot.subsystems.apriltag.SUB_Apriltag.VisionMeasurement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -118,6 +122,10 @@ public class Drive extends SubsystemBase {
 
 	private Pair<Integer, Double> closestTagData = Pair.of(-1, Double.MAX_VALUE);
 
+	SUB_Apriltag apriltag;
+	private final List<Pose2d> estimates = new ArrayList<>();
+	private final List<Pose3d> targets = new ArrayList<>();
+
 	public Drive(
 			IO_GyroBase gyroIO,
 			//	SUB_Vision vision,
@@ -127,6 +135,9 @@ public class Drive extends SubsystemBase {
 			IO_ModuleBase brModuleIO) {
 		this.gyroIO = gyroIO;
 		//	this.vision = vision;
+
+		apriltag = new SUB_Apriltag();
+
 		modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
 		modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
 		modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
@@ -231,123 +242,49 @@ public class Drive extends SubsystemBase {
 			poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
 		}
 
-		// Update odometry with vision measurements
-		// vision.updateLastRobotPose(getPose());
-
-		/*
-		Optional<CameraEstimationData> frontLeftData =
-				vision.getCameraEstimationData(Camera.FRONT_LEFT);
-		if (frontLeftData.isPresent()) {
-			poseEstimator.addVisionMeasurement(
-					new Pose2d(
-							frontLeftData.get().pose().getTranslation(),
-							frontLeftData.get().pose().getRotation()),
-					frontLeftData.get().timestamp(),
-					frontLeftData.get().stdDevMatrix());
-		}
-
-		Optional<CameraEstimationData> frontRightData =
-				vision.getCameraEstimationData(Camera.FRONT_RIGHT);
-		if (frontRightData.isPresent()) {
-			poseEstimator.addVisionMeasurement(
-					new Pose2d(
-							frontRightData.get().pose().getTranslation(),
-							frontRightData.get().pose().getRotation()),
-					frontRightData.get().timestamp(),
-					frontRightData.get().stdDevMatrix());
-		}
-					*/
-
-		// Elevator data
-		/*
-		Optional<CameraEstimationData> elevatorData = vision.getCameraEstimationData(Camera.ELEVATED);
-		if (elevatorData.isPresent()) {
-			String estimateType = vision.inputs.elEstimateType;
-			if (estimateType == EstimateType.MULTITAG.toString()
-					|| (estimateType == EstimateType.SINGLETAG.toString()
-							&& elevatorData
-											.get()
-											.pose()
-											.getTranslation()
-											.getDistance(getApriltagLocation(vision.inputs.elBestTargetID))
-									< 2.5))
-				poseEstimator.addVisionMeasurement(
-						new Pose2d(
-								elevatorData.get().pose().getTranslation(),
-								elevatorData.get().pose().getRotation()),
-						elevatorData.get().timestamp(),
-						elevatorData.get().stdDevMatrix());
-		}
-
-		Optional<CameraEstimationData> backLeftData = vision.getCameraEstimationData(Camera.BACK_LEFT);
-		if (backLeftData.isPresent()) {
-			String estimateType = vision.inputs.blEstimateType;
-			if (estimateType == EstimateType.MULTITAG.toString()
-					|| (estimateType == EstimateType.SINGLETAG.toString()
-							&& backLeftData
-											.get()
-											.pose()
-											.getTranslation()
-											.getDistance(getApriltagLocation(vision.inputs.blBestTargetID))
-									< 2.5))
-				poseEstimator.addVisionMeasurement(
-						new Pose2d(
-								backLeftData.get().pose().getTranslation(),
-								backLeftData.get().pose().getRotation()),
-						backLeftData.get().timestamp(),
-						backLeftData.get().stdDevMatrix());
-		}
-
-		Optional<CameraEstimationData> frontLeftData =
-				vision.getCameraEstimationData(Camera.FRONT_LEFT);
-		if (frontLeftData.isPresent()) {
-			String estimateType = vision.inputs.flEstimateType;
-			if (estimateType == EstimateType.MULTITAG.toString()
-					|| (estimateType == EstimateType.SINGLETAG.toString()
-							&& frontLeftData
-											.get()
-											.pose()
-											.getTranslation()
-											.getDistance(getApriltagLocation(vision.inputs.flBestTargetID))
-									< 2.5))
-				poseEstimator.addVisionMeasurement(
-						new Pose2d(
-								frontLeftData.get().pose().getTranslation(),
-								frontLeftData.get().pose().getRotation()),
-						frontLeftData.get().timestamp(),
-						frontLeftData.get().stdDevMatrix());
-		}
-
-		Optional<CameraEstimationData> frontRightData =
-				vision.getCameraEstimationData(Camera.FRONT_RIGHT);
-		if (frontRightData.isPresent()) {
-			String estimateType = vision.inputs.frEstimateType;
-			if (estimateType == EstimateType.MULTITAG.toString()
-					|| (estimateType == EstimateType.SINGLETAG.toString()
-							&& frontRightData
-											.get()
-											.pose()
-											.getTranslation()
-											.getDistance(getApriltagLocation(vision.inputs.frBestTargetID))
-									< 2.5))
-				poseEstimator.addVisionMeasurement(
-						new Pose2d(
-								frontRightData.get().pose().getTranslation(),
-								frontRightData.get().pose().getRotation()),
-						frontRightData.get().timestamp(),
-						frontRightData.get().stdDevMatrix());
-		}
-						*/
-
 		// Update gyro alert
 		gyroDisconnectedAlert.set(!gyroInputs.connected && RobotConstants.ROBOT_MODE != RobotMode.SIM);
+
+		List<SUB_Apriltag.TimestampedYaw> yawMeasurements = new ArrayList<>();
+
+		yawMeasurements.add(new SUB_Apriltag.TimestampedYaw(rawGyroRotation, Timer.getFPGATimestamp()));
+
+		apriltag.addYawMeasurements(yawMeasurements);
+		apriltag.updateLastRobotPose(getPose());
+
+		VisionEstimates visionEstimates = apriltag.getUnreadResults();
+
+		for (VisionMeasurement measurement : visionEstimates.measurements()) {
+			if (measurement.stdDevs() == null) {
+				poseEstimator.addVisionMeasurement(measurement.visionPose(), measurement.timestamp());
+			} else {
+				poseEstimator.addVisionMeasurement(
+						measurement.visionPose(), measurement.timestamp(), measurement.stdDevs());
+			}
+		}
+
+		estimates.clear();
+		estimates.addAll(visionEstimates.getPoses());
+
+		targets.clear();
+		targets.addAll(visionEstimates.targets());
 
 		// Update camera positions
 		updateCameraPositions();
 
-		// Update closest AprilTag data
-		// closestTagData = getClosestAprilTagID();
-		// Logger.recordOutput("ClosestApriltagID", closestTagData.getFirst());
+		if (!visionEstimates.measurements().isEmpty()) {
+			// Log all vision measurements
+			Pose2d[] visionPoses =
+					visionEstimates.measurements().stream().map(m -> m.visionPose()).toArray(Pose2d[]::new);
+
+			Logger.recordOutput("Vision/EstimatedPosesAverage", visionPoses);
+
+			// Also log the most recent vision measurement
+			Logger.recordOutput("Vision/LatestEstimate", visionPoses[visionPoses.length - 1]);
+		}
+
+		// Don't forget to update closestTagData
+		closestTagData = getClosestAprilTagID();
 	}
 
 	private void updateCameraPositions() {

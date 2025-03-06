@@ -298,9 +298,9 @@ public class RobotContainer {
 		//		.leftStick()
 		//	.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_LEFT_TOP));
 
-		// operatorController
-		//		.rightStick()
-		//		.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
+		operatorController
+				.rightStick()
+				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
 
 		//	operatorController
 		//			.povDown()
