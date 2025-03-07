@@ -81,12 +81,6 @@ public class RobotContainer {
 
 	private void initializeSubsystems() {
 
-		// Vision camera creation
-		vision =
-				new Vision(
-						drive::addVisionMeasurement,
-						new IO_VisionCamera(VisionConstants.camera0Name, VisionConstants.robotToCamera0));
-
 		intake = new SUB_Intake(new IO_IntakeReal());
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
 		climb = new SUB_Climb(new IO_ClimbReal());
@@ -100,7 +94,6 @@ public class RobotContainer {
 				drive =
 						new Drive(
 								new IO_GyroReal(),
-								// vision,
 								new IO_ModuleReal(TunerConstants.FrontLeft),
 								new IO_ModuleReal(TunerConstants.FrontRight),
 								new IO_ModuleReal(TunerConstants.BackLeft),
@@ -112,7 +105,6 @@ public class RobotContainer {
 				drive =
 						new Drive(
 								new IO_GyroBase() {},
-								//	vision,
 								new IO_ModuleSim(TunerConstants.FrontLeft),
 								new IO_ModuleSim(TunerConstants.FrontRight),
 								new IO_ModuleSim(TunerConstants.BackLeft),
@@ -124,13 +116,18 @@ public class RobotContainer {
 				drive =
 						new Drive(
 								new IO_GyroBase() {},
-								//	vision,
 								new IO_ModuleBase() {},
 								new IO_ModuleBase() {},
 								new IO_ModuleBase() {},
 								new IO_ModuleBase() {});
 				break;
 		}
+
+		vision =
+				new Vision(
+						drive::addVisionMeasurement,
+						new IO_VisionCamera(VisionConstants.camera0Name, VisionConstants.robotToCamera0),
+						new IO_VisionCamera(VisionConstants.camera1Name, VisionConstants.robotToCamera1));
 
 		superstructure = new SUB_Superstructure(drive, intake, elevator, led);
 
@@ -283,9 +280,7 @@ public class RobotContainer {
 		// Intake
 		operatorController
 				.a()
-				.onTrue(
-						new CMD_IntakeRace(intake)
-								.andThen(new CMD_Superstructure(superstructure, SuperstructureState.IDLE)));
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
 
 		// Idle
 		operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
@@ -315,21 +310,21 @@ public class RobotContainer {
 		//			.povDown()
 		//			.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_GROUND));
 
-		operatorController.povUp().onTrue(climb.setSpeed(1));
+		// operatorController.povUp().onTrue(climb.setSpeed(1));
 
-		operatorController.povRight().onTrue(climb.setSpeed(0));
+		// operatorController.povRight().onTrue(climb.setSpeed(0));
 
-		operatorController.povDown().onTrue(climb.setSpeed(-1));
+		// operatorController.povDown().onTrue(climb.setSpeed(-1));
 
 		// Climb normal
-		/*
+
 		operatorController
 				.povRight()
-				.onTrue(climb.climbSequence(() -> operatorController.povRight().getAsBoolean(), 1.0, led));
-				*/
-
+				.onTrue(
+						climb.climbSequence(
+								() -> operatorController.povRight().getAsBoolean(), 1.0, led, superstructure));
 		// Climb zero
-		// operatorController.povLeft().onTrue(climb.goToPosition(0, 1));
+		operatorController.povLeft().onTrue(climb.goToPosition(0, 1));
 	}
 
 	public Command getAutonomousCommand() {

@@ -28,9 +28,14 @@ public class VisionConstants {
 					new Rotation3d(
 							Units.degreesToRadians(0), Units.degreesToRadians(-10), Units.degreesToRadians(0)));
 
-	public static String camera1Name = "camera_1";
+	public static String camera1Name = "OV9281_03"; // Back Camera
 	public static Transform3d robotToCamera1 =
-			new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI));
+			new Transform3d(
+					new Translation3d(
+							Units.inchesToMeters(-11.25 - 2.0),
+							Units.inchesToMeters(9),
+							Units.inchesToMeters(19.5)),
+					new Rotation3d(Units.degreesToRadians(180), Units.degreesToRadians((-155 - 15)), 0));
 
 	// Basic filtering thresholds
 	public static double maxAmbiguity = 0.3;

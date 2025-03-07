@@ -50,9 +50,11 @@ public final class CameraConstants {
 
 		BACK_LEFT(
 				"OV9281_03",
-				new Rotation3d(0, Units.degreesToRadians((-155 - 15)), 0),
+				new Rotation3d(Units.degreesToRadians(180), Units.degreesToRadians((-155 - 15)), 0),
 				new Translation3d(
-						Units.inchesToMeters(-11.25), Units.inchesToMeters(9), Units.inchesToMeters(19.5)),
+						Units.inchesToMeters(-11.25 - 2.0),
+						Units.inchesToMeters(9),
+						Units.inchesToMeters(19.5)),
 				VecBuilder.fill(5, 5, 10),
 				VecBuilder.fill(0.4, 0.4, 0.15)),
 

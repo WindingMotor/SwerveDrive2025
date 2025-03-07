@@ -8,9 +8,7 @@
 package frc.robot.subsystems.superstructure;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.SUB_Elevator;
 import frc.robot.subsystems.intake.SUB_Intake;
@@ -76,7 +74,7 @@ public class SUB_Superstructure extends SubsystemBase {
 		if (intake.getSensorState() != previousIntakeSensorState) {
 			// If sensor changed to true, do the no spin idle
 			if (intake.getSensorState()) {
-				updateSuperstructureState(SuperstructureState.IDLE_CALM);
+				// updateSuperstructureState(SuperstructureState.IDLE_CALM);
 			}
 			// If sensor changed to false, restore normal current limit
 			else {
@@ -103,10 +101,10 @@ public class SUB_Superstructure extends SubsystemBase {
 					case 1:
 					case 12:
 					case 13:
-						if (!intake.getSensorState()) {
-							CommandScheduler.getInstance()
-									.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
-						}
+						// if (!intake.getSensorState()) {
+						//		CommandScheduler.getInstance()
+						//				.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
+						//	}
 						break;
 
 					case 7:

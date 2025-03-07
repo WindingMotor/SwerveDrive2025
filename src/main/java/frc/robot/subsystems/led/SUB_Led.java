@@ -99,7 +99,7 @@ public class SUB_Led extends SubsystemBase {
 
 		// Climbing states - Green pulse indicating upward movement
 		if (stateName.startsWith("CLIMB")) {
-			pattern = LEDPattern.solid(Color.kGreen).breathe(Seconds.of(1.5));
+			pattern = LEDPattern.solid(Color.kGreen).blink(Seconds.of(0.25));
 		}
 
 		// CORAL station - Pattern to indicate ready for intake

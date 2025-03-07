@@ -25,8 +25,11 @@ public final class RobotConstants {
 		public static final int ARM_MOTOR_ID = 21;
 		public static final int ARM_MOTOR_CURRENT_LIMIT = 35;
 
-		public static final int ARM_ENCODER_LOOP_OFFSET = -35 + 15; // 12
-		public static final double ARM_ENCODER_PID_OFFSET = ((-35.0 + 15.0) + 22.51) + 15 + .8; // -14
+		public static final double ARM_ENCODER_LOOP_OFFSET = -8.6; // (-35 + 15) + 11;
+		public static final double ARM_ENCODER_PID_OFFSET = 7.0;
+
+		// (((-35.0 + 15.0) + 22.51) + 15 + .8) - 2.0; // -14
+
 		public static final int ARM_ENCODER_FACTOR = 165;
 
 		public static final double ARM_P = 0.013;
