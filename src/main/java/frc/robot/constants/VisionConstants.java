@@ -5,7 +5,7 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.robot.subsystems.vision;
+package frc.robot.constants;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -37,6 +37,25 @@ public class VisionConstants {
 							Units.inchesToMeters(19.5)),
 					new Rotation3d(Units.degreesToRadians(180), Units.degreesToRadians((-155 - 15)), 0));
 
+	// Front Left Camera
+	public static String camera2Name = "OV2311_4"; // Front Left Camera
+	public static Transform3d robotToCamera2 =
+			new Transform3d(
+					new Translation3d(
+							Units.inchesToMeters(2.0), Units.inchesToMeters(9.5), Units.inchesToMeters(19)),
+					new Rotation3d(0, Units.degreesToRadians(-15.0), Units.degreesToRadians(45)));
+
+	// Front Right Camera
+	public static String camera3Name = "OV2311_5"; // Front Right Camera
+	public static Transform3d robotToCamera3 =
+			new Transform3d(
+					new Translation3d(
+							Units.inchesToMeters(2.0), Units.inchesToMeters(-9.5), Units.inchesToMeters(19)),
+					new Rotation3d(
+							Units.degreesToRadians(270 + 45),
+							Units.degreesToRadians(-15.0),
+							Units.degreesToRadians(-45)));
+
 	// Basic filtering thresholds
 	public static double maxAmbiguity = 0.3;
 	public static double maxZError = 0.75;
@@ -50,8 +69,10 @@ public class VisionConstants {
 	// (Adjust to trust some cameras more than others)
 	public static double[] cameraStdDevFactors =
 			new double[] {
-				1.0, // Camera 0
-				1.0 // Camera 1
+				1.0, // Camera 0 (Front Camera)
+				1.0, // Camera 1 (Back Camera)
+				1.0, // Camera 2 (Front Left Camera)
+				1.0 // Camera 3 (Front Right Camera)
 			};
 
 	// Multipliers to apply for MegaTag 2 observations

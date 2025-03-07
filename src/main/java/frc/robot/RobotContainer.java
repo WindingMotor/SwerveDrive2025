@@ -21,6 +21,7 @@ import frc.robot.commands.generic.CMD_IntakeRace;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.TunerConstants;
+import frc.robot.constants.VisionConstants;
 import frc.robot.subsystems.climb.IO_ClimbReal;
 import frc.robot.subsystems.climb.SUB_Climb;
 import frc.robot.subsystems.drive.Drive;
@@ -37,8 +38,7 @@ import frc.robot.subsystems.led.SUB_Led;
 import frc.robot.subsystems.superstructure.SUB_Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureState;
 import frc.robot.subsystems.vision.IO_VisionCamera;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.SUB_Vision;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
@@ -51,7 +51,7 @@ public class RobotContainer {
 
 	// Subsystems
 	private SUB_Intake intake;
-	private Vision vision;
+	private SUB_Vision vision;
 	private SUB_Elevator elevator;
 	private SUB_Superstructure superstructure;
 	private final SUB_Led led = new SUB_Led(1, 62);
@@ -124,7 +124,7 @@ public class RobotContainer {
 		}
 
 		vision =
-				new Vision(
+				new SUB_Vision(
 						drive::addVisionMeasurement,
 						new IO_VisionCamera(VisionConstants.camera0Name, VisionConstants.robotToCamera0),
 						new IO_VisionCamera(VisionConstants.camera1Name, VisionConstants.robotToCamera1));

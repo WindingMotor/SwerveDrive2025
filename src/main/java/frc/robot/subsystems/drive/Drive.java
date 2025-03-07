@@ -28,7 +28,6 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -47,10 +46,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.auto.LocalADStarAK;
 import frc.robot.commands.drive.DriveCommands.ZonePose;
-import frc.robot.constants.CameraConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.RobotConstants.RobotMode;
 import frc.robot.constants.TunerConstants;
+import frc.robot.constants.VisionConstants;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -245,19 +244,25 @@ public class Drive extends SubsystemBase {
 	}
 
 	private void updateCameraPositions() {
-
 		// Convert Pose2d to Pose3d for camera position transformation
 		Pose3d robotPose3d = new Pose3d(getPose());
 
-		// Transform camera positions to global coordinate system
-		Pose3d[] globalCameraPositions = new Pose3d[CameraConstants.CAMERA_POSITIONS.length];
-		for (int i = 0; i < CameraConstants.CAMERA_POSITIONS.length; i++) {
-			globalCameraPositions[i] =
-					robotPose3d.transformBy(
-							new Transform3d(
-									CameraConstants.CAMERA_POSITIONS[i].getTranslation(),
-									CameraConstants.CAMERA_POSITIONS[i].getRotation()));
-		}
+		// Create array to hold camera positions
+		int cameraCount = 4; // Four cameras: front, back, front left, front right
+		Pose3d[] globalCameraPositions = new Pose3d[cameraCount];
+
+		// Transform camera positions to global coordinate system using VisionConstants
+		// Front Camera (camera0)
+		globalCameraPositions[0] = robotPose3d.transformBy(VisionConstants.robotToCamera0);
+
+		// Back Camera (camera1)
+		globalCameraPositions[1] = robotPose3d.transformBy(VisionConstants.robotToCamera1);
+
+		// Front Left Camera (camera2)
+		globalCameraPositions[2] = robotPose3d.transformBy(VisionConstants.robotToCamera2);
+
+		// Front Right Camera (camera3)
+		globalCameraPositions[3] = robotPose3d.transformBy(VisionConstants.robotToCamera3);
 
 		// Record camera positions for visualization
 		Logger.recordOutput("CameraPositions", globalCameraPositions);

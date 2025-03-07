@@ -7,7 +7,7 @@
 
 package frc.robot.subsystems.vision;
 
-import static frc.robot.subsystems.vision.VisionConstants.*;
+import static frc.robot.constants.VisionConstants.*;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -24,13 +24,13 @@ import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
-public class Vision extends SubsystemBase {
+public class SUB_Vision extends SubsystemBase {
 	private final VisionConsumer consumer;
 	private final IO_VisionBase[] io;
 	private final VisionIOInputsAutoLogged[] inputs;
 	private final Alert[] disconnectedAlerts;
 
-	public Vision(VisionConsumer consumer, IO_VisionBase... io) {
+	public SUB_Vision(VisionConsumer consumer, IO_VisionBase... io) {
 		this.consumer = consumer;
 		this.io = io;
 
