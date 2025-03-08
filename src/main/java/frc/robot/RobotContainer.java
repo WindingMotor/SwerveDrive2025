@@ -330,6 +330,6 @@ public class RobotContainer {
 	public Command getAutonomousCommand() {
 		// return swerve.getAutonomousCommand("T1");
 		// return autoChooser.get();
-		return AutoBuilder.buildAuto("3P_Right");
+		return AutoBuilder.buildAuto("Right_3P");
 	}
 }
