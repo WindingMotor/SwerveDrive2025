@@ -231,6 +231,8 @@ public class Drive extends SubsystemBase {
 		gyroDisconnectedAlert.set(!gyroInputs.connected && RobotConstants.ROBOT_MODE != RobotMode.SIM);
 
 		updateCameraPositions();
+
+		closestTagData = getClosestAprilTagID();
 	}
 
 	/**

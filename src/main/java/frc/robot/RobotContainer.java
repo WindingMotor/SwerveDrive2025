@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.DriveCommands;
-import frc.robot.commands.drive.DriveCommands.ZonePose;
 import frc.robot.commands.generic.CMD_Eject;
 import frc.robot.commands.generic.CMD_IntakeRace;
 import frc.robot.commands.generic.CMD_Superstructure;
@@ -173,41 +172,7 @@ public class RobotContainer {
 				new CMD_IntakeRace(intake)
 						.andThen(new CMD_Superstructure(superstructure, SuperstructureState.IDLE)));
 
-		// TOP LEFT
-		NamedCommands.registerCommand(
-				"ALN_REEF_TOP_LEFT_TOP", DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_LEFT_TOP));
-
-		NamedCommands.registerCommand(
-				"ALN_TOP_LEFT_BOTTOM", DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_LEFT_BOTTOM));
-
-		// BOTTOM RIGHT
-		NamedCommands.registerCommand(
-				"ALN_BOTTOM_RIGHT_TOP", DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
-
-		NamedCommands.registerCommand(
-				"ALN_BOTTOM_RIGHT_BOTTOM",
-				DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_BOTTOM));
-
-		// TOP RIGHT
-		NamedCommands.registerCommand(
-				"ALN_REEF_TOP_RIGHT_TOP", DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_RIGHT_TOP));
-
-		NamedCommands.registerCommand(
-				"ALN_TOP_RIGHT_BOTTOM", DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_RIGHT_BOTTOM));
-
-		// BOTTOM
-		NamedCommands.registerCommand(
-				"ALN_REEF_BOTTOM_LEFT", DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_LEFT));
-
-		NamedCommands.registerCommand(
-				"ALN_REEF_BOTTOM_RIGHT", DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT));
-
-		// SOURCE
-		NamedCommands.registerCommand(
-				"ALN_SOURCE_RIGHT", DriveCommands.driveToZone(drive, ZonePose.SOURCE_RIGHT));
-
-		NamedCommands.registerCommand(
-				"ALN_SOURCE_LEFT", DriveCommands.driveToZone(drive, ZonePose.SOURCE_LEFT));
+		//
 
 		NamedCommands.registerCommand(
 				"L1", new CMD_Superstructure(superstructure, SuperstructureState.L1_SCORING));
@@ -302,9 +267,15 @@ public class RobotContainer {
 		//		.leftStick()
 		//	.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_LEFT_TOP));
 
-		operatorController
-				.rightStick()
-				.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_BOTTOM_RIGHT_TOP));
+		// operatorController.rightStick().onTrue(DriveCommands.driveAutoAlign(drive, true));
+
+		driverController
+				.button(1)
+				.onChange(DriveCommands.driveAlign(drive, () -> SUB_Superstructure.globalFirstPose));
+
+		driverController
+				.button(4)
+				.onChange(DriveCommands.driveAlign(drive, () -> SUB_Superstructure.globalSecondPose));
 
 		//	operatorController
 		//			.povDown()

@@ -7,8 +7,12 @@
 
 package frc.robot.subsystems.superstructure;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.drive.DriveCommands.ZonePose;
+import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.SUB_Elevator;
 import frc.robot.subsystems.intake.SUB_Intake;
@@ -17,10 +21,16 @@ import frc.robot.subsystems.superstructure.SuperstructureState.State;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_Superstructure extends SubsystemBase {
+
+	public static ZonePose globalFirstPose = ZonePose.NONE;
+	public static ZonePose globalSecondPose = ZonePose.NONE;
+
 	private SuperstructureState.State currentSuperstructureState = SuperstructureState.IDLE;
 
 	public State currentDynamicEjectState =
 			SuperstructureState.createState("EJECT_DYNAMIC", 0.5, 135, 18);
+
+	private Pair<ZonePose, ZonePose> localAutoAlignZone = Pair.of(ZonePose.NONE, ZonePose.NONE);
 
 	public SUB_Intake intake;
 	public SUB_Elevator elevator;
@@ -101,27 +111,42 @@ public class SUB_Superstructure extends SubsystemBase {
 					case 1:
 					case 12:
 					case 13:
-						// if (!intake.getSensorState()) {
-						//		CommandScheduler.getInstance()
-						//				.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
-						//	}
+						if (!intake.getSensorState()) {
+							CommandScheduler.getInstance()
+									.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
+						}
 						break;
 
+						// Bottom Face
+					case 18:
 					case 7:
+						localAutoAlignZone = getBottomPose();
 						break;
 
+						// Bottom Right Face
+					case 17:
 					case 8:
+						localAutoAlignZone = getBottomRight();
 						break;
 
+						// Bottom Left Face
+					case 19:
 					case 6:
 						break;
 
+						// Top Right Face
+					case 22:
 					case 9:
+						localAutoAlignZone = getTopRightPose();
 						break;
 
+						// Top Face
+					case 21:
 					case 10:
 						break;
 
+						// Top Left Face
+					case 20:
 					case 11:
 						break;
 
@@ -147,5 +172,38 @@ public class SUB_Superstructure extends SubsystemBase {
 					*/
 
 		previousIntakeSensorState = intake.getSensorState();
+
+		globalFirstPose = localAutoAlignZone.getFirst();
+		globalSecondPose = localAutoAlignZone.getSecond();
+
+		Logger.recordOutput("AutoAlign/GlobalFirst", globalFirstPose);
+		Logger.recordOutput("AutoAlign/GlobalFirstPOSE", globalFirstPose.getPose());
+
+		Logger.recordOutput("AutoAlign/GlobalSecond", globalSecondPose);
+		Logger.recordOutput("AutoAlign/GlobalSecondPOSE", globalSecondPose.getPose());
+	}
+
+	private Pair<ZonePose, ZonePose> getTopPose() {
+		return Pair.of(ZonePose.NONE, ZonePose.NONE);
+	}
+
+	private Pair<ZonePose, ZonePose> getTopRightPose() {
+		return Pair.of(ZonePose.REEF_TOP_RIGHT_BOTTOM, ZonePose.REEF_TOP_RIGHT_TOP);
+	}
+
+	private Pair<ZonePose, ZonePose> getTopLeftPose() {
+		return Pair.of(ZonePose.NONE, ZonePose.NONE);
+	}
+
+	private Pair<ZonePose, ZonePose> getBottomPose() {
+		return Pair.of(ZonePose.REEF_BOTTOM_LEFT, ZonePose.REEF_BOTTOM_RIGHT);
+	}
+
+	private Pair<ZonePose, ZonePose> getBottomRight() {
+		return Pair.of(ZonePose.REEF_BOTTOM_RIGHT_BOTTOM, ZonePose.REEF_BOTTOM_RIGHT_TOP);
+	}
+
+	private Pair<ZonePose, ZonePose> getBottomLeft() {
+		return Pair.of(ZonePose.NONE, ZonePose.NONE);
 	}
 }

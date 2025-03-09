@@ -171,9 +171,83 @@ public class DriveCommands {
 						});
 	}
 
+	public static Command driveAlign(Drive drive, Supplier<ZonePose> zonePose) {
+		// Create ExpDecayFF controllers for x, y and rotation
+		ExpDecayFF xController = new ExpDecayFF(200.0, 1.5, 0.041);
+		ExpDecayFF yController = new ExpDecayFF(200.0, 1.5, 0.041);
+		ExpDecayFF rotController = new ExpDecayFF(6, 1.0, 1.0);
+
+		return Commands.run(
+						() -> {
+
+							// Zone Pose Get
+							Optional<Pose2d> adjustedPose = zonePose.get().getPoseForAlliance();
+							if (adjustedPose.isEmpty()) {
+								return;
+							}
+
+							// Get current pose and target pose
+							Pose2d currentPose = drive.getPose();
+							Pose2d targetPose = adjustedPose.get();
+
+							// Calculate control outputs
+							double xOutput = xController.calculate(currentPose.getX(), targetPose.getX());
+							double yOutput = yController.calculate(currentPose.getY(), targetPose.getY());
+							double rotationOutput =
+									rotController.calculate(
+											currentPose.getRotation().getDegrees(),
+											targetPose.getRotation().getDegrees());
+
+							// Create field-relative speeds
+							ChassisSpeeds speeds =
+									ChassisSpeeds.fromFieldRelativeSpeeds(
+											xOutput, yOutput, rotationOutput, drive.getRotation());
+
+							// Command the drive
+							drive.runVelocity(speeds);
+
+							// Log target pose for visualization
+							Logger.recordOutput("ZonePose/TargetPose", targetPose);
+							Logger.recordOutput("ZonePose/ErrorX", currentPose.getX() - targetPose.getX());
+							Logger.recordOutput("ZonePose/ErrorY", currentPose.getY() - targetPose.getY());
+							Logger.recordOutput(
+									"ZonePose/ErrorOmega",
+									currentPose.getRotation().getDegrees() - targetPose.getRotation().getDegrees());
+							Logger.recordOutput(
+									"ZonePose/XAtTargret?",
+									xController.atTarget(currentPose.getX(), targetPose.getX()));
+							Logger.recordOutput(
+									"ZonePose/YAtTargret?",
+									yController.atTarget(currentPose.getY(), targetPose.getY()));
+							Logger.recordOutput(
+									"ZonePose/OmegaAtTargret?",
+									rotController.atTarget(
+											currentPose.getRotation().getDegrees(),
+											targetPose.getRotation().getDegrees()));
+						},
+						drive)
+				.until(
+						() -> {
+							Optional<Pose2d> adjustedPose = zonePose.get().getPoseForAlliance();
+							if (adjustedPose.isEmpty()) {
+								return true;
+							}
+
+							Pose2d currentPose = drive.getPose();
+							Pose2d targetPose = adjustedPose.get();
+
+							return xController.atTarget(currentPose.getX(), targetPose.getX())
+									&& yController.atTarget(currentPose.getY(), targetPose.getY())
+									&& rotController.atTarget(
+											currentPose.getRotation().getDegrees(),
+											targetPose.getRotation().getDegrees());
+						});
+	}
+
 	// Drive to a predefined zone based on zonePose alliance adjustment
-	public static Command driveToZone(Drive drive, ZonePose zonePose) {
-		var pose = zonePose.getPoseForAlliance();
+	public static Command driveToZone(Drive drive, Supplier<ZonePose> zonePose) {
+
+		var pose = zonePose.get().getPoseForAlliance();
 		if (pose.isPresent()) {
 			return driveToPose(drive, pose.get());
 		} else {
