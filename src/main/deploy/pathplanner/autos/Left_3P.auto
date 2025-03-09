@@ -7,32 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right_1"
+            "pathName": "LeftThree_1"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.02
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L4"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "ALN_TOP_RIGHT_BOTTOM"
-                }
-              }
-            ]
+            "waitTime": 0.1
           }
         },
         {
@@ -44,7 +25,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.1
+            "waitTime": 0.2
           }
         },
         {
@@ -62,50 +43,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right_2"
+            "pathName": "LeftThree_2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Intake_Coral"
+            "name": "Intake_Race"
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "ALN_SOURCE_RIGHT"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake_Race"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.0
-                }
-              }
-            ]
+            "waitTime": 0.1
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Right_3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L4"
+            "pathName": "LeftThree_3"
           }
         },
         {
@@ -117,7 +73,49 @@
         {
           "type": "named",
           "data": {
-            "name": "ALN_BOTTOM_RIGHT_TOP"
+            "name": "Eject"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Idle"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftThree_4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake_Race"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftThree_5"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
           }
         },
         {
@@ -125,11 +123,23 @@
           "data": {
             "name": "Eject"
           }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Idle"
+          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Left",
   "choreoAuto": false
 }

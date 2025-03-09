@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightL3_1"
+            "pathName": "LeftThree_1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
           }
         },
         {
@@ -19,13 +25,13 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.1
+            "waitTime": 0.2
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "RightL3_2"
+            "name": "Idle"
           }
         },
         {
@@ -37,7 +43,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RightL3_3"
+            "pathName": "LeftThree_2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake_Race"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftThree_3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
           }
         },
         {
@@ -49,43 +79,19 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.1
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RightL3_4"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.1
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RightL3_5"
+            "waitTime": 0.2
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Eject"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.1
+            "name": "Idle"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Left",
   "choreoAuto": false
 }
