@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.vision.IO_VisionBase.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_Vision extends SubsystemBase {
@@ -70,6 +71,10 @@ public class SUB_Vision extends SubsystemBase {
 		List<Pose3d> allRobotPoses = new LinkedList<>();
 		List<Pose3d> allRobotPosesAccepted = new LinkedList<>();
 		List<Pose3d> allRobotPosesRejected = new LinkedList<>();
+		List<Integer> allTagsUsed = new LinkedList<>(); // Track all tags used
+
+		// Define the set of allowed tag IDs
+		Set<Integer> allowedTagIds = Set.of(6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22);
 
 		// Loop over cameras
 		for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
@@ -81,17 +86,41 @@ public class SUB_Vision extends SubsystemBase {
 			List<Pose3d> robotPoses = new LinkedList<>();
 			List<Pose3d> robotPosesAccepted = new LinkedList<>();
 			List<Pose3d> robotPosesRejected = new LinkedList<>();
+			List<Integer> tagsUsed = new LinkedList<>(); // Track tags used by this camera
 
-			// Add tag poses
+			// Add tag poses - only for allowed tags
 			for (int tagId : inputs[cameraIndex].tagIds) {
-				var tagPose = aprilTagLayout.getTagPose(tagId);
-				if (tagPose.isPresent()) {
-					tagPoses.add(tagPose.get());
+				if (allowedTagIds.contains(tagId)) {
+					var tagPose = aprilTagLayout.getTagPose(tagId);
+					if (tagPose.isPresent()) {
+						tagPoses.add(tagPose.get());
+						tagsUsed.add(tagId); // Add to list of tags used by this camera
+						allTagsUsed.add(tagId); // Add to list of all tags used
+					}
 				}
 			}
 
 			// Loop over pose observations
 			for (var observation : inputs[cameraIndex].poseObservations) {
+				// Keep track of which tags were used in this observation
+				List<Integer> observationTags = new LinkedList<>();
+
+				// Check if this observation contains any allowed tags
+				boolean containsAllowedTag = false;
+				for (int tagId : inputs[cameraIndex].tagIds) {
+					if (allowedTagIds.contains(tagId)) {
+						containsAllowedTag = true;
+						observationTags.add(tagId);
+					}
+				}
+
+				// Skip this observation entirely if it doesn't contain any allowed tags
+				if (!containsAllowedTag) {
+					robotPoses.add(observation.pose());
+					robotPosesRejected.add(observation.pose());
+					continue;
+				}
+
 				// Check whether to reject pose
 				boolean rejectPose =
 						observation.tagCount() == 0 // Must have at least one tag
@@ -112,6 +141,16 @@ public class SUB_Vision extends SubsystemBase {
 					robotPosesRejected.add(observation.pose());
 				} else {
 					robotPosesAccepted.add(observation.pose());
+					// Log the tags used in this accepted observation
+					int[] observationTagsArray =
+							observationTags.stream().mapToInt(Integer::intValue).toArray();
+					Logger.recordOutput(
+							"Vision/Camera"
+									+ Integer.toString(cameraIndex)
+									+ "/Observation"
+									+ robotPosesAccepted.size()
+									+ "/TagsUsed",
+							observationTagsArray);
 				}
 
 				// Skip if rejected
@@ -140,7 +179,7 @@ public class SUB_Vision extends SubsystemBase {
 						VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
 			}
 
-			// Log camera datadata
+			// Log camera data
 			Logger.recordOutput(
 					"Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",
 					tagPoses.toArray(new Pose3d[tagPoses.size()]));
@@ -153,6 +192,12 @@ public class SUB_Vision extends SubsystemBase {
 			Logger.recordOutput(
 					"Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
 					robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
+
+			// Convert to primitive int array for Logger
+			int[] tagsUsedArray = tagsUsed.stream().mapToInt(Integer::intValue).toArray();
+			Logger.recordOutput(
+					"Vision/Camera" + Integer.toString(cameraIndex) + "/TagsUsed", tagsUsedArray);
+
 			allTagPoses.addAll(tagPoses);
 			allRobotPoses.addAll(robotPoses);
 			allRobotPosesAccepted.addAll(robotPosesAccepted);
@@ -170,6 +215,10 @@ public class SUB_Vision extends SubsystemBase {
 		Logger.recordOutput(
 				"Vision/Summary/RobotPosesRejected",
 				allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
+
+		// Convert to primitive int array for Logger
+		int[] allTagsUsedArray = allTagsUsed.stream().mapToInt(Integer::intValue).toArray();
+		Logger.recordOutput("Vision/Summary/TagsUsed", allTagsUsedArray);
 	}
 
 	@FunctionalInterface

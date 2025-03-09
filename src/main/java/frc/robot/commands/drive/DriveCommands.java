@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.math.AllianceFlipUtil;
 import frc.robot.util.math.ExpDecayFF;
@@ -171,7 +172,12 @@ public class DriveCommands {
 						});
 	}
 
-	public static Command driveAlign(Drive drive, Supplier<ZonePose> zonePose) {
+	public static Command driveAlign(
+			Drive drive,
+			Supplier<ZonePose> zonePose,
+			Supplier<Boolean> isRed,
+			CommandXboxController driverController) {
+
 		// Create ExpDecayFF controllers for x, y and rotation
 		ExpDecayFF xController = new ExpDecayFF(200.0, 1.5, 0.041);
 		ExpDecayFF yController = new ExpDecayFF(200.0, 1.5, 0.041);
@@ -181,7 +187,7 @@ public class DriveCommands {
 						() -> {
 
 							// Zone Pose Get
-							Optional<Pose2d> adjustedPose = zonePose.get().getPoseForAlliance();
+							Optional<Pose2d> adjustedPose = zonePose.get().getPoseForAlliance(isRed.get());
 							if (adjustedPose.isEmpty()) {
 								return;
 							}
@@ -228,7 +234,11 @@ public class DriveCommands {
 						drive)
 				.until(
 						() -> {
-							Optional<Pose2d> adjustedPose = zonePose.get().getPoseForAlliance();
+							if (driverController.button(2).getAsBoolean()) {
+								return true;
+							}
+
+							Optional<Pose2d> adjustedPose = zonePose.get().getPoseForAlliance(isRed.get());
 							if (adjustedPose.isEmpty()) {
 								return true;
 							}
@@ -245,6 +255,7 @@ public class DriveCommands {
 	}
 
 	// Drive to a predefined zone based on zonePose alliance adjustment
+	/*
 	public static Command driveToZone(Drive drive, Supplier<ZonePose> zonePose) {
 
 		var pose = zonePose.get().getPoseForAlliance();
@@ -254,6 +265,7 @@ public class DriveCommands {
 			return new PrintCommand("Drive to Zone: Empty Optional");
 		}
 	}
+		*/
 
 	/** Overloaded version that accepts a fixed target pose rather than a supplier. */
 	public static Command driveToPose(Drive drive, Pose2d targetPose) {
@@ -613,6 +625,7 @@ public class DriveCommands {
 		REEF_BOTTOM(180),
 		REEF_TOP_RIGHT(-60),
 		REEF_TOP_LEFT(60),
+		PROCESSOR(90),
 		REEF_TOP(0);
 
 		private final double angle;
@@ -670,6 +683,9 @@ public class DriveCommands {
 			case 22:
 				return ZoneAngle.REEF_TOP_RIGHT;
 
+			case 3:
+				return ZoneAngle.PROCESSOR;
+
 			default:
 				return ZoneAngle.NONE;
 		}
@@ -681,31 +697,35 @@ public class DriveCommands {
 		BACKWARD(new Translation2d(), ZoneAngle.BACKWARD),
 		RIGHT(new Translation2d(), ZoneAngle.RIGHT),
 		LEFT(new Translation2d(), ZoneAngle.LEFT),
+		PROCESSOR(new Translation2d(), ZoneAngle.PROCESSOR),
 
 		// SOURCE
 		SOURCE_RIGHT(new Translation2d(16.25, 7.25), ZoneAngle.SOURCE_RIGHT),
 		SOURCE_LEFT(new Translation2d(16.8, 0.95), ZoneAngle.SOURCE_LEFT),
 
 		// BOTTOM RIGHT
-		REEF_BOTTOM_RIGHT_TOP(new Translation2d(13.55, 5.25), ZoneAngle.REEF_BOTTOM_RIGHT),
-		REEF_BOTTOM_RIGHT_BOTTOM(new Translation2d(13.89, 5.1), ZoneAngle.REEF_BOTTOM_RIGHT),
+		REEF_BOTTOM_RIGHT_TOP(new Translation2d(13.559, 5.224), ZoneAngle.REEF_BOTTOM_RIGHT),
+		REEF_BOTTOM_RIGHT_BOTTOM(new Translation2d(13.835, 5.055), ZoneAngle.REEF_BOTTOM_RIGHT),
 
 		// BOTTOM LEFT
-		// REEF_BOTTOM_LEFT(new Translation2d(), ZoneAngle.REEF_BOTTOM_LEFT),
+		REEF_BOTTOM_LEFT_TOP(new Translation2d(13.550, 2.856), ZoneAngle.REEF_BOTTOM_LEFT),
+		REEF_BOTTOM_LEFT_BOTTOM(new Translation2d(13.856, 3), ZoneAngle.REEF_BOTTOM_LEFT),
 
 		// BOTTOM
 		REEF_BOTTOM_LEFT(new Translation2d(14.384, 3.852), ZoneAngle.REEF_BOTTOM),
 		REEF_BOTTOM_RIGHT(new Translation2d(14.384, 4.181), ZoneAngle.REEF_BOTTOM),
 
 		// TOP RIGHT
-		REEF_TOP_RIGHT_BOTTOM(new Translation2d(12.553, 5.249), ZoneAngle.REEF_TOP_RIGHT),
-		REEF_TOP_RIGHT_TOP(new Translation2d(12.265, 5.083), ZoneAngle.REEF_TOP_RIGHT),
+		REEF_TOP_RIGHT_BOTTOM(new Translation2d(12.558, 5.201), ZoneAngle.REEF_TOP_RIGHT),
+		REEF_TOP_RIGHT_TOP(new Translation2d(12.279, 5.050), ZoneAngle.REEF_TOP_RIGHT),
 
 		// TOP LEFT
 		REEF_TOP_LEFT_TOP(new Translation2d(12.312, 3.052), ZoneAngle.REEF_TOP_LEFT),
-		REEF_TOP_LEFT_BOTTOM(new Translation2d(), ZoneAngle.REEF_TOP_LEFT),
+		REEF_TOP_LEFT_BOTTOM(new Translation2d(12.559, 2.849), ZoneAngle.REEF_TOP_LEFT),
 
-		REEF_TOP(new Translation2d(), ZoneAngle.REEF_TOP);
+		// TOP
+		REEF_TOP_LEFT(new Translation2d(11.78, 3.871), ZoneAngle.REEF_TOP),
+		REEF_TOP_RIGHT(new Translation2d(11.78, 4.195), ZoneAngle.REEF_TOP);
 
 		private final Translation2d translation;
 		private final ZoneAngle zoneAngle;
@@ -727,24 +747,28 @@ public class DriveCommands {
 			return new Pose2d(translation, zoneAngle.getRotation());
 		}
 
-		public Optional<Pose2d> getPoseForAlliance() {
-			var alliance = DriverStation.getAlliance();
-			if (alliance.isPresent()) {
-				if (alliance.get() == DriverStation.Alliance.Red) {
-					// Red
-					return Optional.of(new Pose2d(translation, zoneAngle.getRotation()));
-				} else {
-					// Blue
-					Pose2d flippedPose = AllianceFlipUtil.apply(getPose());
-					// Apply flipped pose translation. No need to flip angle as its relative to where robot
-					// starts.
-					// I think....
-					return Optional.of(new Pose2d(flippedPose.getTranslation(), zoneAngle.getRotation()));
-				}
+		public Optional<Pose2d> getPoseForAlliance(boolean isRed) {
 
-			} else {
-				return Optional.empty();
+			// If red
+			if (isRed) {
+				// Red
+				return Optional.of(new Pose2d(translation, zoneAngle.getRotation()));
 			}
+
+			// If not red aka blue
+			if (!isRed) {
+				// Blue
+				Pose2d flippedPose = AllianceFlipUtil.apply(getPose());
+
+				Rotation2d targetRotation =
+						Rotation2d.fromDegrees(flippedPose.getRotation().getDegrees() - 0);
+
+				Pose2d rotatedPose = new Pose2d(flippedPose.getTranslation(), targetRotation);
+
+				return Optional.of(new Pose2d(rotatedPose.getTranslation(), rotatedPose.getRotation()));
+			}
+
+			return Optional.empty();
 		}
 	}
 }

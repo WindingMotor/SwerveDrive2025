@@ -50,8 +50,8 @@ public class SuperstructureState {
 
 	// Pre-defined states
 	// Height (M), Angle (Deg), Speed (RPM)
-	public static final State IDLE = createState("IDLE", 0.05, 35, 0.0); // 18
-	public static final State IDLE_CALM = createState("IDLE_CALM", 0.05, 35, 0.0); // 18
+	public static final State IDLE = createState("IDLE", 0.05, 11, 0.0); // 18
+	public static final State IDLE_CALM = createState("IDLE_CALM", 0.05, 11, 0.0); // 18
 	public static final State CLIMB_BTM = createState("CLIMB_BTM", 0.00, 12, 0.25); // 18
 	public static final State CLIMB = createState("CLIMB", 0.0, 90, 0.0);
 

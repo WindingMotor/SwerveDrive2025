@@ -10,6 +10,8 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.reduxrobotics.canand.CanandEventLoop;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
@@ -38,7 +40,6 @@ import frc.robot.subsystems.superstructure.SUB_Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureState;
 import frc.robot.subsystems.vision.IO_VisionCamera;
 import frc.robot.subsystems.vision.SUB_Vision;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
 	// Controller Configuration
@@ -46,7 +47,8 @@ public class RobotContainer {
 	private CommandXboxController operatorController;
 
 	private Drive drive;
-	private LoggedDashboardChooser<Command> autoChooser;
+	private SendableChooser<String> autoChooser;
+	private SendableChooser<Boolean> isRedChooser;
 
 	// Subsystems
 	private SUB_Intake intake;
@@ -71,6 +73,18 @@ public class RobotContainer {
 		// Configure Robot Functionality
 		configureWebserverCommands();
 		configureButtonBindings();
+
+		// Add autos
+		autoChooser.addOption("Middle 1P", "Middle_1P");
+		autoChooser.addOption("Left 2P", "Left_2P");
+		autoChooser.addOption("Left 3P", "Left_3P");
+		autoChooser.addOption("Right 2P", "Right_2P");
+		autoChooser.addOption("Right 3P", "Right_3P");
+		SmartDashboard.putData("Auto Chooser", autoChooser);
+
+		isRedChooser.addOption("Red", true);
+		isRedChooser.addOption("Blue", false);
+		SmartDashboard.putData("Alliance", isRedChooser);
 	}
 
 	private void initializeControllers() {
@@ -131,7 +145,8 @@ public class RobotContainer {
 		superstructure = new SUB_Superstructure(drive, intake, elevator, led);
 
 		// Set up auto routines
-		autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+		autoChooser = new SendableChooser<String>();
+		isRedChooser = new SendableChooser<Boolean>();
 
 		// Set up SysId routines
 		/*
@@ -156,14 +171,6 @@ public class RobotContainer {
 
 	private void configurePathplannerCommands() {
 
-		// Add autos
-		autoChooser.addOption("1P Center", AutoBuilder.buildAuto("1P_Middle"));
-		autoChooser.addOption("1P Left", AutoBuilder.buildAuto("1P_Left"));
-		autoChooser.addOption("1P Right", AutoBuilder.buildAuto("1P_Right"));
-		autoChooser.addOption("2P Center", AutoBuilder.buildAuto("2P_Middle"));
-		autoChooser.addOption("2P Left", AutoBuilder.buildAuto("2P_Left"));
-		autoChooser.addOption("2P Right", AutoBuilder.buildAuto("2P_Right"));
-
 		NamedCommands.registerCommand(
 				"Intake_Coral", new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
 
@@ -171,8 +178,6 @@ public class RobotContainer {
 				"Intake_Race",
 				new CMD_IntakeRace(intake)
 						.andThen(new CMD_Superstructure(superstructure, SuperstructureState.IDLE)));
-
-		//
 
 		NamedCommands.registerCommand(
 				"L1", new CMD_Superstructure(superstructure, SuperstructureState.L1_SCORING));
@@ -204,6 +209,7 @@ public class RobotContainer {
 	private void configureButtonBindings() {
 
 		// Drive w/ Assist Rotation
+		/* */
 		drive.setDefaultCommand(
 				DriveCommands.driveWithAssist(
 						drive,
@@ -269,13 +275,25 @@ public class RobotContainer {
 
 		// operatorController.rightStick().onTrue(DriveCommands.driveAutoAlign(drive, true));
 
+		// AUTO ALIGN
+
 		driverController
 				.button(1)
-				.onChange(DriveCommands.driveAlign(drive, () -> SUB_Superstructure.globalFirstPose));
+				.onChange(
+						DriveCommands.driveAlign(
+								drive,
+								() -> SUB_Superstructure.globalFirstPose,
+								() -> isRedChooser.getSelected(),
+								driverController));
 
 		driverController
 				.button(4)
-				.onChange(DriveCommands.driveAlign(drive, () -> SUB_Superstructure.globalSecondPose));
+				.onChange(
+						DriveCommands.driveAlign(
+								drive,
+								() -> SUB_Superstructure.globalSecondPose,
+								() -> isRedChooser.getSelected(),
+								driverController));
 
 		//	operatorController
 		//			.povDown()
@@ -301,5 +319,6 @@ public class RobotContainer {
 	public Command getAutonomousCommand() {
 		// return swerve.getAutonomousCommand("T1");
 		// return autoChooser.get();
-		return AutoBuilder.buildAuto("Left_3P");
+		return AutoBuilder.buildAuto(autoChooser.getSelected());
 	}
+}

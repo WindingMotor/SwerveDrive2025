@@ -45,13 +45,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.auto.LocalADStarAK;
-import frc.robot.commands.drive.DriveCommands.ZonePose;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.RobotConstants.RobotMode;
 import frc.robot.constants.TunerConstants;
 import frc.robot.constants.VisionConstants;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -268,12 +265,13 @@ public class Drive extends SubsystemBase {
 
 		// Record camera positions for visualization
 		Logger.recordOutput("CameraPositions", globalCameraPositions);
-		Logger.recordOutput("Alliance Zone Poses", getAllZonePoses());
+		// Logger.recordOutput("Alliance Zone Poses", getAllZonePoses());
 	}
 
 	/*
 	 * Returns all the zone poses for the current alliance with flipping.
 	 */
+	/*
 	public static Pose2d[] getAllZonePoses() {
 		List<Pose2d> poses = new ArrayList<>();
 
@@ -286,6 +284,7 @@ public class Drive extends SubsystemBase {
 
 		return poses.toArray(new Pose2d[0]);
 	}
+		*/
 
 	/**
 	 * Runs the drive at the desired velocity.

@@ -132,6 +132,7 @@ public class SUB_Superstructure extends SubsystemBase {
 						// Bottom Left Face
 					case 19:
 					case 6:
+						localAutoAlignZone = getBottomLeft();
 						break;
 
 						// Top Right Face
@@ -143,11 +144,17 @@ public class SUB_Superstructure extends SubsystemBase {
 						// Top Face
 					case 21:
 					case 10:
+						localAutoAlignZone = getTopPose();
 						break;
 
 						// Top Left Face
 					case 20:
 					case 11:
+						localAutoAlignZone = getTopLeftPose();
+						break;
+
+						// Processor
+					case 3:
 						break;
 
 					default:
@@ -184,7 +191,7 @@ public class SUB_Superstructure extends SubsystemBase {
 	}
 
 	private Pair<ZonePose, ZonePose> getTopPose() {
-		return Pair.of(ZonePose.NONE, ZonePose.NONE);
+		return Pair.of(ZonePose.REEF_TOP_LEFT, ZonePose.REEF_TOP_RIGHT);
 	}
 
 	private Pair<ZonePose, ZonePose> getTopRightPose() {
@@ -192,7 +199,7 @@ public class SUB_Superstructure extends SubsystemBase {
 	}
 
 	private Pair<ZonePose, ZonePose> getTopLeftPose() {
-		return Pair.of(ZonePose.NONE, ZonePose.NONE);
+		return Pair.of(ZonePose.REEF_TOP_LEFT_BOTTOM, ZonePose.REEF_TOP_LEFT_TOP);
 	}
 
 	private Pair<ZonePose, ZonePose> getBottomPose() {
@@ -204,6 +211,6 @@ public class SUB_Superstructure extends SubsystemBase {
 	}
 
 	private Pair<ZonePose, ZonePose> getBottomLeft() {
-		return Pair.of(ZonePose.NONE, ZonePose.NONE);
+		return Pair.of(ZonePose.REEF_BOTTOM_LEFT_BOTTOM, ZonePose.REEF_BOTTOM_LEFT_TOP);
 	}
 }
