@@ -46,11 +46,12 @@ public class RobotContainer {
 	private CommandXboxController driverController;
 	private CommandXboxController operatorController;
 
-	private Drive drive;
+	// Sendable Choosers
 	private SendableChooser<String> autoChooser;
 	private SendableChooser<Boolean> isRedChooser;
 
 	// Subsystems
+	private Drive drive;
 	private SUB_Intake intake;
 	private SUB_Vision vision;
 	private SUB_Elevator elevator;
@@ -62,16 +63,11 @@ public class RobotContainer {
 	// private Music orchestra;
 
 	public RobotContainer() {
-		// Initialize Controllers
+
+		// Initialize Robot Componets
 		initializeControllers();
-
-		// Initialize Subsystems
 		initializeSubsystems();
-
 		configurePathplannerCommands();
-
-		// Configure Robot Functionality
-		configureWebserverCommands();
 		configureButtonBindings();
 
 		// Add autos
@@ -82,6 +78,7 @@ public class RobotContainer {
 		autoChooser.addOption("Right 3P", "Right_3P");
 		SmartDashboard.putData("Auto Chooser", autoChooser);
 
+		// Add alliance selector
 		isRedChooser.addOption("Red", true);
 		isRedChooser.addOption("Blue", false);
 		SmartDashboard.putData("Alliance", isRedChooser);
@@ -98,7 +95,6 @@ public class RobotContainer {
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
 		climb = new SUB_Climb(new IO_ClimbReal());
 
-		// CommandRegistrar.registerCommands(swerve, superstructure);
 		CanandEventLoop.getInstance();
 
 		switch (RobotConstants.ROBOT_MODE) {
@@ -144,7 +140,7 @@ public class RobotContainer {
 
 		superstructure = new SUB_Superstructure(drive, intake, elevator, led);
 
-		// Set up auto routines
+		// Setup Sendable Choosers
 		autoChooser = new SendableChooser<String>();
 		isRedChooser = new SendableChooser<Boolean>();
 
@@ -166,8 +162,6 @@ public class RobotContainer {
 				"Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 				*/
 	}
-
-	private void configureWebserverCommands() {}
 
 	private void configurePathplannerCommands() {
 
@@ -209,7 +203,6 @@ public class RobotContainer {
 	private void configureButtonBindings() {
 
 		// Drive w/ Assist Rotation
-		/* */
 		drive.setDefaultCommand(
 				DriveCommands.driveWithAssist(
 						drive,
@@ -217,15 +210,6 @@ public class RobotContainer {
 						() -> driverController.getRawAxis(0),
 						() -> -driverController.getRawAxis(3),
 						() -> driverController.button(3).getAsBoolean()));
-
-		/*
-		drive.setDefaultCommand(
-				DriveCommands.driveNormal(
-						drive,
-						() -> driverController.getRawAxis(1),
-						() -> -driverController.getRawAxis(0),
-						() -> -driverController.getRawAxis(3)));
-		*/
 
 		// Eject
 		operatorController.x().onTrue(new CMD_Eject(superstructure));
@@ -245,7 +229,7 @@ public class RobotContainer {
 				.leftTrigger()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L3_SCORING));
 
-		// Algae Raise AL2-AL3
+		// Algae Raise
 		operatorController.leftBumper().onTrue(new CMD_ElevatorAlgae(superstructure, true));
 
 		// Intake
@@ -256,27 +240,7 @@ public class RobotContainer {
 		// Idle
 		operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
 
-		// Climb Raise
-		// operatorController.leftStick().onTrue(new CMD_Elevator(elevator, SuperstructureState.CLIMB));
-
-		// Climb Lower
-
-		// operatorController
-		//		.rightStick()
-		//		.onTrue(new CMD_Elevator(elevator, SuperstructureState.CLIMB_BTM));
-
-		// Auto align test
-		// operatorController.rightStick().onTrue(DriveCommands.driveToZone(drive,
-		// ZonePose.SOURCE_LEFT));
-
-		// operatorController
-		//		.leftStick()
-		//	.onTrue(DriveCommands.driveToZone(drive, ZonePose.REEF_TOP_LEFT_TOP));
-
-		// operatorController.rightStick().onTrue(DriveCommands.driveAutoAlign(drive, true));
-
-		// AUTO ALIGN
-
+		// First Auto Align
 		driverController
 				.button(1)
 				.onChange(
@@ -286,6 +250,7 @@ public class RobotContainer {
 								() -> isRedChooser.getSelected(),
 								driverController));
 
+		// Second Auto Align
 		driverController
 				.button(4)
 				.onChange(
@@ -295,18 +260,14 @@ public class RobotContainer {
 								() -> isRedChooser.getSelected(),
 								driverController));
 
-		//	operatorController
-		//			.povDown()
-		//			.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_GROUND));
+		// Manual Climb Controls
+		/*
+		operatorController.povUp().onTrue(climb.setSpeed(1));
+		operatorController.povRight().onTrue(climb.setSpeed(0));
+		operatorController.povDown().onTrue(climb.setSpeed(-1));
+		*/
 
-		// operatorController.povUp().onTrue(climb.setSpeed(1));
-
-		// operatorController.povRight().onTrue(climb.setSpeed(0));
-
-		// operatorController.povDown().onTrue(climb.setSpeed(-1));
-
-		// Climb normal
-
+		// Climb Automatic
 		operatorController
 				.povRight()
 				.onTrue(
