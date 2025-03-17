@@ -172,6 +172,169 @@ public class DriveCommands {
 						});
 	}
 
+	/**
+	 * Creates a command that will drive to a specified pose using a vector-based approach with motion
+	 * profiling for smoother, more direct paths.
+	 *
+	 * @param drive The drive subsystem
+	 * @param targetPoseSupplier Supplier for the target pose
+	 * @return A command that will drive to the target pose
+	 */
+	public static Command driveToPoseVector(Drive drive, Supplier<Pose2d> targetPoseSupplier) {
+		// Constants for profiled motion control
+		final double MAX_TRANSLATION_SPEED = 3.0; // meters per second
+		final double MAX_TRANSLATION_ACCEL = 2.5; // meters per second squared
+		final double MAX_ROTATION_SPEED = Math.PI; // radians per second
+		final double MAX_ROTATION_ACCEL = 4 * Math.PI; // radians per second squared
+
+		// Constants for feedforward scaling
+		final double FF_MIN_RADIUS = 0.2; // meters
+		final double FF_MAX_RADIUS = 0.6; // meters
+
+		// Position and velocity tolerances
+		final double TRANSLATION_TOLERANCE = 0.041; // meters
+		final double HEADING_TOLERANCE = Units.degreesToRadians(1.5); // radians
+		final double VELOCITY_TOLERANCE = 0.075; // m/s
+		final double ROTATION_VELOCITY_TOLERANCE = Math.PI / 16; // rad/s
+
+		// Create controllers with constraints
+		ProfiledPIDController translationController =
+				new ProfiledPIDController(
+						6.25,
+						0.0,
+						0.0,
+						new TrapezoidProfile.Constraints(MAX_TRANSLATION_SPEED, MAX_TRANSLATION_ACCEL));
+
+		ProfiledPIDController headingController =
+				new ProfiledPIDController(
+						6.5,
+						0.0,
+						0.0,
+						new TrapezoidProfile.Constraints(MAX_ROTATION_SPEED, MAX_ROTATION_ACCEL));
+
+		// Set tolerances
+		translationController.setTolerance(TRANSLATION_TOLERANCE, VELOCITY_TOLERANCE);
+		headingController.setTolerance(HEADING_TOLERANCE, ROTATION_VELOCITY_TOLERANCE);
+		headingController.enableContinuousInput(-Math.PI, Math.PI);
+
+		return Commands.run(
+						() -> {
+							// Get current pose and target pose
+							Pose2d currentPose = drive.getPose();
+							Pose2d targetPose = targetPoseSupplier.get();
+
+							// Calculate distance to target
+							double currentDistance =
+									currentPose.getTranslation().getDistance(targetPose.getTranslation());
+
+							// Scale feedforward based on distance
+							double ffScaler =
+									MathUtil.clamp(
+											(currentDistance - FF_MIN_RADIUS) / (FF_MAX_RADIUS - FF_MIN_RADIUS),
+											0.0,
+											1.0);
+
+							// Calculate translation control output
+							double driveVelocityScalar =
+									translationController.getSetpoint().velocity * ffScaler
+											+ translationController.calculate(currentDistance, 0.0);
+
+							// If close enough to target, stop translation
+							if (currentDistance < translationController.getPositionTolerance()) {
+								driveVelocityScalar = 0.0;
+							}
+
+							// Calculate heading control output
+							double headingError =
+									getShortestAngleDifference(
+											currentPose.getRotation().getRadians(),
+											targetPose.getRotation().getRadians());
+
+							double headingVelocity =
+									headingController.getSetpoint().velocity * ffScaler
+											+ headingController.calculate(
+													currentPose.getRotation().getRadians(),
+													targetPose.getRotation().getRadians());
+
+							// If close enough to target heading, stop rotation
+							if (Math.abs(headingError) < headingController.getPositionTolerance()) {
+								headingVelocity = 0.0;
+							}
+
+							// Calculate direction vector to target
+							Rotation2d directionToTarget =
+									targetPose.getTranslation().minus(currentPose.getTranslation()).getAngle();
+
+							// Convert velocity scalar to vector in direction of target
+							Translation2d driveVelocity =
+									new Translation2d(
+											driveVelocityScalar * directionToTarget.getCos(),
+											driveVelocityScalar * directionToTarget.getSin());
+
+							// Create field-relative speeds
+							ChassisSpeeds speeds =
+									ChassisSpeeds.fromFieldRelativeSpeeds(
+											driveVelocity.getX(),
+											driveVelocity.getY(),
+											headingVelocity,
+											drive.getRotation());
+
+							// Command the drive
+							drive.runVelocity(speeds);
+
+							// Logging similar to original code
+							Logger.recordOutput("VectorDrive/TargetPose", targetPose);
+							Logger.recordOutput("VectorDrive/CurrentDistance", currentDistance);
+							Logger.recordOutput("VectorDrive/TranslationOutput", driveVelocityScalar);
+							Logger.recordOutput("VectorDrive/RotationOutput", headingVelocity);
+							Logger.recordOutput("VectorDrive/FFScaler", ffScaler);
+							Logger.recordOutput("VectorDrive/HeadingError", headingError);
+							Logger.recordOutput(
+									"VectorDrive/AtTranslationTarget",
+									currentDistance < translationController.getPositionTolerance());
+							Logger.recordOutput(
+									"VectorDrive/AtHeadingTarget",
+									Math.abs(headingError) < headingController.getPositionTolerance());
+							Logger.recordOutput("VectorDrive/DirectionToTarget", directionToTarget.getDegrees());
+						},
+						drive)
+				.until(
+						() -> {
+							Pose2d currentPose = drive.getPose();
+							Pose2d targetPose = targetPoseSupplier.get();
+
+							double currentDistance =
+									currentPose.getTranslation().getDistance(targetPose.getTranslation());
+							double headingError =
+									getShortestAngleDifference(
+											currentPose.getRotation().getRadians(),
+											targetPose.getRotation().getRadians());
+
+							boolean atTranslationTarget =
+									currentDistance < translationController.getPositionTolerance()
+											&& Math.abs(translationController.getSetpoint().velocity)
+													< VELOCITY_TOLERANCE;
+
+							boolean atHeadingTarget =
+									Math.abs(headingError) < headingController.getPositionTolerance()
+											&& Math.abs(headingController.getSetpoint().velocity)
+													< ROTATION_VELOCITY_TOLERANCE;
+
+							return atTranslationTarget && atHeadingTarget;
+						});
+	}
+
+	/** Calculates the shortest angular distance between two angles in radians. */
+	private static double getShortestAngleDifference(double from, double to) {
+		double error = to - from;
+
+		// Normalize to -PI to PI
+		while (error > Math.PI) error -= 2 * Math.PI;
+		while (error < -Math.PI) error += 2 * Math.PI;
+
+		return error;
+	}
+
 	public static Command driveAlign(
 			Drive drive,
 			Supplier<ZonePose> zonePose,
