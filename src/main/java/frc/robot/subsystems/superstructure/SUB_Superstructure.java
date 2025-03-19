@@ -9,10 +9,8 @@ package frc.robot.subsystems.superstructure;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.drive.DriveCommands.ZonePose;
-import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.SUB_Elevator;
 import frc.robot.subsystems.intake.SUB_Intake;
@@ -111,11 +109,13 @@ public class SUB_Superstructure extends SubsystemBase {
 					case 1:
 					case 12:
 					case 13:
+						/*
 						if (!intake.getSensorState()) {
 							CommandScheduler.getInstance()
 									.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
 						}
 						break;
+						*/
 
 						// Bottom Face
 					case 18:

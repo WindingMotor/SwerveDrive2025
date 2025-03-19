@@ -13,6 +13,7 @@ import com.reduxrobotics.canand.CanandEventLoop;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
@@ -47,7 +48,7 @@ public class RobotContainer {
 	private CommandXboxController operatorController;
 
 	// Sendable Choosers
-	private SendableChooser<String> autoChooser;
+	///	private SendableChooser<String> autoChooser;
 	private SendableChooser<Boolean> isRedChooser;
 
 	// Subsystems
@@ -60,6 +61,8 @@ public class RobotContainer {
 
 	private SUB_Climb climb;
 
+	private Command autoCommand;
+
 	// private Music orchestra;
 
 	public RobotContainer() {
@@ -71,17 +74,20 @@ public class RobotContainer {
 		configureButtonBindings();
 
 		// Add autos
-		autoChooser.addOption("Middle 1P", "Middle_1P");
-		autoChooser.addOption("Left 2P", "Left_2P");
-		autoChooser.addOption("Left 3P", "Left_3P");
-		autoChooser.addOption("Right 2P", "Right_2P");
-		autoChooser.addOption("Right 3P", "Right_3P");
-		SmartDashboard.putData("Auto Chooser", autoChooser);
+		//	autoChooser.addOption("Middle 1P", "Middle_1P");
+		//	autoChooser.addOption("Left 2P", "Left_2P");
+		// autoChooser.addOption("Left 3P", "Left_3P");
+		// autoChooser.addOption("Right 2P", "Right_2P");
+		// autoChooser.addOption("Right 3P", "Right_3P");
+		//	SmartDashboard.putData("Auto Chooser", autoChooser);
 
 		// Add alliance selector
 		isRedChooser.addOption("Red", true);
 		isRedChooser.addOption("Blue", false);
 		SmartDashboard.putData("Alliance", isRedChooser);
+
+		// Create auto command
+		autoCommand = AutoBuilder.buildAuto("Right_3P");
 	}
 
 	private void initializeControllers() {
@@ -141,7 +147,7 @@ public class RobotContainer {
 		superstructure = new SUB_Superstructure(drive, intake, elevator, led);
 
 		// Setup Sendable Choosers
-		autoChooser = new SendableChooser<String>();
+		// autoChooser = new SendableChooser<String>();
 		isRedChooser = new SendableChooser<Boolean>();
 
 		// Set up SysId routines
@@ -278,8 +284,11 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		// return swerve.getAutonomousCommand("T1");
-		// return autoChooser.get();
-		return AutoBuilder.buildAuto(autoChooser.getSelected());
+
+		if (autoCommand != null) {
+			return autoCommand;
+		} else {
+			return new PrintCommand("Auto Command is NULL!");
+		}
 	}
 }

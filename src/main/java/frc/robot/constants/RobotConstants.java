@@ -61,6 +61,8 @@ public final class RobotConstants {
 
 		public static final double KV =
 				0.089361; // Velocity of 1 m/s results in 0.01 V output //  0.085;
+
+				
 		public static final double KA = 0.042142; // Accel of 1 m/s² results in 0.00 V output
 
 		public static final double KG = 0.54418; // Gravity Compensation
