@@ -9,8 +9,10 @@ package frc.robot.subsystems.superstructure;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.drive.DriveCommands.ZonePose;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.subsystems.drive.Drive;
@@ -41,11 +43,14 @@ public class SUB_Superstructure extends SubsystemBase {
 
 	private boolean previousIntakeSensorState = false;
 
-	public SUB_Superstructure(Drive drive, SUB_Intake intake, SUB_Elevator elevator, SUB_Led led) {
+	private CommandXboxController operatorController;
+
+	public SUB_Superstructure(Drive drive, SUB_Intake intake, SUB_Elevator elevator, SUB_Led led, CommandXboxController operatorController) {
 		this.drive = drive;
 		this.intake = intake;
 		this.elevator = elevator;
 		this.led = led;
+		this.operatorController = operatorController;
 	}
 
 	public void updateSuperstructureState(SuperstructureState.State newSuperstructureState) {
@@ -88,10 +93,15 @@ public class SUB_Superstructure extends SubsystemBase {
 			if (intake.getSensorState()) {
 				// updateSuperstructureState(SuperstructureState.IDLE_CALM);
 			}
-			// If sensor changed to false, restore normal current limit
-			else {
-				// intake.setLowerCurrentLimit(false);
-			}
+		}
+
+		// Update operator controller rumble
+		if (currentSuperstructureState == SuperstructureState.CLIMB) {
+			operatorController.setRumble(RumbleType.kBothRumble, 1.0);
+		} else if(intake.getSensorState()){
+			operatorController.setRumble(RumbleType.kBothRumble, 0.4);
+		}else{
+			operatorController.setRumble(RumbleType.kBothRumble, 0.0);
 		}
 
 		int closestTagId = drive.getRecentClosestTagData().getFirst();
@@ -100,7 +110,6 @@ public class SUB_Superstructure extends SubsystemBase {
 		double minDist = MIN_DIST_TELEOP;
 
 		if (DriverStation.isAutonomousEnabled()) {
-			// minDist = MIN_DIST_AUTO;
 			// Do nothing in auto
 		} else {
 

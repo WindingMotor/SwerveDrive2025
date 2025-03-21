@@ -74,14 +74,6 @@ public class RobotContainer {
 		configurePathplannerCommands();
 		configureButtonBindings();
 
-		// Add autos
-		//	autoChooser.addOption("Middle 1P", "Middle_1P");
-		//	autoChooser.addOption("Left 2P", "Left_2P");
-		// autoChooser.addOption("Left 3P", "Left_3P");
-		// autoChooser.addOption("Right 2P", "Right_2P");
-		// autoChooser.addOption("Right 3P", "Right_3P");
-		//	SmartDashboard.putData("Auto Chooser", autoChooser);
-
 		// Add alliance selector
 		isRedChooser.addOption("Red", true);
 		isRedChooser.addOption("Blue", false);
@@ -147,10 +139,9 @@ public class RobotContainer {
 						new IO_VisionCamera(VisionConstants.camera0Name, VisionConstants.robotToCamera0),
 						new IO_VisionCamera(VisionConstants.camera1Name, VisionConstants.robotToCamera1));
 
-		superstructure = new SUB_Superstructure(drive, intake, elevator, led);
+		superstructure = new SUB_Superstructure(drive, intake, elevator, led, operatorController);
 
 		// Setup Sendable Choosers
-		// autoChooser = new SendableChooser<String>();
 		isRedChooser = new SendableChooser<Boolean>();
 
 		// Set up SysId routines
