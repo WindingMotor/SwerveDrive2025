@@ -32,11 +32,11 @@
   "constraintZones": [
     {
       "name": "INTAKE",
-      "minWaypointRelativePos": 0.7454436546148258,
+      "minWaypointRelativePos": 0.7794117647058814,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.0,
-        "maxAcceleration": 2.0,
+        "maxAcceleration": 2.5,
         "maxAngularVelocity": 1000.0,
         "maxAngularAcceleration": 1500.0,
         "nominalVoltage": 12.0,

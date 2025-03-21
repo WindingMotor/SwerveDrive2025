@@ -119,6 +119,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Eject"
+          }
+        },
+        {
           "type": "wait",
           "data": {
             "waitTime": 0.2

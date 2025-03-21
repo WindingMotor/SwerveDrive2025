@@ -60,15 +60,14 @@ public final class RobotConstants {
 		public static final double KS = 0.56134; // Add V output to overcome static friction
 
 		public static final double KV =
-				0.089361; // Velocity of 1 m/s results in 0.01 V output //  0.085;
+				0.08; // 0.089361 Velocity of 1 m/s results in 0.01 V output //  0.085;
 
-				
-		public static final double KA = 0.042142; // Accel of 1 m/s² results in 0.00 V output
+		public static final double KA = 0.0; // 0.042142 Accel of 1 m/s² results in 0.00 V output
 
 		public static final double KG = 0.54418; // Gravity Compensation
 
-		public static final double KP = 34.742; //  A position error of 1m results in 12 V output
-		public static final double KI = 1.6658; // No output for integrated error
+		public static final double KP = 1.5; //  34.742 A position error of 1m results in 12 V output
+		public static final double KI = 0; // 1.6658 No output for integrated error
 		public static final double KD = 0.0; //  A velocity error of 1 m/s results in 0.1 V output
 
 		// Position Limits

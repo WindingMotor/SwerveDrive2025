@@ -74,7 +74,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		posVol = new PositionVoltage(0).withSlot(0);
 	}
 
-
 	@Override
 	public void updateInputs(ElevatorInputs inputs) {
 
@@ -91,8 +90,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 				leftMotor_10.getAcceleration().getValueAsDouble()
 						* RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 
-		//inputs.setpointM = magicMotion.Position * RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
-		inputs.setpointM = posVol.Position  * RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
+		// inputs.setpointM = magicMotion.Position * RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
+		inputs.setpointM = posVol.Position * RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 
 		inputs.leftMotorVoltage = leftMotor_10.getMotorVoltage().getValueAsDouble();
 		inputs.rightMotorVoltage = rightMotor_9.getMotorVoltage().getValueAsDouble();
@@ -106,11 +105,11 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		double targetRot = newPositionM / RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 
 		// Update motor request
-		//magicMotion.withPosition(targetRot);
+		// magicMotion.withPosition(targetRot);
 		posVol.withPosition(targetRot);
 
-		leftMotor_10.setControl(magicMotion);
-		rightMotor_9.setControl(magicMotion);
+		leftMotor_10.setControl(posVol);
+		rightMotor_9.setControl(posVol);
 	}
 
 	@Override

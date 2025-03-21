@@ -10,6 +10,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.reduxrobotics.canand.CanandEventLoop;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -87,7 +88,9 @@ public class RobotContainer {
 		SmartDashboard.putData("Alliance", isRedChooser);
 
 		// Create auto command
-		autoCommand = AutoBuilder.buildAuto("Right_3P");
+		autoCommand = AutoBuilder.buildAuto("Left_3P");
+
+		CameraServer.startAutomaticCapture();
 	}
 
 	private void initializeControllers() {
@@ -242,6 +245,11 @@ public class RobotContainer {
 		operatorController
 				.a()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
+
+		// Alage Ground
+		operatorController
+				.y()
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_GROUND));
 
 		// Idle
 		operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));

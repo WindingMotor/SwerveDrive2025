@@ -56,11 +56,11 @@ public class SuperstructureState {
 	public static final State CLIMB = createState("CLIMB", 0.0, 90, 0.0);
 
 	// Coral statesom
-	public static final State CORAL_STATION = createState("CORAL_STATION", 0.26, 32, 0.3);
+	public static final State CORAL_STATION = createState("CORAL_STATION", 0.26, 32, 0.5);
 	public static final State L1_SCORING = createState("L1_SCORING", 0.05, 57, 0.0);
 	public static final State L2_SCORING = createState("L2_SCORING", 0.54, 120, 0.0); // .052
 	public static final State L3_SCORING = createState("L3_SCORING", 0.945, 120, 0.0); // .935
-	public static final State L4_SCORING = createState("L4_SCORING", 1.67, 134, 0.0);
+	public static final State L4_SCORING = createState("L4_SCORING", 1.678, 134, 0.0);
 
 	// Auto Clearing Presets
 	public static final State L2_CLEAR = createState("L2_CLEAR", 0.52, 35, 0.0);
@@ -68,7 +68,7 @@ public class SuperstructureState {
 	public static final State L4_CLEAR = createState("L4_CLEAR", 1.64, 35, 0.0);
 
 	// Algae states
-	public static final State ALGAE_GROUND = createState("ALGAE_GROUND", 0.1, 135, 1.0);
+	public static final State ALGAE_GROUND = createState("ALGAE_GROUND", 0.02, 115, .75);
 	public static final State ALGAE_PROCESSOR = createState("ALGAE_PROCESSOR", 0.03, 100, 1.0);
 	public static final State ALGAE_L2 = createState("ALGAE_L2", 0.51, 95, 1.0);
 	public static final State ALGAE_L3 = createState("ALGAE_L3", 0.91, 95, 1.0);
