@@ -9,7 +9,6 @@ package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -22,7 +21,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 	private final TalonFX leftMotor_10;
 	private final TalonFX rightMotor_9;
-	private final MotionMagicExpoVoltage magicMotion;
 	private final PositionVoltage posVol;
 
 	public IO_ElevatorReal() {
@@ -70,7 +68,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		setupMotors(motorConfigs);
 
 		// Create motor request at default position
-		magicMotion = new MotionMagicExpoVoltage(0).withSlot(0);
 		posVol = new PositionVoltage(0).withSlot(0);
 	}
 
@@ -90,7 +87,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 				leftMotor_10.getAcceleration().getValueAsDouble()
 						* RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 
-		// inputs.setpointM = magicMotion.Position * RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 		inputs.setpointM = posVol.Position * RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 
 		inputs.leftMotorVoltage = leftMotor_10.getMotorVoltage().getValueAsDouble();
@@ -105,7 +101,6 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		double targetRot = newPositionM / RobotConstants.Elevator.METERS_PER_MOTOR_ROTATION;
 
 		// Update motor request
-		// magicMotion.withPosition(targetRot);
 		posVol.withPosition(targetRot);
 
 		leftMotor_10.setControl(posVol);

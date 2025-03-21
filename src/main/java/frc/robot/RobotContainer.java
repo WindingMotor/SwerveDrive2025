@@ -43,6 +43,7 @@ import frc.robot.subsystems.superstructure.SuperstructureState;
 import frc.robot.subsystems.vision.IO_VisionCamera;
 import frc.robot.subsystems.vision.SUB_Vision;
 
+@SuppressWarnings("unused")
 public class RobotContainer {
 
 	// Current hard-coded auto
