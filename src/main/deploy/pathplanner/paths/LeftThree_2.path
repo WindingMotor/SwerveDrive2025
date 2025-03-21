@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.267888577717397,
-        "y": 5.0402216410676095
+        "x": 5.24396404109589,
+        "y": 5.024208047945206
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.706045317018121,
-        "y": 5.499843562677224
+        "x": 5.682120780396614,
+        "y": 5.4838299695548205
       },
       "isLocked": false,
       "linkedName": "LeftThree_1E"
@@ -32,7 +32,7 @@
   "constraintZones": [
     {
       "name": "INTAKE",
-      "minWaypointRelativePos": 0.8763092424539944,
+      "minWaypointRelativePos": 0.8470588235294119,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.0,
@@ -85,7 +85,7 @@
   "folder": "Left",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.98201779640695
+    "rotation": -118.57460499009916
   },
   "useDefaultConstraints": true
 }

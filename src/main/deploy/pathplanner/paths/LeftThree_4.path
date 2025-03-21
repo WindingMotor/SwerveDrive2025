@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.984021239164516,
-        "y": 5.199760208724517
+        "x": 3.981806506849315,
+        "y": 5.189490582191781
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.647607785890628,
-        "y": 5.882151673813849
+        "x": 2.645393053575427,
+        "y": 5.871882047281113
       },
       "isLocked": false,
       "linkedName": "LeftThree_3E"
@@ -37,7 +37,7 @@
   "constraintZones": [
     {
       "name": "INTAKE",
-      "minWaypointRelativePos": 0.6562655601296006,
+      "minWaypointRelativePos": 0.7794117647058819,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.0,
