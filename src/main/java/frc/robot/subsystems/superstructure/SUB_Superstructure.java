@@ -45,7 +45,12 @@ public class SUB_Superstructure extends SubsystemBase {
 
 	private CommandXboxController operatorController;
 
-	public SUB_Superstructure(Drive drive, SUB_Intake intake, SUB_Elevator elevator, SUB_Led led, CommandXboxController operatorController) {
+	public SUB_Superstructure(
+			Drive drive,
+			SUB_Intake intake,
+			SUB_Elevator elevator,
+			SUB_Led led,
+			CommandXboxController operatorController) {
 		this.drive = drive;
 		this.intake = intake;
 		this.elevator = elevator;
@@ -98,9 +103,9 @@ public class SUB_Superstructure extends SubsystemBase {
 		// Update operator controller rumble
 		if (currentSuperstructureState == SuperstructureState.CLIMB) {
 			operatorController.setRumble(RumbleType.kBothRumble, 1.0);
-		} else if(intake.getSensorState()){
+		} else if (intake.getSensorState()) {
 			operatorController.setRumble(RumbleType.kBothRumble, 0.4);
-		}else{
+		} else {
 			operatorController.setRumble(RumbleType.kBothRumble, 0.0);
 		}
 
@@ -119,13 +124,14 @@ public class SUB_Superstructure extends SubsystemBase {
 			} else {
 				switch (closestTagId) {
 
-					// Source
+						// Source
 					case 2:
 					case 1:
 					case 12:
 					case 13:
-					    currentDynamicAlage = SuperstructureState.ALGAE_GROUND;
-						if (!intake.getSensorState() && currentSuperstructureState != SuperstructureState.ALGAE_GROUND) {
+						currentDynamicAlage = SuperstructureState.ALGAE_GROUND;
+						if (!intake.getSensorState()
+								&& currentSuperstructureState != SuperstructureState.ALGAE_GROUND) {
 							CommandScheduler.getInstance()
 									.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
 						}

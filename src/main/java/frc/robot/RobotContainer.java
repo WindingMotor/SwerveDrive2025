@@ -9,15 +9,15 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.reduxrobotics.canand.CanandEventLoop;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.algae.CMD_ElevatorAlgae;
-import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.generic.CMD_Eject;
 import frc.robot.commands.generic.CMD_IntakeRace;
@@ -44,6 +44,11 @@ import frc.robot.subsystems.vision.IO_VisionCamera;
 import frc.robot.subsystems.vision.SUB_Vision;
 
 public class RobotContainer {
+
+	// Current hard-coded auto
+	private static final String AUTO_NAME = "Left_3P";
+	private Pose2d autoStartingPose = new Pose2d();
+
 	// Controller Configuration
 	private CommandXboxController driverController;
 	private CommandXboxController operatorController;
@@ -58,7 +63,7 @@ public class RobotContainer {
 	private SUB_Vision vision;
 	private SUB_Elevator elevator;
 	private SUB_Superstructure superstructure;
-	private final SUB_Led led = new SUB_Led(1, 62);
+	private final SUB_Led led;
 
 	private SUB_Climb climb;
 
@@ -79,8 +84,12 @@ public class RobotContainer {
 		isRedChooser.addOption("Blue", false);
 		SmartDashboard.putData("Alliance", isRedChooser);
 
-		// Create auto command
-		autoCommand = AutoBuilder.buildAuto("Left_3P");
+		// Create auto stuff
+		autoCommand = AutoBuilder.buildAuto(AUTO_NAME);
+		PathPlannerAuto auto = new PathPlannerAuto(AUTO_NAME);
+		autoStartingPose = auto.getStartingPose();
+
+		led = new SUB_Led(1, 62, autoStartingPose);
 
 		CameraServer.startAutomaticCapture();
 	}
@@ -214,12 +223,12 @@ public class RobotContainer {
 		// L1
 		operatorController
 				.leftBumper()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L1_SCORING)); 
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L1_SCORING));
 
 		// L2
 		operatorController
 				.rightBumper()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L2_CLEAR)); 
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L2_CLEAR));
 
 		// L3 Quick
 		operatorController
@@ -231,8 +240,10 @@ public class RobotContainer {
 				.rightTrigger()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING));
 
-		// Algae Dynamic 
-		operatorController.y().onTrue(new CMD_Superstructure(superstructure, superstructure.getCurrentDynamicAlage()));
+		// Algae Dynamic
+		operatorController
+				.y()
+				.onTrue(new CMD_Superstructure(superstructure, superstructure.getCurrentDynamicAlage()));
 
 		// Eject
 		operatorController.x().onTrue(new CMD_Eject(superstructure));
