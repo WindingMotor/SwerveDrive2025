@@ -220,36 +220,36 @@ public class RobotContainer {
 						() -> -driverController.getRawAxis(3),
 						() -> driverController.button(3).getAsBoolean()));
 
-		// Eject
-		operatorController.x().onTrue(new CMD_Eject(superstructure));
+		// L1
+		operatorController
+				.leftBumper()
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L1_SCORING)); 
 
-		// Coral Raise L1-to-L4
+		// L2
 		operatorController
 				.rightBumper()
-				.onTrue(new CMD_ElevatorCoral(superstructure, true)); // DPAD-UP - Coral up
-
-		// L2A Quick
-		operatorController
-				.rightTrigger()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_L2));
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L2_CLEAR)); 
 
 		// L3 Quick
 		operatorController
 				.leftTrigger()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L3_SCORING));
 
-		// Algae Raise
-		operatorController.leftBumper().onTrue(new CMD_ElevatorAlgae(superstructure, true));
+		// L4 Quick
+		operatorController
+				.rightTrigger()
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING));
+
+		// Algae Dynamic 
+		operatorController.y().onTrue(new CMD_Superstructure(superstructure, superstructure.getCurrentDynamicAlage()));
+
+		// Eject
+		operatorController.x().onTrue(new CMD_Eject(superstructure));
 
 		// Intake
 		operatorController
 				.a()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
-
-		// Alage Ground
-		operatorController
-				.y()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_GROUND));
 
 		// Idle
 		operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));

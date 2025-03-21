@@ -30,6 +30,8 @@ public class SUB_Superstructure extends SubsystemBase {
 	public State currentDynamicEjectState =
 			SuperstructureState.createState("EJECT_DYNAMIC", 0.5, 135, 18);
 
+	public State currentDynamicAlage = SuperstructureState.ALGAE_PROCESSOR;
+
 	private Pair<ZonePose, ZonePose> localAutoAlignZone = Pair.of(ZonePose.NONE, ZonePose.NONE);
 
 	public SUB_Intake intake;
@@ -107,11 +109,14 @@ public class SUB_Superstructure extends SubsystemBase {
 				return;
 			} else {
 				switch (closestTagId) {
+
+					// Source
 					case 2:
 					case 1:
 					case 12:
 					case 13:
-						if (!intake.getSensorState()) {
+					    currentDynamicAlage = SuperstructureState.ALGAE_GROUND;
+						if (!intake.getSensorState() && currentSuperstructureState != SuperstructureState.ALGAE_GROUND) {
 							CommandScheduler.getInstance()
 									.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
 						}
@@ -120,41 +125,49 @@ public class SUB_Superstructure extends SubsystemBase {
 						// Bottom Face
 					case 18:
 					case 7:
+						currentDynamicAlage = SuperstructureState.ALGAE_L3;
 						localAutoAlignZone = getBottomPose();
 						break;
 
 						// Bottom Right Face
 					case 17:
 					case 8:
+						currentDynamicAlage = SuperstructureState.ALGAE_L2;
 						localAutoAlignZone = getBottomRight();
 						break;
 
 						// Bottom Left Face
 					case 19:
 					case 6:
+						currentDynamicAlage = SuperstructureState.ALGAE_L2;
 						localAutoAlignZone = getBottomLeft();
 						break;
 
 						// Top Right Face
 					case 22:
 					case 9:
+						currentDynamicAlage = SuperstructureState.ALGAE_L3;
 						localAutoAlignZone = getTopRightPose();
 						break;
 
 						// Top Face
 					case 21:
 					case 10:
+						currentDynamicAlage = SuperstructureState.ALGAE_L2;
 						localAutoAlignZone = getTopPose();
 						break;
 
 						// Top Left Face
 					case 20:
 					case 11:
+						currentDynamicAlage = SuperstructureState.ALGAE_L3;
 						localAutoAlignZone = getTopLeftPose();
 						break;
 
 						// Processor
 					case 3:
+					case 16:
+						currentDynamicAlage = SuperstructureState.ALGAE_PROCESSOR;
 						break;
 
 					default:
@@ -188,6 +201,10 @@ public class SUB_Superstructure extends SubsystemBase {
 
 		Logger.recordOutput("AutoAlign/GlobalSecond", globalSecondPose);
 		Logger.recordOutput("AutoAlign/GlobalSecondPOSE", globalSecondPose.getPose());
+	}
+
+	public State getCurrentDynamicAlage() {
+		return currentDynamicAlage;
 	}
 
 	private Pair<ZonePose, ZonePose> getTopPose() {
