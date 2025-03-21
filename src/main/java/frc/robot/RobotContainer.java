@@ -9,15 +9,15 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.reduxrobotics.canand.CanandEventLoop;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.algae.CMD_ElevatorAlgae;
-import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.generic.CMD_Eject;
 import frc.robot.commands.generic.CMD_IntakeRace;
@@ -43,7 +43,13 @@ import frc.robot.subsystems.superstructure.SuperstructureState;
 import frc.robot.subsystems.vision.IO_VisionCamera;
 import frc.robot.subsystems.vision.SUB_Vision;
 
+@SuppressWarnings("unused")
 public class RobotContainer {
+
+	// Current hard-coded auto
+	private static final String AUTO_NAME = "Left_3P";
+	private Pose2d autoStartingPose = new Pose2d();
+
 	// Controller Configuration
 	private CommandXboxController driverController;
 	private CommandXboxController operatorController;
@@ -58,7 +64,7 @@ public class RobotContainer {
 	private SUB_Vision vision;
 	private SUB_Elevator elevator;
 	private SUB_Superstructure superstructure;
-	private final SUB_Led led = new SUB_Led(1, 62);
+	private final SUB_Led led;
 
 	private SUB_Climb climb;
 
@@ -74,21 +80,17 @@ public class RobotContainer {
 		configurePathplannerCommands();
 		configureButtonBindings();
 
-		// Add autos
-		//	autoChooser.addOption("Middle 1P", "Middle_1P");
-		//	autoChooser.addOption("Left 2P", "Left_2P");
-		// autoChooser.addOption("Left 3P", "Left_3P");
-		// autoChooser.addOption("Right 2P", "Right_2P");
-		// autoChooser.addOption("Right 3P", "Right_3P");
-		//	SmartDashboard.putData("Auto Chooser", autoChooser);
-
 		// Add alliance selector
 		isRedChooser.addOption("Red", true);
 		isRedChooser.addOption("Blue", false);
 		SmartDashboard.putData("Alliance", isRedChooser);
 
-		// Create auto command
-		autoCommand = AutoBuilder.buildAuto("Left_3P");
+		// Create auto stuff
+		autoCommand = AutoBuilder.buildAuto(AUTO_NAME);
+		PathPlannerAuto auto = new PathPlannerAuto(AUTO_NAME);
+		autoStartingPose = auto.getStartingPose();
+
+		led = new SUB_Led(1, 62, autoStartingPose);
 
 		CameraServer.startAutomaticCapture();
 	}
@@ -147,10 +149,9 @@ public class RobotContainer {
 						new IO_VisionCamera(VisionConstants.camera0Name, VisionConstants.robotToCamera0),
 						new IO_VisionCamera(VisionConstants.camera1Name, VisionConstants.robotToCamera1));
 
-		superstructure = new SUB_Superstructure(drive, intake, elevator, led);
+		superstructure = new SUB_Superstructure(drive, intake, elevator, led, operatorController);
 
 		// Setup Sendable Choosers
-		// autoChooser = new SendableChooser<String>();
 		isRedChooser = new SendableChooser<Boolean>();
 
 		// Set up SysId routines
@@ -220,36 +221,38 @@ public class RobotContainer {
 						() -> -driverController.getRawAxis(3),
 						() -> driverController.button(3).getAsBoolean()));
 
-		// Eject
-		operatorController.x().onTrue(new CMD_Eject(superstructure));
+		// L1
+		operatorController
+				.leftBumper()
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L1_SCORING));
 
-		// Coral Raise L1-to-L4
+		// L2
 		operatorController
 				.rightBumper()
-				.onTrue(new CMD_ElevatorCoral(superstructure, true)); // DPAD-UP - Coral up
-
-		// L2A Quick
-		operatorController
-				.rightTrigger()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_L2));
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L2_CLEAR));
 
 		// L3 Quick
 		operatorController
 				.leftTrigger()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L3_SCORING));
 
-		// Algae Raise
-		operatorController.leftBumper().onTrue(new CMD_ElevatorAlgae(superstructure, true));
+		// L4 Quick
+		operatorController
+				.rightTrigger()
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING));
+
+		// Algae Dynamic
+		operatorController
+				.y()
+				.onTrue(new CMD_Superstructure(superstructure, superstructure.getCurrentDynamicAlage()));
+
+		// Eject
+		operatorController.x().onTrue(new CMD_Eject(superstructure));
 
 		// Intake
 		operatorController
 				.a()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
-
-		// Alage Ground
-		operatorController
-				.y()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_GROUND));
 
 		// Idle
 		operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.IDLE));

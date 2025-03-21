@@ -9,11 +9,13 @@ package frc.robot.subsystems.led;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,14 +33,21 @@ public class SUB_Led extends SubsystemBase {
 	private final LEDPattern tealFlamePattern;
 	private final LEDPattern intakePattern;
 	private final LEDPattern defaultPattern;
-	private final LEDPattern strobePattern;
 
 	public final LEDPattern PUB_climbWaiting;
 	public final LEDPattern PUB_climbReady;
 	public final LEDPattern PUB_climbGo;
 
-	public SUB_Led(int port, int length) {
+	// Distance tolerances in meters (0.5 inches = 0.0127 meters)
+	private static final double POSITION_TOLERANCE = Units.inchesToMeters(.5);
+	private static final double ROTATION_TOLERANCE = Units.degreesToRadians(3.0);
+
+	private Pose2d autoStartingPose;
+	private final LEDPattern positionErrorPattern;
+
+	public SUB_Led(int port, int length, Pose2d autoStartingPose) {
 		this.localState = SuperstructureState.IDLE;
+		this.autoStartingPose = autoStartingPose;
 
 		ledStrip = new AddressableLED(port);
 		ledBuffer = new AddressableLEDBuffer(length);
@@ -64,15 +73,16 @@ public class SUB_Led extends SubsystemBase {
 								new Color(150, 128, 128))
 						.breathe(Seconds.of(0.5));
 
-		// Strobe effect for CORAL_STATION
-		strobePattern = LEDPattern.solid(Color.kWhite).blink(Seconds.of(0.1));
-
 		PUB_climbWaiting = LEDPattern.solid(Color.kRed).blink(Seconds.of(0.05));
 		PUB_climbReady = LEDPattern.solid(Color.kGreen);
 		PUB_climbGo = LEDPattern.solid(Color.kBlue).blink(Seconds.of(0.1));
 
 		defaultPattern = rainbowPattern;
 		climbMode = Pair.of(false, defaultPattern);
+
+		positionErrorPattern =
+				LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kRed, Color.kYellow)
+						.blink(Seconds.of(0.2));
 
 		setDefaultCommand(runPattern(defaultPattern).withName("Default"));
 		ledStrip.start();
@@ -81,8 +91,14 @@ public class SUB_Led extends SubsystemBase {
 	@Override
 	public void periodic() {
 		if (DriverStation.isDisabled()) {
-			rainbowPattern.applyTo(ledBuffer);
+			// Check if current pose is close to the auto starting pose
+			if (isPositionedForAuto()) {
+				rainbowPattern.applyTo(ledBuffer);
+			} else {
+				positionErrorPattern.applyTo(ledBuffer);
+			}
 		} else {
+			// Existing code for enabled state
 			if (climbMode.getFirst()) {
 				LEDPattern pattern = climbMode.getSecond();
 				pattern.applyTo(ledBuffer);
@@ -148,13 +164,6 @@ public class SUB_Led extends SubsystemBase {
 		pattern.applyTo(ledBuffer);
 	}
 
-	private Color getAllianceColor() {
-		var alliance = DriverStation.getAlliance();
-		return alliance.isPresent()
-				? (alliance.get() == Alliance.Red ? Color.kRed : Color.kBlue)
-				: Color.kWhite;
-	}
-
 	public void updateLocalState(SuperstructureState.State newState) {
 		localState = newState;
 	}
@@ -165,5 +174,33 @@ public class SUB_Led extends SubsystemBase {
 
 	public Command setClimbState(Pair<Boolean, LEDPattern> climbMode) {
 		return run(() -> this.climbMode = climbMode);
+	}
+
+	/**
+	 * Checks if the robot is correctly positioned for auto start
+	 *
+	 * @return true if the robot is within tolerance of the auto starting pose
+	 */
+	private boolean isPositionedForAuto() {
+		if (!AutoBuilder.isConfigured()) {
+			return false; // Can't check position if AutoBuilder isn't configured
+		}
+
+		Pose2d currentPose = AutoBuilder.getCurrentPose();
+
+		// Calculate differences
+		double xDiff = Math.abs(currentPose.getX() - autoStartingPose.getX());
+		double yDiff = Math.abs(currentPose.getY() - autoStartingPose.getY());
+
+		// Calculate angle difference, accounting for wraparound
+		double angleDiff =
+				Math.abs(
+						currentPose.getRotation().getRadians() - autoStartingPose.getRotation().getRadians());
+		angleDiff = Math.min(angleDiff, 2 * Math.PI - angleDiff);
+
+		// Check if within tolerances
+		return xDiff <= POSITION_TOLERANCE
+				&& yDiff <= POSITION_TOLERANCE
+				&& angleDiff <= ROTATION_TOLERANCE;
 	}
 }

@@ -9,8 +9,10 @@ package frc.robot.subsystems.superstructure;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.drive.DriveCommands.ZonePose;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.subsystems.drive.Drive;
@@ -30,6 +32,8 @@ public class SUB_Superstructure extends SubsystemBase {
 	public State currentDynamicEjectState =
 			SuperstructureState.createState("EJECT_DYNAMIC", 0.5, 135, 18);
 
+	public State currentDynamicAlage = SuperstructureState.ALGAE_PROCESSOR;
+
 	private Pair<ZonePose, ZonePose> localAutoAlignZone = Pair.of(ZonePose.NONE, ZonePose.NONE);
 
 	public SUB_Intake intake;
@@ -39,11 +43,19 @@ public class SUB_Superstructure extends SubsystemBase {
 
 	private boolean previousIntakeSensorState = false;
 
-	public SUB_Superstructure(Drive drive, SUB_Intake intake, SUB_Elevator elevator, SUB_Led led) {
+	private CommandXboxController operatorController;
+
+	public SUB_Superstructure(
+			Drive drive,
+			SUB_Intake intake,
+			SUB_Elevator elevator,
+			SUB_Led led,
+			CommandXboxController operatorController) {
 		this.drive = drive;
 		this.intake = intake;
 		this.elevator = elevator;
 		this.led = led;
+		this.operatorController = operatorController;
 	}
 
 	public void updateSuperstructureState(SuperstructureState.State newSuperstructureState) {
@@ -86,10 +98,15 @@ public class SUB_Superstructure extends SubsystemBase {
 			if (intake.getSensorState()) {
 				// updateSuperstructureState(SuperstructureState.IDLE_CALM);
 			}
-			// If sensor changed to false, restore normal current limit
-			else {
-				// intake.setLowerCurrentLimit(false);
-			}
+		}
+
+		// Update operator controller rumble
+		if (currentSuperstructureState == SuperstructureState.CLIMB) {
+			operatorController.setRumble(RumbleType.kBothRumble, 1.0);
+		} else if (intake.getSensorState()) {
+			operatorController.setRumble(RumbleType.kBothRumble, 0.4);
+		} else {
+			operatorController.setRumble(RumbleType.kBothRumble, 0.0);
 		}
 
 		int closestTagId = drive.getRecentClosestTagData().getFirst();
@@ -98,7 +115,6 @@ public class SUB_Superstructure extends SubsystemBase {
 		double minDist = MIN_DIST_TELEOP;
 
 		if (DriverStation.isAutonomousEnabled()) {
-			// minDist = MIN_DIST_AUTO;
 			// Do nothing in auto
 		} else {
 
@@ -107,11 +123,15 @@ public class SUB_Superstructure extends SubsystemBase {
 				return;
 			} else {
 				switch (closestTagId) {
+
+						// Source
 					case 2:
 					case 1:
 					case 12:
 					case 13:
-						if (!intake.getSensorState()) {
+						currentDynamicAlage = SuperstructureState.ALGAE_GROUND;
+						if (!intake.getSensorState()
+								&& currentSuperstructureState != SuperstructureState.ALGAE_GROUND) {
 							CommandScheduler.getInstance()
 									.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
 						}
@@ -120,41 +140,49 @@ public class SUB_Superstructure extends SubsystemBase {
 						// Bottom Face
 					case 18:
 					case 7:
+						currentDynamicAlage = SuperstructureState.ALGAE_L3;
 						localAutoAlignZone = getBottomPose();
 						break;
 
 						// Bottom Right Face
 					case 17:
 					case 8:
+						currentDynamicAlage = SuperstructureState.ALGAE_L2;
 						localAutoAlignZone = getBottomRight();
 						break;
 
 						// Bottom Left Face
 					case 19:
 					case 6:
+						currentDynamicAlage = SuperstructureState.ALGAE_L2;
 						localAutoAlignZone = getBottomLeft();
 						break;
 
 						// Top Right Face
 					case 22:
 					case 9:
+						currentDynamicAlage = SuperstructureState.ALGAE_L3;
 						localAutoAlignZone = getTopRightPose();
 						break;
 
 						// Top Face
 					case 21:
 					case 10:
+						currentDynamicAlage = SuperstructureState.ALGAE_L2;
 						localAutoAlignZone = getTopPose();
 						break;
 
 						// Top Left Face
 					case 20:
 					case 11:
+						currentDynamicAlage = SuperstructureState.ALGAE_L3;
 						localAutoAlignZone = getTopLeftPose();
 						break;
 
 						// Processor
 					case 3:
+					case 16:
+						currentDynamicAlage = SuperstructureState.ALGAE_PROCESSOR;
 						break;
 
 					default:
@@ -188,6 +216,10 @@ public class SUB_Superstructure extends SubsystemBase {
 
 		Logger.recordOutput("AutoAlign/GlobalSecond", globalSecondPose);
 		Logger.recordOutput("AutoAlign/GlobalSecondPOSE", globalSecondPose.getPose());
+	}
+
+	public State getCurrentDynamicAlage() {
+		return currentDynamicAlage;
 	}
 
 	private Pair<ZonePose, ZonePose> getTopPose() {
