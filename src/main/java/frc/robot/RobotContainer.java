@@ -9,10 +9,8 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.reduxrobotics.canand.CanandEventLoop;
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -47,8 +45,7 @@ import frc.robot.subsystems.vision.SUB_Vision;
 public class RobotContainer {
 
 	// Current hard-coded auto
-	private static final String AUTO_NAME = "Left_3P";
-	private Pose2d autoStartingPose = new Pose2d();
+	private static final String AUTO_NAME = "Right_3P";
 
 	// Controller Configuration
 	private CommandXboxController driverController;
@@ -64,7 +61,7 @@ public class RobotContainer {
 	private SUB_Vision vision;
 	private SUB_Elevator elevator;
 	private SUB_Superstructure superstructure;
-	private final SUB_Led led;
+	private SUB_Led led = new SUB_Led(1, 62, AUTO_NAME);
 
 	private SUB_Climb climb;
 
@@ -87,10 +84,6 @@ public class RobotContainer {
 
 		// Create auto stuff
 		autoCommand = AutoBuilder.buildAuto(AUTO_NAME);
-		PathPlannerAuto auto = new PathPlannerAuto(AUTO_NAME);
-		autoStartingPose = auto.getStartingPose();
-
-		led = new SUB_Led(1, 62, autoStartingPose);
 
 		CameraServer.startAutomaticCapture();
 	}
@@ -223,28 +216,33 @@ public class RobotContainer {
 
 		// L1
 		operatorController
-				.leftBumper()
+				.leftTrigger()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L1_SCORING));
 
 		// L2
 		operatorController
-				.rightBumper()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L2_CLEAR));
+				.rightTrigger()
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L2_SCORING));
 
 		// L3 Quick
 		operatorController
-				.leftTrigger()
+				.leftBumper()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L3_SCORING));
 
 		// L4 Quick
 		operatorController
-				.rightTrigger()
+				.rightBumper()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING));
 
 		// Algae Dynamic
+		operatorController.y().onTrue(superstructure.dynamicAlage());
+
 		operatorController
-				.y()
-				.onTrue(new CMD_Superstructure(superstructure, superstructure.getCurrentDynamicAlage()));
+				.povUp()
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_BARGE));
+		operatorController
+				.povDown()
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_GROUND));
 
 		// Eject
 		operatorController.x().onTrue(new CMD_Eject(superstructure));

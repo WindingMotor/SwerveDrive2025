@@ -50,16 +50,16 @@ public class SuperstructureState {
 
 	// Pre-defined states
 	// Height (M), Angle (Deg), Speed (RPM)
-	public static final State IDLE = createState("IDLE", 0.05, 11, 0.12); // 18
-	public static final State IDLE_CALM = createState("IDLE_CALM", 0.05, 11, 0.12); // 18
+	public static final State IDLE = createState("IDLE", 0.075, 11, 0.12); // 18
+	public static final State IDLE_CALM = createState("IDLE_CALM", 0.075, 11, 0.0); // 18
 	public static final State CLIMB = createState("CLIMB", 0.0, 90, 0.0);
 
 	// Coral statesom
 	public static final State CORAL_STATION = createState("CORAL_STATION", 0.26, 32, 0.5);
 	public static final State L1_SCORING = createState("L1_SCORING", 0.05, 57, 0.0);
-	public static final State L2_SCORING = createState("L2_SCORING", 0.54, 120, 0.0); // .052
-	public static final State L3_SCORING = createState("L3_SCORING", 0.945, 120, 0.0); // .935
-	public static final State L4_SCORING = createState("L4_SCORING", 1.678, 134, 0.0);
+	public static final State L2_SCORING = createState("L2_SCORING", 0.52, 120, 0.0); // .052
+	public static final State L3_SCORING = createState("L3_SCORING", 0.92, 120, 0.0); // .935
+	public static final State L4_SCORING = createState("L4_SCORING", 1.66, 134, 0.0);
 
 	// Auto Clearing Presets
 	public static final State L2_CLEAR = createState("L2_CLEAR", 0.52, 35, 0.0);

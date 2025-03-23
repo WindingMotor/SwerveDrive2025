@@ -9,9 +9,7 @@ package frc.robot.subsystems.led;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -42,12 +40,12 @@ public class SUB_Led extends SubsystemBase {
 	private static final double POSITION_TOLERANCE = Units.inchesToMeters(.5);
 	private static final double ROTATION_TOLERANCE = Units.degreesToRadians(3.0);
 
-	private Pose2d autoStartingPose;
 	private final LEDPattern positionErrorPattern;
+	private String autoName;
 
-	public SUB_Led(int port, int length, Pose2d autoStartingPose) {
+	public SUB_Led(int port, int length, String autoName) {
 		this.localState = SuperstructureState.IDLE;
-		this.autoStartingPose = autoStartingPose;
+		this.autoName = autoName;
 
 		ledStrip = new AddressableLED(port);
 		ledBuffer = new AddressableLEDBuffer(length);
@@ -92,7 +90,7 @@ public class SUB_Led extends SubsystemBase {
 	public void periodic() {
 		if (DriverStation.isDisabled()) {
 			// Check if current pose is close to the auto starting pose
-			if (isPositionedForAuto()) {
+			if (true) {
 				rainbowPattern.applyTo(ledBuffer);
 			} else {
 				positionErrorPattern.applyTo(ledBuffer);
@@ -174,33 +172,5 @@ public class SUB_Led extends SubsystemBase {
 
 	public Command setClimbState(Pair<Boolean, LEDPattern> climbMode) {
 		return run(() -> this.climbMode = climbMode);
-	}
-
-	/**
-	 * Checks if the robot is correctly positioned for auto start
-	 *
-	 * @return true if the robot is within tolerance of the auto starting pose
-	 */
-	private boolean isPositionedForAuto() {
-		if (!AutoBuilder.isConfigured()) {
-			return false; // Can't check position if AutoBuilder isn't configured
-		}
-
-		Pose2d currentPose = AutoBuilder.getCurrentPose();
-
-		// Calculate differences
-		double xDiff = Math.abs(currentPose.getX() - autoStartingPose.getX());
-		double yDiff = Math.abs(currentPose.getY() - autoStartingPose.getY());
-
-		// Calculate angle difference, accounting for wraparound
-		double angleDiff =
-				Math.abs(
-						currentPose.getRotation().getRadians() - autoStartingPose.getRotation().getRadians());
-		angleDiff = Math.min(angleDiff, 2 * Math.PI - angleDiff);
-
-		// Check if within tolerances
-		return xDiff <= POSITION_TOLERANCE
-				&& yDiff <= POSITION_TOLERANCE
-				&& angleDiff <= ROTATION_TOLERANCE;
 	}
 }

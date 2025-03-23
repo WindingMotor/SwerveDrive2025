@@ -10,7 +10,9 @@ package frc.robot.subsystems.superstructure;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.drive.DriveCommands.ZonePose;
@@ -30,9 +32,9 @@ public class SUB_Superstructure extends SubsystemBase {
 	private SuperstructureState.State currentSuperstructureState = SuperstructureState.IDLE;
 
 	public State currentDynamicEjectState =
-			SuperstructureState.createState("EJECT_DYNAMIC", 0.5, 135, 18);
+			SuperstructureState.createState("EJECT_DYNAMIC", 0.5, 135, .5);
 
-	public State currentDynamicAlage = SuperstructureState.ALGAE_PROCESSOR;
+	public State currentDynamicAlage = SuperstructureState.IDLE;
 
 	private Pair<ZonePose, ZonePose> localAutoAlignZone = Pair.of(ZonePose.NONE, ZonePose.NONE);
 
@@ -93,17 +95,19 @@ public class SUB_Superstructure extends SubsystemBase {
 	public void periodic() {
 
 		// Check for sensor state changes and update current limit accordingly
-		if (intake.getSensorState() != previousIntakeSensorState) {
+		if (intake.getSensorState() != previousIntakeSensorState
+				&& (currentSuperstructureState == SuperstructureState.CORAL_STATION)) {
 			// If sensor changed to true, do the no spin idle
 			if (intake.getSensorState()) {
-				// updateSuperstructureState(SuperstructureState.IDLE_CALM);
+				updateSuperstructureState(SuperstructureState.IDLE_CALM);
 			}
 		}
 
 		// Update operator controller rumble
-		if (currentSuperstructureState == SuperstructureState.CLIMB) {
-			operatorController.setRumble(RumbleType.kBothRumble, 1.0);
-		} else if (intake.getSensorState()) {
+		double matchTimeRemaining = DriverStation.getMatchTime();
+		boolean isEndgame = matchTimeRemaining <= 15.0 && matchTimeRemaining > 0;
+
+		if (isEndgame) {
 			operatorController.setRumble(RumbleType.kBothRumble, 0.4);
 		} else {
 			operatorController.setRumble(RumbleType.kBothRumble, 0.0);
@@ -117,6 +121,8 @@ public class SUB_Superstructure extends SubsystemBase {
 		if (DriverStation.isAutonomousEnabled()) {
 			// Do nothing in auto
 		} else {
+
+			Logger.recordOutput("Superstructure/DynamicAlage", currentDynamicAlage.getName());
 
 			if (closestTagId == -1 || distanceM >= minDist) {
 
@@ -244,5 +250,9 @@ public class SUB_Superstructure extends SubsystemBase {
 
 	private Pair<ZonePose, ZonePose> getBottomLeft() {
 		return Pair.of(ZonePose.REEF_BOTTOM_LEFT_BOTTOM, ZonePose.REEF_BOTTOM_LEFT_TOP);
+	}
+
+	public Command dynamicAlage() {
+		return new InstantCommand(() -> updateSuperstructureState(currentDynamicAlage), this);
 	}
 }
