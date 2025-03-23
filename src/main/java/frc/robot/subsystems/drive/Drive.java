@@ -45,6 +45,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.auto.LocalADStarAK;
+import frc.robot.auto.PoseAllignment;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.RobotConstants.RobotMode;
 import frc.robot.constants.TunerConstants;
@@ -111,6 +112,8 @@ public class Drive extends SubsystemBase {
 			new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
 	private Pair<Integer, Double> closestTagData = Pair.of(-1, Double.MAX_VALUE);
+
+	public PoseAllignment poseAllignment = new PoseAllignment();
 
 	public Drive(
 			IO_GyroBase gyroIO,

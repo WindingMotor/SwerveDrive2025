@@ -24,11 +24,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.auto.PoseAllignment;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.math.AllianceFlipUtil;
 import frc.robot.util.math.ExpDecayFF;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +39,9 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 
 public class DriveCommands {
 	private static final double DEADBAND = 0.01;
@@ -933,5 +939,161 @@ public class DriveCommands {
 
 			return Optional.empty();
 		}
+	}
+
+	public static Command driveToClosestPose(
+			Drive drive, BooleanSupplier isRed, CommandXboxController driverController) {
+		// Constants for feedforward scaling
+		final double FF_MIN_RADIUS = 0.2; // meters
+		final double FF_MAX_RADIUS = 0.6; // meters
+
+		// Position and velocity tolerances
+		final double TRANSLATION_TOLERANCE = 0.041; // meters
+		final double HEADING_TOLERANCE = 1.5; // degrees
+		final double VELOCITY_TOLERANCE = 0.075; // m/s
+
+		// Create controllers
+		ProfiledPIDController translationController =
+				new ProfiledPIDController(
+						6.25,
+						0.0,
+						0.0,
+						new TrapezoidProfile.Constraints(
+								3.0, 2.5) // MAX_TRANSLATION_SPEED, MAX_TRANSLATION_ACCEL
+						);
+		ExpDecayFF headingController = new ExpDecayFF(6.5, 1.0, HEADING_TOLERANCE);
+
+		// Set tolerances
+		translationController.setTolerance(TRANSLATION_TOLERANCE, VELOCITY_TOLERANCE);
+
+		PoseAllignment poseAlignment = new PoseAllignment();
+
+		return Commands.run(
+						() -> {
+							// Find the closest pose
+							Pose2d currentPose = drive.getPose();
+							Pose2d targetPose = findClosestPose(currentPose, isRed.getAsBoolean(), poseAlignment);
+
+							// Calculate distance to target
+							double currentDistance =
+									currentPose.getTranslation().getDistance(targetPose.getTranslation());
+
+							// Scale feedforward based on distance
+							double ffScaler =
+									MathUtil.clamp(
+											(currentDistance - FF_MIN_RADIUS) / (FF_MAX_RADIUS - FF_MIN_RADIUS),
+											0.0,
+											1.0);
+
+							// Calculate translation control output
+							double driveVelocityScalar =
+									translationController.getSetpoint().velocity * ffScaler
+											+ translationController.calculate(currentDistance, 0.0);
+
+							// If close enough to target, stop translation
+							if (currentDistance < translationController.getPositionTolerance()) {
+								driveVelocityScalar = 0.0;
+							}
+
+							// Calculate heading control output
+							double headingError =
+									getShortestAngleDifference(
+											currentPose.getRotation().getDegrees(),
+											targetPose.getRotation().getDegrees());
+
+							double headingVelocity =
+									headingController.calculate(
+											currentPose.getRotation().getDegrees(),
+											targetPose.getRotation().getDegrees());
+
+							// If close enough to target heading, stop rotation
+							if (Math.abs(headingError) < HEADING_TOLERANCE) {
+								headingVelocity = 0.0;
+							}
+
+							// Calculate direction vector to target
+							Rotation2d directionToTarget =
+									targetPose.getTranslation().minus(currentPose.getTranslation()).getAngle();
+
+							// Convert velocity scalar to vector in direction of target
+							Translation2d driveVelocity =
+									new Translation2d(
+											driveVelocityScalar * directionToTarget.getCos(),
+											driveVelocityScalar * directionToTarget.getSin());
+
+							// Create field-relative speeds
+							ChassisSpeeds speeds =
+									ChassisSpeeds.fromFieldRelativeSpeeds(
+											driveVelocity.getX(),
+											driveVelocity.getY(),
+											headingVelocity,
+											drive.getRotation());
+
+							// Command the drive
+							drive.runVelocity(speeds);
+
+							// Logging
+							Logger.recordOutput("VectorDrive/TargetPose", targetPose);
+							Logger.recordOutput("VectorDrive/CurrentDistance", currentDistance);
+							Logger.recordOutput("VectorDrive/TranslationOutput", driveVelocityScalar);
+							Logger.recordOutput("VectorDrive/RotationOutput", headingVelocity);
+							Logger.recordOutput("VectorDrive/FFScaler", ffScaler);
+							Logger.recordOutput("VectorDrive/HeadingError", headingError);
+							Logger.recordOutput(
+									"VectorDrive/AtTranslationTarget", currentDistance < TRANSLATION_TOLERANCE);
+							Logger.recordOutput(
+									"VectorDrive/AtHeadingTarget", Math.abs(headingError) < HEADING_TOLERANCE);
+							Logger.recordOutput("VectorDrive/DirectionToTarget", directionToTarget.getDegrees());
+						},
+						drive)
+				.until(
+						() -> {
+							Pose2d currentPose = drive.getPose();
+							Pose2d targetPose = findClosestPose(currentPose, isRed.getAsBoolean(), poseAlignment);
+
+							double currentDistance =
+									currentPose.getTranslation().getDistance(targetPose.getTranslation());
+							double headingError =
+									getShortestAngleDifference(
+											currentPose.getRotation().getDegrees(),
+											targetPose.getRotation().getDegrees());
+
+							boolean atTranslationTarget =
+									currentDistance < TRANSLATION_TOLERANCE
+											&& Math.abs(translationController.getSetpoint().velocity)
+													< VELOCITY_TOLERANCE;
+
+							boolean atHeadingTarget = Math.abs(headingError) < HEADING_TOLERANCE;
+
+							return (atTranslationTarget && atHeadingTarget)
+									|| driverController.button(2).getAsBoolean();
+						});
+	}
+
+	public static Command driveToClosestPosePathPlanner(
+			Drive drive, BooleanSupplier isRed){
+				Pose2d targetPose = findClosestPose(drive.getPose(), isRed.getAsBoolean(), new PoseAllignment());
+				return AutoBuilder.pathfindToPose(targetPose, PathConstraints.unlimitedConstraints(12.0));
+			}
+
+	private static Pose2d findClosestPose(
+			Pose2d currentPose, boolean isRedAlliance, PoseAllignment poseAlignment) {
+		List<Pose2d> allPoses = new ArrayList<>();
+
+		if (isRedAlliance) {
+			allPoses.addAll(poseAlignment.redLeft);
+			allPoses.addAll(poseAlignment.redRight);
+			allPoses.addAll(poseAlignment.HPRed);
+		} else {
+			allPoses.addAll(poseAlignment.blueLeft);
+			allPoses.addAll(poseAlignment.blueRight);
+			allPoses.addAll(poseAlignment.HPBlue);
+		}
+
+		return allPoses.stream()
+				.min(
+						Comparator.comparingDouble(
+								pose -> currentPose.getTranslation().getDistance(pose.getTranslation())))
+				.orElse(currentPose);
 	}
 }
