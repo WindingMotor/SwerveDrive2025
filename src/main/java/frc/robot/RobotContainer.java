@@ -10,12 +10,12 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.reduxrobotics.canand.CanandEventLoop;
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.generic.CMD_Eject;
 import frc.robot.commands.generic.CMD_IntakeRace;
@@ -40,6 +40,7 @@ import frc.robot.subsystems.superstructure.SUB_Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureState;
 import frc.robot.subsystems.vision.IO_VisionCamera;
 import frc.robot.subsystems.vision.SUB_Vision;
+import frc.robot.util.AlignmentCamera;
 
 @SuppressWarnings("unused")
 public class RobotContainer {
@@ -67,6 +68,8 @@ public class RobotContainer {
 
 	private Command autoCommand;
 
+	private AlignmentCamera alignmentCamera;
+
 	// private Music orchestra;
 
 	public RobotContainer() {
@@ -80,12 +83,15 @@ public class RobotContainer {
 		// Add alliance selector
 		isRedChooser.addOption("Red", true);
 		isRedChooser.addOption("Blue", false);
+
+		isRedChooser.setDefaultOption("Red", true);
 		SmartDashboard.putData("Alliance", isRedChooser);
 
 		// Create auto stuff
 		autoCommand = AutoBuilder.buildAuto(AUTO_NAME);
 
-		CameraServer.startAutomaticCapture();
+		// CameraServer.startAutomaticCapture();
+		alignmentCamera = new AlignmentCamera(0, "Driver CAM");
 	}
 
 	private void initializeControllers() {
@@ -214,25 +220,21 @@ public class RobotContainer {
 						() -> -driverController.getRawAxis(3),
 						() -> driverController.button(3).getAsBoolean()));
 
-		// L1
-		operatorController
-				.leftTrigger()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L1_SCORING));
+		// Coral up
+		operatorController.rightBumper().onTrue(new CMD_ElevatorCoral(superstructure, true));
 
-		// L2
-		operatorController
-				.rightTrigger()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L2_SCORING));
-
-		// L3 Quick
-		operatorController
-				.leftBumper()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L3_SCORING));
+		// Coral Down
+		operatorController.leftBumper().onTrue(new CMD_ElevatorCoral(superstructure, false));
 
 		// L4 Quick
 		operatorController
-				.rightBumper()
+				.rightTrigger()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING));
+
+		// L3 Quick
+		operatorController
+				.leftTrigger()
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L3_SCORING));
 
 		// Algae Dynamic
 		operatorController.y().onTrue(superstructure.dynamicAlage());
@@ -240,6 +242,7 @@ public class RobotContainer {
 		operatorController
 				.povUp()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_BARGE));
+
 		operatorController
 				.povDown()
 				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_GROUND));
@@ -263,7 +266,8 @@ public class RobotContainer {
 								drive,
 								() -> SUB_Superstructure.globalFirstPose,
 								() -> isRedChooser.getSelected(),
-								driverController));
+								driverController,
+								elevator.getHeight()));
 
 		// Second Auto Align
 		driverController
@@ -273,14 +277,8 @@ public class RobotContainer {
 								drive,
 								() -> SUB_Superstructure.globalSecondPose,
 								() -> isRedChooser.getSelected(),
-								driverController));
-
-		// Manual Climb Controls
-		/*
-		operatorController.povUp().onTrue(climb.setSpeed(1));
-		operatorController.povRight().onTrue(climb.setSpeed(0));
-		operatorController.povDown().onTrue(climb.setSpeed(-1));
-		*/
+								driverController,
+								elevator.getHeight()));
 
 		// Climb Automatic
 		operatorController

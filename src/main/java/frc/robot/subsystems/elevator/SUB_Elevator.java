@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.superstructure.SuperstructureState;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 /*
@@ -88,5 +89,9 @@ public class SUB_Elevator extends SubsystemBase {
 
 	public SuperstructureState.State getCurrentLocalState() {
 		return localState;
+	}
+
+	public DoubleSupplier getHeight() {
+		return () -> inputs.heightM; // Return the current height in meters
 	}
 }

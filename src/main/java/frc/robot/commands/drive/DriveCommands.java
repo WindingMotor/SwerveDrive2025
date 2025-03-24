@@ -7,6 +7,8 @@
 
 package frc.robot.commands.drive;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -40,9 +42,6 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathConstraints;
-
 public class DriveCommands {
 	private static final double DEADBAND = 0.01;
 	private static final double ANGLE_MAX_VELOCITY = 10.0;
@@ -59,7 +58,7 @@ public class DriveCommands {
 	private static final double TRANSLATION_KP = 4.5;
 	private static final double TRANSLATION_KD = 0.1;
 
-	private static final ExpDecayFF rotationController = new ExpDecayFF(6.0, 1.0, 0.25);
+	private static final ExpDecayFF rotationController = new ExpDecayFF(6.5, 1.5, 0.25);
 
 	private DriveCommands() {}
 
@@ -345,11 +344,12 @@ public class DriveCommands {
 			Drive drive,
 			Supplier<ZonePose> zonePose,
 			Supplier<Boolean> isRed,
-			CommandXboxController driverController) {
+			CommandXboxController driverController,
+			DoubleSupplier elevatorHeightMeters) {
 
 		// Create ExpDecayFF controllers for x, y and rotation
-		ExpDecayFF xController = new ExpDecayFF(200.0, 1.5, 0.041);
-		ExpDecayFF yController = new ExpDecayFF(200.0, 1.5, 0.041);
+		ExpDecayFF xController = new ExpDecayFF(200.0, 1.5, 0.045);
+		ExpDecayFF yController = new ExpDecayFF(200.0, 1.5, 0.045);
 		ExpDecayFF rotController = new ExpDecayFF(6, 1.0, 1.0);
 
 		return Commands.run(
@@ -372,6 +372,22 @@ public class DriveCommands {
 									rotController.calculate(
 											currentPose.getRotation().getDegrees(),
 											targetPose.getRotation().getDegrees());
+
+							// Calculate speed scaling factor based on elevator height
+							double height = elevatorHeightMeters.getAsDouble();
+							double speedScaleFactor = 1.0;
+
+							// If height is greater than 0.92m, start scaling down the speed
+							if (height > 0.92) {
+								// Linear scaling from 1.0 at 0.92m to 0.3 at 1.65m (max height)
+								// This provides significant speed reduction at max height to prevent tipping
+								speedScaleFactor = 1.0 - (0.7 * Math.min(1.0, (height - 0.92) / (1.65 - 0.92)));
+							}
+
+							// Apply scaling factor to all outputs
+							xOutput *= speedScaleFactor;
+							yOutput *= speedScaleFactor;
+							rotationOutput *= speedScaleFactor;
 
 							// Create field-relative speeds
 							ChassisSpeeds speeds =
@@ -399,6 +415,8 @@ public class DriveCommands {
 									rotController.atTarget(
 											currentPose.getRotation().getDegrees(),
 											targetPose.getRotation().getDegrees()));
+							Logger.recordOutput("ZonePose/SpeedScaleFactor", speedScaleFactor);
+							Logger.recordOutput("ZonePose/ElevatorHeight", height);
 						},
 						drive)
 				.until(
@@ -1024,8 +1042,8 @@ public class DriveCommands {
 							// Create field-relative speeds
 							ChassisSpeeds speeds =
 									ChassisSpeeds.fromFieldRelativeSpeeds(
-											driveVelocity.getX(),
-											driveVelocity.getY(),
+											-driveVelocity.getX(),
+											-driveVelocity.getY(),
 											headingVelocity,
 											drive.getRotation());
 
@@ -1070,11 +1088,11 @@ public class DriveCommands {
 						});
 	}
 
-	public static Command driveToClosestPosePathPlanner(
-			Drive drive, BooleanSupplier isRed){
-				Pose2d targetPose = findClosestPose(drive.getPose(), isRed.getAsBoolean(), new PoseAllignment());
-				return AutoBuilder.pathfindToPose(targetPose, PathConstraints.unlimitedConstraints(12.0));
-			}
+	public static Command driveToClosestPosePathPlanner(Drive drive, BooleanSupplier isRed) {
+		Pose2d targetPose =
+				findClosestPose(drive.getPose(), isRed.getAsBoolean(), new PoseAllignment());
+		return AutoBuilder.pathfindToPose(targetPose, PathConstraints.unlimitedConstraints(12.0));
+	}
 
 	private static Pose2d findClosestPose(
 			Pose2d currentPose, boolean isRedAlliance, PoseAllignment poseAlignment) {

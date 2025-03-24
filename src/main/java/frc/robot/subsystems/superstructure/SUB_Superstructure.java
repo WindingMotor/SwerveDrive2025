@@ -140,6 +140,7 @@ public class SUB_Superstructure extends SubsystemBase {
 								&& currentSuperstructureState != SuperstructureState.ALGAE_GROUND) {
 							CommandScheduler.getInstance()
 									.schedule(new CMD_Superstructure(this, SuperstructureState.CORAL_STATION));
+							localAutoAlignZone = getSource();
 						}
 						break;
 
@@ -250,6 +251,10 @@ public class SUB_Superstructure extends SubsystemBase {
 
 	private Pair<ZonePose, ZonePose> getBottomLeft() {
 		return Pair.of(ZonePose.REEF_BOTTOM_LEFT_BOTTOM, ZonePose.REEF_BOTTOM_LEFT_TOP);
+	}
+
+	private Pair<ZonePose, ZonePose> getSource() {
+		return Pair.of(ZonePose.SOURCE_LEFT, ZonePose.SOURCE_RIGHT);
 	}
 
 	public Command dynamicAlage() {
