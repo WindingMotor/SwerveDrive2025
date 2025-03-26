@@ -112,7 +112,7 @@ public class SUB_Climb extends SubsystemBase {
 				Commands.waitUntil(confirmDownButton),
 
 				// Go Down
-				goToPosition(5.8, motorSpeed));
+				goToPosition(6.1, motorSpeed)); // 5.8
 
 		// Climb mode LED ready
 		//	led.setClimbState(Pair.of(true, led.PUB_climbReady)),

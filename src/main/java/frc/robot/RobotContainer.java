@@ -198,7 +198,7 @@ public class RobotContainer {
 				"L3C", new CMD_Superstructure(superstructure, SuperstructureState.L3_CLEAR));
 
 		NamedCommands.registerCommand(
-				"L4", new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING));
+				"L4", new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING_AUTO));
 
 		NamedCommands.registerCommand(
 				"L4C", new CMD_Superstructure(superstructure, SuperstructureState.L4_CLEAR));
@@ -229,7 +229,7 @@ public class RobotContainer {
 		// L4 Quick
 		operatorController
 				.rightTrigger()
-				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING));
+				.onTrue(new CMD_Superstructure(superstructure, SuperstructureState.L4_SCORING_TELE));
 
 		// L3 Quick
 		operatorController

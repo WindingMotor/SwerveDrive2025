@@ -32,10 +32,10 @@ public class CMD_ElevatorCoral extends Command {
 			} else if (currentState == SuperstructureState.L2_SCORING) {
 				newState = SuperstructureState.L3_SCORING;
 			} else if (currentState == SuperstructureState.L3_SCORING) {
-				newState = SuperstructureState.L4_SCORING;
+				newState = SuperstructureState.L4_SCORING_TELE;
 			}
 		} else {
-			if (currentState == SuperstructureState.L4_SCORING) {
+			if (currentState == SuperstructureState.L4_SCORING_TELE) {
 				newState = SuperstructureState.L3_SCORING;
 			} else if (currentState == SuperstructureState.L3_SCORING) {
 				newState = SuperstructureState.L2_SCORING;
