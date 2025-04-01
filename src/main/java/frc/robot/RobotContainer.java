@@ -10,6 +10,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.reduxrobotics.canand.CanandEventLoop;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -40,7 +41,6 @@ import frc.robot.subsystems.superstructure.SUB_Superstructure;
 import frc.robot.subsystems.superstructure.SuperstructureState;
 import frc.robot.subsystems.vision.IO_VisionCamera;
 import frc.robot.subsystems.vision.SUB_Vision;
-import frc.robot.util.AlignmentCamera;
 
 @SuppressWarnings("unused")
 public class RobotContainer {
@@ -68,7 +68,7 @@ public class RobotContainer {
 
 	private Command autoCommand;
 
-	private AlignmentCamera alignmentCamera;
+	// private AlignmentCamera alignmentCamera;
 
 	// private Music orchestra;
 
@@ -90,8 +90,10 @@ public class RobotContainer {
 		// Create auto stuff
 		autoCommand = AutoBuilder.buildAuto(AUTO_NAME);
 
+		CameraServer.startAutomaticCapture();
+
 		// CameraServer.startAutomaticCapture();
-		alignmentCamera = new AlignmentCamera(0, "Driver CAM");
+		// alignmentCamera = new AlignmentCamera(0, "Driver CAM");
 	}
 
 	private void initializeControllers() {

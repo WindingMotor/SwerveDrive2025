@@ -15,9 +15,9 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"R_LOAD.x", "val":1.4025635719299316}, "y":{"exp":"R_LOAD.y", "val":0.7642897963523865}, "heading":{"exp":"R_LOAD.heading", "val":-2.2083451750618495}, "intervals":11, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"2.0441224575042725 m", "val":2.0441224575042725}, "y":{"exp":"1.443650722503662 m", "val":1.443650722503662}, "heading":{"exp":"-2.282255575370874 rad", "val":-2.282255575370874}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"2.8654086589813232 m", "val":2.8654086589813232}, "y":{"exp":"2.104978561401367 m", "val":2.104978561401367}, "heading":{"exp":"0.8536957899509972 rad", "val":0.8536957899509972}, "intervals":13, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"R_LOAD.x", "val":1.4025635719299316}, "y":{"exp":"R_LOAD.y", "val":0.7642897963523865}, "heading":{"exp":"R_LOAD.heading", "val":-2.2083451750618495}, "intervals":15, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"2.0441224575042725 m", "val":2.0441224575042725}, "y":{"exp":"1.443650722503662 m", "val":1.443650722503662}, "heading":{"exp":"-2.282255575370874 rad", "val":-2.282255575370874}, "intervals":28, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"2.8654086589813232 m", "val":2.8654086589813232}, "y":{"exp":"2.104978561401367 m", "val":2.104978561401367}, "heading":{"exp":"0.8536957899509972 rad", "val":0.8536957899509972}, "intervals":18, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"RCO_3.x", "val":3.693405151367187}, "y":{"exp":"RCO_3.y", "val":2.9778449535369873}, "heading":{"exp":"RCO_3.heading", "val":1.0394558369177966}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

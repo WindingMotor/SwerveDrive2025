@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.220642865834359,
-        "y": 5.926425124216511
+        "x": 5.920119863013699,
+        "y": 6.060980308219177
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 5.024208047945206
       },
       "prevControl": {
-        "x": 5.862950344604338,
-        "y": 5.693807820375565
+        "x": 5.409246575342466,
+        "y": 5.595184075342465
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,7 +32,7 @@
   "constraintZones": [
     {
       "name": "L4",
-      "minWaypointRelativePos": 0.7323529411764699,
+      "minWaypointRelativePos": 0.5058823529411766,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.0,
@@ -48,7 +48,7 @@
   "eventMarkers": [
     {
       "name": "L4",
-      "waypointRelativePos": 0.6470588235294115,
+      "waypointRelativePos": 0.5205882352941176,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
