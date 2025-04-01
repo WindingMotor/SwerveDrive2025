@@ -46,7 +46,7 @@ import frc.robot.subsystems.vision.SUB_Vision;
 public class RobotContainer {
 
 	// Current hard-coded auto
-	private static final String AUTO_NAME = "Right_3P";
+	public static final String AUTO_NAME = "Right_3P";
 
 	// Controller Configuration
 	private CommandXboxController driverController;
@@ -66,7 +66,7 @@ public class RobotContainer {
 
 	private SUB_Climb climb;
 
-	private Command autoCommand;
+	public static Command AUTO_COMMAND;
 
 	// private AlignmentCamera alignmentCamera;
 
@@ -88,7 +88,7 @@ public class RobotContainer {
 		SmartDashboard.putData("Alliance", isRedChooser);
 
 		// Create auto stuff
-		autoCommand = AutoBuilder.buildAuto(AUTO_NAME);
+		AUTO_COMMAND = AutoBuilder.buildAuto(AUTO_NAME);
 
 		CameraServer.startAutomaticCapture();
 
@@ -294,8 +294,8 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 
-		if (autoCommand != null) {
-			return autoCommand;
+		if (AUTO_COMMAND != null) {
+			return AUTO_COMMAND;
 		} else {
 			return new PrintCommand("Auto Command is NULL!");
 		}

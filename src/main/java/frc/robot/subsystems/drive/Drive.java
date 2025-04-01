@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -41,9 +42,11 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotContainer;
 import frc.robot.auto.LocalADStarAK;
 import frc.robot.auto.PoseAllignment;
 import frc.robot.constants.RobotConstants;
@@ -233,6 +236,23 @@ public class Drive extends SubsystemBase {
 		updateCameraPositions();
 
 		closestTagData = getClosestAprilTagID();
+
+		// Log alignment data for dashboard to smart dashboard
+		Pose2d currentPose = getPose();
+		SmartDashboard.putNumber("CurrentX", currentPose.getX());
+		SmartDashboard.putNumber("CurrentY", currentPose.getY());
+		SmartDashboard.putNumber("CurrentRotation", currentPose.getRotation().getDegrees());
+
+		if (RobotContainer.AUTO_NAME != null) {
+			PathPlannerAuto autoRef = new PathPlannerAuto(RobotContainer.AUTO_NAME);
+			Pose2d targetStartingPose = autoRef.getStartingPose();
+			SmartDashboard.putNumber("TargetX", targetStartingPose.getX());
+			SmartDashboard.putNumber("TargetY", targetStartingPose.getY());
+			SmartDashboard.putNumber("TargetRotation", targetStartingPose.getRotation().getDegrees());
+		}
+
+		// Log if we are are disabled
+		SmartDashboard.putBoolean("Disabled", DriverStation.isDisabled());
 	}
 
 	/**

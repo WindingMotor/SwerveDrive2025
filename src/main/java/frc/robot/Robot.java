@@ -11,7 +11,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Watchdog;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.BuildConstants;
@@ -26,6 +28,11 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
 	private static final double loopOverrunWarningTimeout = 0.2;
+	private static final double TELEOP_DURATION = 135; // 135.0; // 2 minutes and 15 seconds
+
+	private double teleopStartTime = 0.0;
+	private boolean isTeleopActive = false;
+	private double currentMatchTime = 0.0;
 
 	private Command m_autonomousCommand;
 
@@ -118,10 +125,24 @@ public class Robot extends LoggedRobot {
 	@Override
 	public void robotPeriodic() {
 		CommandScheduler.getInstance().run();
+
+		// Update match time if teleop is active
+		if (DriverStation.isTeleopEnabled()) {
+			double elapsed = Timer.getFPGATimestamp() - teleopStartTime;
+			currentMatchTime = Math.max(0, TELEOP_DURATION - elapsed);
+		}
+
+		SmartDashboard.putNumber("MatchTime", getMatchTime());
+		// Log if it is teleop
+		SmartDashboard.putBoolean("IsTeleop", DriverStation.isTeleopEnabled());
 	}
 
 	@Override
-	public void disabledInit() {}
+	public void disabledInit() {
+		// Reset teleop tracking when disabled
+		isTeleopActive = false;
+		currentMatchTime = 0.0;
+	}
 
 	@Override
 	public void disabledPeriodic() {}
@@ -136,6 +157,10 @@ public class Robot extends LoggedRobot {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.schedule();
 		}
+
+		// Reset teleop tracking during autonomous
+		isTeleopActive = false;
+		currentMatchTime = 0.0;
 	}
 
 	@Override
@@ -149,17 +174,25 @@ public class Robot extends LoggedRobot {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
 		}
+
+		// Initialize teleop timing
+		teleopStartTime = Timer.getFPGATimestamp();
+		isTeleopActive = true;
+		currentMatchTime = TELEOP_DURATION;
 	}
 
 	@Override
 	public void teleopPeriodic() {}
 
 	@Override
-	public void teleopExit() {}
+	public void teleopExit() {
+		// Reset teleop tracking when exiting teleop
+		isTeleopActive = false;
+		currentMatchTime = 0.0;
+	}
 
 	@Override
 	public void testInit() {
-
 		CommandScheduler.getInstance().cancelAll();
 	}
 
@@ -168,4 +201,13 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void testExit() {}
+
+	/**
+	 * Get the current match time. During teleop, this will count down from 135 seconds.
+	 *
+	 * @return The current match time in seconds (rounded to an integer)
+	 */
+	public int getMatchTime() {
+		return (int) currentMatchTime;
+	}
 }
