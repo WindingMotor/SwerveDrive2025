@@ -55,7 +55,7 @@ public class SuperstructureState {
 	public static final State CLIMB = createState("CLIMB", 0.0, 90, 0.0);
 
 	// Coral statesom
-	public static final State CORAL_STATION = createState("CORAL_STATION", 0.26, 32, 0.5);
+	public static final State CORAL_STATION = createState("CORAL_STATION", 0.26, 32, 0.7);
 	public static final State L1_SCORING = createState("L1_SCORING", 0.05, 57, 0.0);
 	public static final State L2_SCORING = createState("L2_SCORING", 0.52, 120, 0.0); // .052
 	public static final State L3_SCORING = createState("L3_SCORING", 0.92, 120, 0.0); // .935

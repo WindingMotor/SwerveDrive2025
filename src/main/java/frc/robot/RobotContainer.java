@@ -46,7 +46,7 @@ import frc.robot.subsystems.vision.SUB_Vision;
 public class RobotContainer {
 
 	// Current hard-coded auto
-	public static final String AUTO_NAME = "Right_3P";
+	public static final String AUTO_NAME = "Left_3P";
 
 	// Controller Configuration
 	private CommandXboxController driverController;

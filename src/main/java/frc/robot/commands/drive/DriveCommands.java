@@ -871,6 +871,7 @@ public class DriveCommands {
 				return ZoneAngle.REEF_TOP_RIGHT;
 
 			case 3:
+			case 16:
 				return ZoneAngle.PROCESSOR;
 
 			default:
