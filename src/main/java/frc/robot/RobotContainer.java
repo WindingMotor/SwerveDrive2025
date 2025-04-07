@@ -267,7 +267,7 @@ public class RobotContainer {
 						DriveCommands.driveAlign(
 								drive,
 								() -> SUB_Superstructure.globalFirstPose,
-								() -> isRedChooser.getSelected(),
+								// () -> isRedChooser.getSelected(),
 								driverController,
 								elevator.getHeight()));
 
@@ -278,7 +278,7 @@ public class RobotContainer {
 						DriveCommands.driveAlign(
 								drive,
 								() -> SUB_Superstructure.globalSecondPose,
-								() -> isRedChooser.getSelected(),
+								// () -> isRedChooser.getSelected(),
 								driverController,
 								elevator.getHeight()));
 

@@ -343,20 +343,47 @@ public class DriveCommands {
 	public static Command driveAlign(
 			Drive drive,
 			Supplier<ZonePose> zonePose,
-			Supplier<Boolean> isRed,
+			// Supplier<Boolean> isRed,
 			CommandXboxController driverController,
 			DoubleSupplier elevatorHeightMeters) {
 
 		// Create ExpDecayFF controllers for x, y and rotation
-		ExpDecayFF xController = new ExpDecayFF(200.0, 1.5, 0.045);
-		ExpDecayFF yController = new ExpDecayFF(200.0, 1.5, 0.045);
+		ExpDecayFF xController = new ExpDecayFF(200.0, 1.5, 0.048);
+		ExpDecayFF yController = new ExpDecayFF(200.0, 1.5, 0.048);
 		ExpDecayFF rotController = new ExpDecayFF(6, 1.0, 1.0);
 
 		return Commands.run(
 						() -> {
 
+							// Check if isRed is null, if the field is stupid....
+							/*
+							if (isRed == null) {
+								// Logger.recordMetadata("Auto Align NULL Trip", "TRUE");
+								DriverStation.reportError("Auto Align Null", true);
+								return;
+							}*/
+
+							var alli = DriverStation.getAlliance();
+
+							if (!alli.isPresent()) {
+								return;
+							}
+
+							boolean isRed = false;
+
+							if (alli.get() == Alliance.Red) {
+								isRed = true;
+
+							} else if (alli.get() == Alliance.Blue) {
+								isRed = false;
+
+							} else {
+								// Return if the alli does not exist. Ends the CMD
+								return;
+							}
+
 							// Zone Pose Get
-							Optional<Pose2d> adjustedPose = zonePose.get().getPoseForAlliance(isRed.get());
+							Optional<Pose2d> adjustedPose = zonePose.get().getPoseForAlliance(isRed);
 							if (adjustedPose.isEmpty()) {
 								return;
 							}
@@ -425,7 +452,26 @@ public class DriveCommands {
 								return true;
 							}
 
-							Optional<Pose2d> adjustedPose = zonePose.get().getPoseForAlliance(isRed.get());
+							var alli = DriverStation.getAlliance();
+
+							if (!alli.isPresent()) {
+								return true;
+							}
+
+							boolean isRed = false;
+
+							if (alli.get() == Alliance.Red) {
+								isRed = true;
+
+							} else if (alli.get() == Alliance.Blue) {
+								isRed = false;
+
+							} else {
+								// Return if the alli does not exist. Ends the CMD
+								return true;
+							}
+
+							Optional<Pose2d> adjustedPose = zonePose.get().getPoseForAlliance(isRed);
 							if (adjustedPose.isEmpty()) {
 								return true;
 							}
