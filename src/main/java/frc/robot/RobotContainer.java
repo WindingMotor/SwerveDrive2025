@@ -46,7 +46,7 @@ import frc.robot.subsystems.vision.SUB_Vision;
 public class RobotContainer {
 
 	// Current hard-coded auto
-	public static final String AUTO_NAME = "Left_3P";
+	public static final String AUTO_NAME = "Alage_Left";
 
 	// Controller Configuration
 	private CommandXboxController driverController;
@@ -209,6 +209,19 @@ public class RobotContainer {
 
 		NamedCommands.registerCommand(
 				"Idle", new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
+
+		NamedCommands.registerCommand(
+				"ALGAE_L2", new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_L2));
+
+		NamedCommands.registerCommand(
+				"ALGAE_L3", new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_L3));
+
+		NamedCommands.registerCommand(
+				"ALGAE_BARGE", new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_BARGE));
+
+		NamedCommands.registerCommand(
+				"ALGAE_PROCESSOR",
+				new CMD_Superstructure(superstructure, SuperstructureState.ALGAE_PROCESSOR));
 	}
 
 	private void configureButtonBindings() {

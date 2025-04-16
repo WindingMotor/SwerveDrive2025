@@ -1,0 +1,85 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "AlageRight_1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.12
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Eject"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Idle"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.3
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ALGAE_L2"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.15
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "AlageRight_2"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Eject"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Barge",
+  "choreoAuto": false
+}

@@ -1,0 +1,98 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.801891447368421,
+        "y": 3.899917763157895
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.139309210526315,
+        "y": 3.8902960526315784
+      },
+      "isLocked": false,
+      "linkedName": "BargeRight_1E"
+    },
+    {
+      "anchor": {
+        "x": 5.995248287671233,
+        "y": 0.5916309931506851
+      },
+      "prevControl": {
+        "x": 5.995248287671233,
+        "y": 2.246565203677001
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.21276595744680812,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "PROCESSOR",
+      "minWaypointRelativePos": 0.8294117647058823,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 1000.0,
+        "maxAngularAcceleration": 1500.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "LEAVE",
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 0.4029411764705885,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 1000.0,
+        "maxAngularAcceleration": 1500.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "ALGAE_PROCESSOR",
+      "waypointRelativePos": 0.8690095846645379,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ALGAE_PROCESSOR"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.85,
+    "maxAcceleration": 5.6,
+    "maxAngularVelocity": 1000.0,
+    "maxAngularAcceleration": 1500.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Alage",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

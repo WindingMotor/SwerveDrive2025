@@ -1,0 +1,85 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.801891447368421,
+        "y": 3.899917763157895
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.778560967916367,
+        "y": 3.854840708363374
+      },
+      "isLocked": false,
+      "linkedName": "BargeRight_1E"
+    },
+    {
+      "anchor": {
+        "x": 7.618022260273973,
+        "y": 5.414875856164383
+      },
+      "prevControl": {
+        "x": 6.659168879015618,
+        "y": 4.812148895705523
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "AlageLeft_2E"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.19809069212410552,
+      "rotationDegrees": 179.5649823612455
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.6411764705882358,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 0.5,
+        "maxAcceleration": 0.5,
+        "maxAngularVelocity": 1000.0,
+        "maxAngularAcceleration": 1500.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "ALGAE_BARGE",
+      "waypointRelativePos": 0.6794117647058822,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ALGAE_BARGE"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 2.0,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 1000.0,
+    "maxAngularAcceleration": 1500.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 21.571307191254586
+  },
+  "reversed": false,
+  "folder": "Alage",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": false
+}
