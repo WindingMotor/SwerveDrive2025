@@ -104,15 +104,14 @@ public class SUB_Climb extends SubsystemBase {
 		return Commands.sequence(
 
 				// Go Out
-
 				new CMD_Superstructure(superstructure, SuperstructureState.CLIMB),
 				goToPosition(3.42, motorSpeed),
 
-				// WAIT
+				// Wait
 				Commands.waitUntil(confirmDownButton),
 
 				// Go Down
-				goToPosition(-7.1, motorSpeed)); // 5.8
+				goToPosition(-6.5, motorSpeed)); // -7.1
 
 		// Climb mode LED ready
 		//	led.setClimbState(Pair.of(true, led.PUB_climbReady)),

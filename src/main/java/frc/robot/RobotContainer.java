@@ -11,6 +11,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.reduxrobotics.canand.CanandEventLoop;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -46,7 +47,7 @@ import frc.robot.subsystems.vision.SUB_Vision;
 public class RobotContainer {
 
 	// Current hard-coded auto
-	public static final String AUTO_NAME = "Alage_Left";
+	public static final String AUTO_NAME = "Right_3P";
 
 	// Controller Configuration
 	private CommandXboxController driverController;
@@ -282,7 +283,10 @@ public class RobotContainer {
 								() -> SUB_Superstructure.globalFirstPose,
 								// () -> isRedChooser.getSelected(),
 								driverController,
-								elevator.getHeight()));
+								elevator.getHeight()))
+				.debounce(.1, DebounceType.kBoth);
+
+		// --- // ---
 
 		// Second Auto Align
 		driverController
@@ -293,7 +297,8 @@ public class RobotContainer {
 								() -> SUB_Superstructure.globalSecondPose,
 								// () -> isRedChooser.getSelected(),
 								driverController,
-								elevator.getHeight()));
+								elevator.getHeight()))
+				.debounce(.1, DebounceType.kBoth);
 
 		// Climb Automatic
 		operatorController

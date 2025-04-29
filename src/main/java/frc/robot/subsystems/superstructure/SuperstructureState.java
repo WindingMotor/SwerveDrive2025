@@ -60,8 +60,9 @@ public class SuperstructureState {
 	public static final State L2_SCORING = createState("L2_SCORING", 0.52, 120, 0.0); // .052
 	public static final State L3_SCORING = createState("L3_SCORING", 0.92, 120, 0.0); // .935
 
-	public static final State L4_SCORING_AUTO = createState("L4_SCORING_AUTO", 1.642, 136, 0.0);
-	public static final State L4_SCORING_TELE = createState("L4_SCORING_TELE", 1.65, 140, 0.0);
+	public static final State L4_SCORING_AUTO =
+			createState("L4_SCORING_AUTO", 1.642, 136, 0.0); // 1.642 -> 1.63
+	public static final State L4_SCORING_TELE = createState("L4_SCORING_TELE", 1.66, 140, 0.0); // 1.6
 
 	// Auto Clearing Presets
 	public static final State L2_CLEAR = createState("L2_CLEAR", 0.52, 35, 0.0);
